@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal - ระบบสารสนเทศผลการเรียน</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --bg-left:#d78edc;
+      --bg-right:#a8d8ea;
+      --card:#f3e8f7;
+      --card-2:#eef2f7;
+      --card-white:#ffffff;
+      --text:#19324a;
+      --muted:#6f7f92;
+      --line:#d8e3ef;
+      --line-strong:#c6d6e6;
+
+      --blue:#2f6de0;
+      --blue-2:#43b7e8;
+      --blue-soft:#eaf4ff;
+      --blue-soft-2:#f5faff;
+
+      --green:#15803d;
+      --green-line:#bbf7d0;
+      --red:#b91c1c;
+      --red-line:#fecaca;
+      --amber:#b45309;
+      --amber-line:#fed7aa;
+
+      --shadow:0 16px 38px rgba(15,23,42,.10);
+      --shadow-soft:0 10px 24px rgba(37,99,235,.10);
+
+      --radius-xl:28px;
+      --radius-lg:22px;
+      --radius-md:18px;
+      --radius-sm:14px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:'Kanit',sans-serif;
+      color:var(--text);
+      background:linear-gradient(90deg, var(--bg-left) 0%, #cba6e2 26%, #b8b1ea 52%, var(--bg-right) 100%);
+      min-height:100vh;
+    }
+
+    body{
+      padding:18px;
+    }
+
+    .app{
+      width:min(1300px, 100%);
+      margin:0 auto;
+    }
+
+    .hidden{ display:none !important; }
+
+    .card{
+      background:rgba(255,255,255,.45);
+      backdrop-filter:blur(4px);
+      border:1px solid rgba(255,255,255,.35);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow);
+    }
+
+    .btn{
+      appearance:none;
+      border:none;
+      outline:none;
+      cursor:pointer;
+      font-family:'Kanit',sans-serif;
+      font-size:15px;
+      font-weight:700;
+      border-radius:16px;
+      padding:12px 18px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:.18s ease;
+      text-decoration:none;
+    }
+
+    .btn:hover{ transform:translateY(-1px); }
+
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none !important;
+      box-shadow:none !important;
+    }
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg, var(--blue), var(--blue-2));
+      box-shadow:0 10px 22px rgba(47,109,224,.22);
+    }
+
+    .btn-outline{
+      color:#1f3a5f;
+      background:#fff;
+      border:1px solid var(--line);
+    }
+
+    .btn-soft{
+      color:#1f3a5f;
+      background:#f8fbff;
+      border:1px solid var(--line);
+    }
+
+    .btn-danger{
+      color:#d94841;
+      background:#fff3f1;
+      border:1px solid #f2beb7;
+    }
+
+    .top-shell{
+      padding:0;
+      margin-bottom:14px;
+      background:transparent;
+      border-radius:30px;
+    }
+
+    .hero-banner{
+      background:linear-gradient(90deg, #2d67dc 0%, #367ce1 45%, #39afe4 100%);
+      color:#fff;
+      border-radius:30px;
+      padding:26px 28px;
+      display:flex;
+      align-items:stretch;
+      justify-content:space-between;
+      gap:18px;
+      box-shadow:0 16px 36px rgba(47,109,224,.24);
+    }
+
+    .hero-left{
+      min-width:0;
+      flex:1 1 auto;
+    }
+
+    .hero-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.22);
+      background:rgba(255,255,255,.10);
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:14px;
+    }
+
+    .hero-title{
+      margin:0;
+      font-size:34px;
+      line-height:1.15;
+      font-weight:800;
+      letter-spacing:-.2px;
+    }
+
+    .hero-subtitle{
+      margin:10px 0 0;
+      font-size:17px;
+      line-height:1.5;
+      font-weight:600;
+      opacity:.98;
+    }
+
+    .hero-box{
+      width:260px;
+      flex:0 0 260px;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.09);
+      padding:18px 20px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    .hero-box-label{
+      font-size:15px;
+      font-weight:700;
+      opacity:.9;
+      margin-bottom:4px;
+    }
+
+    .hero-box-value{
+      font-size:20px;
+      font-weight:800;
+      line-height:1.35;
+    }
+
+    .login-wrap{
+      display:grid;
+      grid-template-columns:1fr 1.35fr;
+      gap:18px;
+      margin-top:16px;
+    }
+
+    .login-card,
+    .info-card{
+      padding:24px;
+      background:rgba(244,234,247,.90);
+      border-radius:28px;
+      border:1px solid rgba(255,255,255,.35);
+      box-shadow:var(--shadow);
+    }
+
+    .section-head-inline{
+      display:flex;
+      align-items:flex-start;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .icon-badge{
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      background:linear-gradient(135deg, #dbeafe, #eff6ff);
+      display:grid;
+      place-items:center;
+      font-size:26px;
+      flex:0 0 auto;
+    }
+
+    .mini-label{
+      margin:2px 0 2px;
+      font-size:12px;
+      color:#5967f2;
+      letter-spacing:.6px;
+      font-weight:800;
+      text-transform:uppercase;
+    }
+
+    .section-title{
+      margin:0;
+      font-size:23px;
+      line-height:1.25;
+      font-weight:800;
+      color:#1a3150;
+    }
+
+    .section-subtitle{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .field{
+      margin-bottom:14px;
+    }
+
+    .field label{
+      display:block;
+      margin-bottom:7px;
+      font-size:14px;
+      font-weight:700;
+      color:#274463;
+    }
+
+    .input-wrap{
+      position:relative;
+    }
+
+    .input-wrap input{
+      width:100%;
+      border:1px solid #cddaea;
+      background:#fff;
+      border-radius:17px;
+      padding:14px 46px 14px 44px;
+      font-family:'Kanit',sans-serif;
+      font-size:16px;
+      outline:none;
+      color:#18324a;
+      transition:.18s ease;
+    }
+
+    .input-wrap input:focus{
+      border-color:#8ebcf9;
+      box-shadow:0 0 0 4px rgba(59,130,246,.10);
+    }
+
+    .input-icon,
+    .input-tail{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      color:#5c6f84;
+      font-size:16px;
+      pointer-events:none;
+    }
+
+    .input-icon{ left:16px; }
+    .input-tail{ right:16px; }
+
+    .login-btn{
+      width:100%;
+      margin-top:4px;
+      font-size:17px;
+      border-radius:18px;
+      padding:14px 18px;
+    }
+
+    .status-box{
+      min-height:22px;
+      margin-top:12px;
+      font-size:14px;
+      font-weight:600;
+    }
+
+    .status-error{ color:#b91c1c; }
+    .status-ok{ color:#15803d; }
+
+    .login-note{
+      margin-top:16px;
+      padding:14px 16px;
+      background:#eef3f7;
+      border:1px solid #d8e2ec;
+      border-radius:18px;
+      font-size:14px;
+      color:#53677b;
+      line-height:1.7;
+    }
+
+    .announce-box{
+      margin-top:16px;
+      background:#f6f7f9;
+      border:1px solid #d8e0ea;
+      border-radius:22px;
+      padding:18px 18px 20px;
+    }
+
+    .announce-topic{
+      margin:0 0 10px;
+      font-size:16px;
+      font-weight:800;
+      color:#2c67f0;
+    }
+
+    .announce-box p{
+      margin:0 0 8px;
+      font-size:14px;
+      line-height:1.8;
+      color:#344a60;
+    }
+
+    .portal-top{
+      display:grid;
+      gap:14px;
+    }
+
+    .user-strip{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:20px 24px;
+      background:rgba(244,234,247,.90);
+    }
+
+    .user-strip-left{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .user-avatar{
+      width:56px;
+      height:56px;
+      border-radius:18px;
+      background:linear-gradient(135deg, #dbeafe, #eff6ff);
+      display:grid;
+      place-items:center;
+      font-size:28px;
+      flex:0 0 auto;
+    }
+
+    .user-title{
+      margin:0;
+      font-size:19px;
+      font-weight:800;
+      color:#1a3150;
+      line-height:1.3;
+    }
+
+    .user-subtitle{
+      margin:4px 0 0;
+      font-size:14px;
+      color:#607387;
+    }
+
+    .user-strip-right{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .user-code-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 16px;
+      min-height:42px;
+      border-radius:16px;
+      background:#f5f6f8;
+      border:1px solid #d7e0ea;
+      font-size:14px;
+      font-weight:800;
+      color:#1b2f49;
+    }
+
+    .menu-bar{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:14px 16px;
+      background:#eef1f5;
+      margin-bottom:14px;
+    }
+
+    .menu-btn{
+      padding:12px 18px;
+      border-radius:16px;
+      font-size:15px;
+      font-weight:700;
+      background:#f7f8fb;
+      color:#1f3a5f;
+      border:1px solid #e0e6ee;
+    }
+
+    .menu-btn.active{
+      color:#fff;
+      background:linear-gradient(135deg, var(--blue), var(--blue-2));
+      border-color:transparent;
+      box-shadow:0 10px 22px rgba(47,109,224,.20);
+    }
+
+    .page-grid{
+      display:grid;
+      grid-template-columns:.9fr 1.25fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .welcome-panel,
+    .news-panel,
+    .table-card,
+    .summary-card,
+    .action-card,
+    .status-card{
+      overflow:hidden;
+    }
+
+    .welcome-panel{
+      padding:26px 22px;
+      background:rgba(244,234,247,.90);
+      text-align:center;
+      min-height:100%;
+    }
+
+    .welcome-icon{
+      width:84px;
+      height:84px;
+      border-radius:24px;
+      margin:0 auto 16px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, #2f6de0, #43b7e8);
+      color:#fff;
+      font-size:42px;
+      box-shadow:0 14px 28px rgba(47,109,224,.18);
+    }
+
+    .welcome-mini{
+      margin:0 0 8px;
+      font-size:13px;
+      font-weight:800;
+      color:#6d7cf5;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+    }
+
+    .welcome-heading{
+      margin:0;
+      font-size:22px;
+      font-weight:800;
+      color:#19324a;
+      line-height:1.45;
+    }
+
+    .welcome-name{
+      display:inline-flex;
+      margin-top:18px;
+      padding:10px 18px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #d7e0ea;
+      font-size:15px;
+      font-weight:800;
+      color:#1b2f49;
+    }
+
+    .welcome-desc{
+      margin:16px 0 0;
+      font-size:14px;
+      line-height:1.8;
+      color:#607387;
+    }
+
+    .box-head{
+      display:flex;
+      align-items:flex-start;
+      gap:14px;
+      padding:22px 22px 14px;
+      border-bottom:1px solid #dde6f0;
+      background:#eef1f5;
+    }
+
+    .box-head-icon{
+      width:56px;
+      height:56px;
+      border-radius:18px;
+      background:linear-gradient(135deg, #dbeafe, #eff6ff);
+      display:grid;
+      place-items:center;
+      font-size:26px;
+      flex:0 0 auto;
+    }
+
+    .box-title{
+      margin:0;
+      font-size:22px;
+      line-height:1.3;
+      font-weight:800;
+      color:#1a3150;
+    }
+
+    .box-subtitle{
+      margin:6px 0 0;
+      color:#637689;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .box-body{
+      padding:18px 22px 22px;
+      min-height:300px;
+    }
+
+    .news-body-card{
+      border:1px solid #d8e0ea;
+      background:#f6f7f9;
+      border-radius:24px;
+      padding:18px 18px 20px;
+    }
+
+    .news-title{
+      margin:0 0 10px;
+      font-size:16px;
+      font-weight:800;
+      color:#2c67f0;
+    }
+
+    .news-body-card p{
+      margin:0 0 8px;
+      font-size:14px;
+      line-height:1.8;
+      color:#344a60;
+    }
+
+    .student-head{
+      padding:22px;
+      background:rgba(244,234,247,.90);
+    }
+
+    .student-top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .student-title{
+      margin:0;
+      font-size:24px;
+      font-weight:800;
+      color:#123456;
+    }
+
+    .student-subtitle{
+      margin:6px 0 0;
+      color:#6f7f92;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .student-meta{
+      display:grid;
+      grid-template-columns:1fr 2fr 1fr 1fr 1fr ;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .meta-item{
+      border:1px solid #d8e2ec;
+      background:#f8fbff;
+      border-radius:18px;
+      padding:14px 16px;
+      min-height:86px;
+    }
+
+    .meta-label{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:6px;
+    }
+
+    .meta-value{
+      color:#17324a;
+      font-size:18px;
+      font-weight:700;
+      line-height:1.35;
+      word-break:break-word;
+    }
+
+    .table-card,
+    .summary-card,
+    .action-card,
+    .status-card{
+      background:rgba(244,234,247,.90);
+    }
+
+    .table-head,
+    .summary-head,
+    .action-head,
+    .status-head{
+      padding:18px 20px;
+      border-bottom:1px solid #dde6f0;
+      background:#eef1f5;
+    }
+
+    .table-head h3,
+    .summary-title,
+    .action-title,
+    .status-title{
+      margin:0;
+      font-size:21px;
+      color:#123456;
+      font-weight:800;
+    }
+
+    .table-head p,
+    .summary-subtitle,
+    .action-subtitle,
+    .status-subtitle{
+      margin:4px 0 0;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .table-pad,
+    .summary-table-wrap{
+      padding:16px;
+    }
+
+    .table-wrap{
+      width:100%;
+      overflow:auto;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      min-width:1260px;
+      border-collapse:separate;
+      border-spacing:0;
+      font-size:14px;
+    }
+
+    thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#edf5fd;
+      color:#17324a;
+      border-bottom:1px solid var(--line-strong);
+      border-right:1px solid var(--line);
+      padding:13px 10px;
+      text-align:center;
+      font-weight:800;
+      line-height:1.35;
+      white-space:nowrap;
+    }
+
+    thead tr.group th{
+      background:#e2eefb;
+      font-size:14px;
+    }
+
+    tbody td{
+      border-bottom:1px solid #edf2f7;
+      border-right:1px solid #eef3f8;
+      padding:12px 10px;
+      vertical-align:middle;
+      background:#fff;
+      color:#17324a;
+      line-height:1.45;
+    }
+
+    tbody tr:hover td{
+      background:#fbfdff;
+    }
+
+    .center{ text-align:center; }
+    .left{ text-align:left; }
+
+    .subject-name{
+      min-width:280px;
+      font-weight:600;
+    }
+
+    .teacher-name{
+      min-width:220px;
+      font-weight:500;
+    }
+
+    .type-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:82px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+      border:1px solid transparent;
+    }
+
+    .type-basic{
+      background:#eff6ff;
+      color:#1d4ed8;
+      border-color:#cfe0ff;
+    }
+
+    .type-additional{
+      background:#fff7ed;
+      color:#b45309;
+      border-color:#fed7aa;
+    }
+
+    .type-activity,
+    .type-other{
+      background:#f3f4f6;
+      color:#374151;
+      border-color:#e5e7eb;
+    }
+
+    .score-badge{
+      display:inline-flex;
+      min-width:44px;
+      justify-content:center;
+      padding:5px 8px;
+      border-radius:10px;
+      background:#f8fbff;
+      border:1px solid #e5eef7;
+      font-weight:600;
+    }
+
+    .grade-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:74px;
+      padding:7px 14px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#f8fbff;
+      color:#17324a;
+      font-family:'Sarabun',sans-serif;
+      font-size:16px;
+      font-weight:700;
+      line-height:1;
+      letter-spacing:.2px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.65);
+    }
+
+    .grade-pill.pass{
+      background:linear-gradient(180deg, #f0fdf4, #dcfce7);
+      color:#166534;
+      border-color:var(--green-line);
+    }
+
+    .grade-pill.fail{
+      background:linear-gradient(180deg, #fff1f2, #fee2e2);
+      color:var(--red);
+      border-color:var(--red-line);
+    }
+
+    .grade-pill.neutral{
+      background:linear-gradient(180deg, #f8fafc, #f1f5f9);
+      color:#334155;
+      border-color:#dbe7f3;
+    }
+
+    .panel-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+
+    .summary-table{
+      min-width:550px;
+      font-size:14px;
+    }
+
+    .summary-table .label-cell{
+      min-width:150px;
+      font-weight:500;
+    }
+
+    .summary-table .value-cell{
+      width:110px;
+      text-align:center;
+      font-weight:700;
+    }
+
+    .action-body,
+    .status-body{
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .action-intro,
+    .status-intro{
+      padding:14px 16px;
+      border:1px solid #d9e8ff;
+      border-radius:16px;
+      background:linear-gradient(180deg, #f8fbff, #f5faff);
+      color:#466178;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .action-menu{
+      display:grid;
+      gap:12px;
+    }
+
+    .action-btn{
+      width:100%;
+      justify-content:flex-start;
+      padding:15px 16px;
+      border-radius:16px;
+      font-size:15px;
+    }
+
+    .action-btn[disabled]{
+      background:linear-gradient(180deg, #e5e7eb, #dfe4ea) !important;
+      color:#7b8794 !important;
+      border-color:#d7dee8 !important;
+    }
+
+    .action-note,
+    .status-note{
+      padding:13px 15px;
+      border-radius:14px;
+      background:#fff8eb;
+      border:1px solid #fde2b7;
+      color:#9a5a00;
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .action-note.ok{
+      background:#f0fdf4;
+      border-color:#bbf7d0;
+      color:#166534;
+    }
+
+    .action-note.warn{
+      background:#fff8eb;
+      border-color:#fde2b7;
+      color:#9a5a00;
+    }
+
+    .status-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .status-item{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      background:linear-gradient(180deg, #ffffff, #f9fbff);
+      display:grid;
+      gap:10px;
+    }
+
+    .status-item-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .status-item-title{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      color:#123456;
+      line-height:1.35;
+    }
+
+    .status-item-sub{
+      margin:5px 0 0;
+      font-size:13px;
+      color:#6b7b8b;
+      line-height:1.5;
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:120px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+
+    .status-badge.pending{
+      background:#fff7ed;
+      color:#b45309;
+      border-color:#fed7aa;
+    }
+
+    .status-badge.approved{
+      background:#effcf3;
+      color:#15803d;
+      border-color:#bbf7d0;
+    }
+
+    .status-badge.rejected{
+      background:#fef2f2;
+      color:#b91c1c;
+      border-color:#fecaca;
+    }
+
+    .status-meta-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(110px, 1fr));
+      gap:10px;
+    }
+
+    .status-meta{
+      border:1px solid #e4edf6;
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+    }
+
+    .status-meta-label{
+      font-size:12px;
+      color:#708091;
+      margin-bottom:4px;
+    }
+
+    .status-meta-value{
+      font-size:14px;
+      font-weight:700;
+      color:#17324a;
+      line-height:1.4;
+    }
+
+    .empty-state{
+      padding:40px 22px 46px;
+      text-align:center;
+      color:var(--muted);
+      font-size:16px;
+    }
+
+    .loading-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.26);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:18px;
+      backdrop-filter:blur(3px);
+    }
+
+    .loading-overlay.show{
+      display:flex;
+    }
+
+    .loading-card{
+      width:min(380px, 100%);
+      background:#fff;
+      border-radius:24px;
+      padding:28px 24px;
+      box-shadow:0 24px 50px rgba(0,0,0,.16);
+      text-align:center;
+    }
+
+    .spinner{
+      width:58px;
+      height:58px;
+      margin:0 auto 15px;
+      border-radius:50%;
+      border:5px solid #dbeafe;
+      border-top-color:#2563eb;
+      animation:spin .9s linear infinite;
+    }
+
+    @keyframes spin{
+      to{ transform:rotate(360deg); }
+    }
+
+    @media (max-width:1180px){
+      .login-wrap,
+      .page-grid,
+      .panel-grid{
+        grid-template-columns:1fr;
+      }
+
+      .hero-banner{
+        flex-direction:column;
+      }
+
+      .hero-box{
+        width:100%;
+        flex:auto;
+      }
+    }
+
+    @media (max-width:820px){
+      .user-strip{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .student-meta,
+      .status-meta-grid{
+        grid-template-columns:1fr 1fr;
+      }
+    }
+
+    @media (max-width:620px){
+      body{ padding:10px; }
+
+      .app{ width:100%; }
+
+      .hero-title{ font-size:28px; }
+
+      .welcome-heading,
+      .section-title,
+      .box-title,
+      .student-title{
+        font-size:20px;
+      }
+
+      .student-meta,
+      .status-meta-grid{
+        grid-template-columns:1fr;
+      }
+
+      .menu-bar{
+        flex-direction:column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top-shell">
+      <div class="hero-banner">
+        <div class="hero-left">
+          <div class="hero-chip">🏫 โรงเรียนท่าใหม่ “พูลสวัสดิ์ราษฎร์นุกูล”</div>
+          <h1 class="hero-title">ระบบสารสนเทศผลการเรียน</h1>
+          <p class="hero-subtitle">ระบบสำหรับนักเรียน ใช้ตรวจสอบผลการเรียน ข่าวประชาสัมพันธ์ และสถานะการสอบแก้ตัว</p>
+        </div>
+
+        <div class="hero-box">
+          <div class="hero-box-label">ฝ่ายบริการ</div>
+          <div class="hero-box-value">งานทะเบียน-วัดผล</div>
+        </div>
+      </div>
+    </div>
+
+    <section id="loginSection">
+      <div class="login-wrap">
+        <div class="login-card">
+          <div class="section-head-inline">
+            <div class="icon-badge">👥</div>
+            <div>
+              <div class="mini-label">LOGIN</div>
+              <h2 class="section-title">เข้าสู่ระบบนักเรียน</h2>
+            </div>
+          </div>
+
+          <form id="loginForm" autocomplete="off">
+            <div class="field">
+              <label for="studentCode">ชื่อผู้ใช้</label>
+              <div class="input-wrap">
+                <span class="input-icon">👤</span>
+                <input id="studentCode" name="studentCode" type="text" placeholder="เช่น 25129" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="password">รหัสผ่าน</label>
+              <div class="input-wrap">
+                <span class="input-icon">🔐</span>
+                <input id="password" name="password" type="password" placeholder="กรอกรหัสผ่าน" />
+                <span class="input-tail">👁️</span>
+              </div>
+            </div>
+
+            <button id="loginBtn" class="btn btn-primary login-btn" type="submit">↪ เข้าสู่ระบบ</button>
+          </form>
+
+          <div class="status-box" id="loginStatus"></div>
+
+          <div class="login-note">
+            กรุณาเข้าสู่ระบบก่อนใช้งาน<br>
+            ระบบนี้ใช้ RPC <strong>login_student()</strong> และดึงผลการเรียนจาก <strong>grade_results</strong> โดยระบุ explicit relationship ของ Supabase ชัดเจนแล้ว
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="section-head-inline">
+            <div class="icon-badge">📣</div>
+            <div>
+              <div class="mini-label">INFORMATION</div>
+              <h2 class="section-title">แจ้งข่าวประชาสัมพันธ์</h2>
+            </div>
+          </div>
+
+          <div class="announce-box">
+            <h3 class="announce-topic">🔔 ระบบสารสนเทศผลการเรียน</h3>
+            <p>หน้านี้ใช้สำหรับนักเรียนในการ <strong>ดูผลการเรียน</strong> และ <strong>ตรวจสอบสถานะการสอบแก้ตัว</strong></p>
+            <p>เมนูต่าง ๆ ถูกจัดให้มีหน้าตาในแนวเดียวกับระบบงานทะเบียน-วัดผล เพื่อให้ใช้งานได้ง่ายและเป็นระบบเดียวกัน</p>
+            <p>หากพบปัญหาการใช้งาน กรุณาติดต่อครูผู้ดูแลระบบหรืองานวิชาการ</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="portalSection" class="hidden">
+      <div class="portal-top">
+        <div class="user-strip card">
+          <div class="user-strip-left">
+            <div class="user-avatar">🧑‍🎓</div>
+            <div>
+              <h2 class="user-title">นักเรียน</h2>
+              <p class="user-subtitle">Student Academic Portal</p>
+            </div>
+          </div>
+
+          <div class="user-strip-right">
+            <div class="user-code-pill" id="topStudentIdentity">รหัสนักเรียน -</div>
+            <button class="btn btn-danger" id="logoutBtn" type="button">ออกจากระบบ</button>
+          </div>
+        </div>
+
+        <div class="menu-bar card">
+          <button class="btn menu-btn active" id="menuHomeBtn" type="button">🏠 หน้าแรก</button>
+          <button class="btn menu-btn" id="menuGradesBtn" type="button">📚 ดูผลการเรียน</button>
+          <button class="btn menu-btn" id="menuRemedialStatusBtn" type="button">📝 ตรวจสอบสถานะการสอบแก้ตัว</button>
+          <button class="btn btn-soft" id="refreshBtn" type="button">รีเฟรชข้อมูล</button>
+        </div>
+      </div>
+
+      <section id="pageHome">
+        <div class="page-grid">
+          <div class="welcome-panel card">
+            <div class="welcome-icon">✓</div>
+            <div class="welcome-mini">WELCOME</div>
+            <h3 class="welcome-heading">ยินดีต้อนรับ<br>เข้าสู่ระบบสารสนเทศผลการเรียน</h3>
+            <div class="welcome-name" id="welcomeStudentName">คุณ -</div>
+            <p class="welcome-desc">คุณมีสิทธิ์ใช้งานเมนูตรวจสอบผลการเรียน ข่าวประชาสัมพันธ์ และสถานะการสอบแก้ตัว</p>
+          </div>
+
+          <div class="news-panel card">
+            <div class="box-head">
+              <div class="box-head-icon">📣</div>
+              <div>
+                <div class="mini-label">INFORMATION</div>
+                <h3 class="box-title">แจ้งข่าวประชาสัมพันธ์</h3>
+              </div>
+            </div>
+
+            <div class="box-body">
+              <div class="news-body-card">
+                <h4 class="news-title">🔔 ระบบสารสนเทศผลการเรียน</h4>
+                <p>เมนู <strong>ดูผลการเรียน</strong> ใช้สำหรับแสดงรายวิชา เกรด หน่วยกิต และสรุปผลการประเมิน</p>
+                <p>เมนู <strong>ตรวจสอบสถานะการสอบแก้ตัว</strong> ใช้สำหรับติดตามสถานะการยื่นคำร้องของนักเรียน</p>
+                <p>หากภายหลังมีการเชื่อมต่อฐานข้อมูลคำร้อง เมนูนี้จะสามารถแสดงสถานะจริงได้ทันที</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pageGrades" class="hidden">
+        <div class="student-head card">
+          <div class="student-top">
+            <div>
+              <h2 class="student-title">ดูผลการเรียน</h2>
+              <p class="student-subtitle">แสดงรายวิชาเฉพาะภาคเรียนล่าสุดที่มีข้อมูลผลการเรียน</p>
+            </div>
+            <div class="hero-chip" style="margin:0;background:#eef5ff;border-color:#d7e7ff;color:#1746a2;">Student Academic Report</div>
+          </div>
+
+          <div class="student-meta">
+            <div class="meta-item">
+              <div class="meta-label">เลขประจำตัวนักเรียน</div>
+              <div class="meta-value" id="metaStudentCode">-</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">ชื่อ - สกุล</div>
+              <div class="meta-value" id="metaStudentName">-</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">ชั้น / ห้อง</div>
+              <div class="meta-value" id="metaClassLevel">-</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">เลขที่</div>
+              <div class="meta-value" id="metaRoomNo">-</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">ภาคเรียน / ปีการศึกษา</div>
+              <div class="meta-value" id="metaYearTerm">-</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card card" style="margin-top:16px;">
+          <div class="table-head">
+            <div>
+              <h3>รายวิชาและผลการเรียน</h3>
+              <p>เรียงตามกลุ่มสาระการเรียนรู้ และในกลุ่มเดียวกันเรียง พื้นฐาน ก่อน เพิ่มเติม</p>
+            </div>
+          </div>
+
+          <div class="table-pad">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr class="group">
+                    <th rowspan="2">รหัสวิชา</th>
+                    <th rowspan="2">รายวิชา</th>
+                    <th rowspan="2">ประเภท</th>
+                    <th rowspan="2">หน่วยกิต</th>
+                    <th colspan="6">ประเมินผลสัมฤทธิ์</th>
+                    <th rowspan="2">ครูผู้สอน</th>
+                  </tr>
+                  <tr>
+                    <th>หน่วยการเรียน</th>
+                    <th>กลางภาค</th>
+                    <th>ปลายภาค</th>
+                    <th>รวม</th>
+                    <th>เกรดปกติ</th>
+                    <th>แก้ตัว</th>
+                  </tr>
+                </thead>
+                <tbody id="gradeTableBody">
+                  <tr>
+                    <td colspan="11" class="empty-state">ยังไม่มีข้อมูล</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-grid" style="margin-top:16px;">
+          <div class="summary-card card">
+            <div class="summary-head">
+              <div>
+                <h3 class="summary-title">สรุปผลการประเมิน</h3>
+                <p class="summary-subtitle">สไตล์เดียวกับตารางผลการเรียน</p>
+              </div>
+            </div>
+
+            <div class="summary-table-wrap">
+              <div class="table-wrap">
+                <table class="summary-table">
+                  <thead>
+                    <tr class="group">
+                      <th rowspan="2">สรุปผลการประเมิน</th>
+                      <th colspan="2">ผลการเรียน</th>
+                    </tr>
+                    <tr>
+                      <th>ที่เรียน</th>
+                      <th>ที่ได้</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="label-cell">จำนวนหน่วยกิต/น้ำหนักวิชาพื้นฐาน</td>
+                      <td class="value-cell" id="sumBasicCreditLearned">0.0</td>
+                      <td class="value-cell" id="sumBasicCreditEarned">0.0</td>
+                    </tr>
+                    <tr>
+                      <td class="label-cell">จำนวนหน่วยกิต/น้ำหนักวิชาเพิ่มเติม</td>
+                      <td class="value-cell" id="sumAdditionalCreditLearned">0.0</td>
+                      <td class="value-cell" id="sumAdditionalCreditEarned">0.0</td>
+                    </tr>
+                    <tr>
+                      <td class="label-cell">รวมจำนวนหน่วยกิต/น้ำหนัก</td>
+                      <td class="value-cell" id="sumTotalCreditLearned">0.0</td>
+                      <td class="value-cell" id="sumTotalCreditEarned">0.0</td>
+                    </tr>
+                    <tr>
+                      <td class="label-cell">ระดับผลการเรียนเฉลี่ย (GPA)</td>
+                      <td class="value-cell" colspan="2" id="sumGpa">0.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-card card">
+            <div class="action-head">
+              <div>
+                <h3 class="action-title">เมนูคำร้องสอบแก้ตัว</h3>
+                <p class="action-subtitle">แสดงผลตามเงื่อนไขเกรดของภาคเรียนล่าสุด</p>
+              </div>
+            </div>
+
+            <div class="action-body">
+              <div class="action-intro">
+                ระบบจะตรวจสอบอัตโนมัติว่าในภาคเรียนล่าสุดมีผลการเรียน 0, ร, มส หรือ มผ หรือไม่
+                หากไม่มี ปุ่มยื่นคำร้องจะถูกปิดใช้งานอัตโนมัติ
+              </div>
+
+              <div class="action-menu">
+                <button class="btn btn-primary action-btn" type="button" id="btnRequestRemedial">ยื่นคำร้องขอสอบแก้ตัว</button>
+                <button class="btn btn-outline action-btn" type="button" id="btnRequestStatus">ตรวจสอบสถานะคำร้อง</button>
+                <button class="btn btn-outline action-btn" type="button" id="btnRequestHistory">ประวัติการยื่นคำร้อง</button>
+              </div>
+
+              <div class="action-note" id="actionEligibilityNote">
+                หมายเหตุ: ตอนนี้ปุ่มเมนูเป็นโครงหน้าแบบพร้อมต่อระบบจริง หากต้องการสามารถเชื่อมต่อฟอร์มคำร้องจริงได้ภายหลัง
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pageRemedialStatus" class="hidden">
+        <div class="status-card card">
+          <div class="status-head">
+            <div>
+              <h3 class="status-title">ตรวจสอบสถานะการสอบแก้ตัว</h3>
+              <p class="status-subtitle">แสดงสถานะคำร้องสอบแก้ตัวของนักเรียน</p>
+            </div>
+          </div>
+
+          <div class="status-body">
+            <div class="status-intro">
+              หน้านี้เตรียมไว้สำหรับเชื่อมต่อข้อมูลคำร้องสอบแก้ตัวจริงจากฐานข้อมูล
+              ขณะนี้แสดงผลตัวอย่างหน้าตาและโครงสร้างเมนูให้พร้อมใช้งานในสไตล์เดียวกับระบบงานทะเบียน-วัดผล
+            </div>
+
+            <div class="status-list" id="statusList">
+              <div class="status-item">
+                <div class="status-item-top">
+                  <div>
+                    <h4 class="status-item-title">คำร้องสอบแก้ตัว - ตัวอย่างรายการ</h4>
+                    <p class="status-item-sub">รายการตัวอย่างสำหรับเตรียมเชื่อมต่อระบบจริง</p>
+                  </div>
+                  <div class="status-badge pending">รอดำเนินการ</div>
+                </div>
+
+                <div class="status-meta-grid">
+                  <div class="status-meta">
+                    <div class="status-meta-label">รหัสวิชา</div>
+                    <div class="status-meta-value">-</div>
+                  </div>
+                  <div class="status-meta">
+                    <div class="status-meta-label">รายวิชา</div>
+                    <div class="status-meta-value">-</div>
+                  </div>
+                  <div class="status-meta">
+                    <div class="status-meta-label">ภาคเรียน</div>
+                    <div class="status-meta-value">-</div>
+                  </div>
+                  <div class="status-meta">
+                    <div class="status-meta-label">วันที่ยื่นคำร้อง</div>
+                    <div class="status-meta-value">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="status-note">
+              หากต้องการเชื่อมเมนูนี้เข้ากับ Supabase ในรอบถัดไป
+              สามารถดึงข้อมูลจากตารางคำร้องสอบแก้ตัวมาแสดงเป็นรายการจริงได้ทันที
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div style="font-size:20px;font-weight:800;color:#123456;">กำลังโหลดข้อมูล</div>
+      <div style="margin-top:6px;color:#6d7d8b;">กรุณารอสักครู่</div>
+    </div>
+  </div>
+
+
+    <script>
+    const SUPABASE_URL = 'https://jiorecubzlmfhwalhrsz.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_bvvfwIdiPxyN2hYXVogVHQ_QxXE0I1_';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const APP_STATE = {
+      currentUser: null,
+      studentProfile: null,
+      latestYearTerm: null,
+      latestGradeRows: [],
+      remedialRequests: []
+    };
+
+    const PAGE_IDS = {
+      home: 'pageHome',
+      grades: 'pageGrades',
+      remedial: 'pageRemedialStatus'
+    };
+
+    const FIELD_MAP = {
+      students: {
+        id: 'id',
+        sid: 'sid',
+        fullName: 'raw_full_name',
+        room: 'current_room',
+        no: 'current_no'
+      },
+      grades: {
+        id: 'id',
+        studentId: 'student_id',
+        studentCode: 'student_code',
+        studentName: 'student_name',
+        studentNo: 'student_no',
+        academicYear: 'academic_year',
+        term: 'term',
+        classLevel: 'class_level',
+        room: 'room',
+        studyUnitScore: 'study_unit_score',
+        midtermScore: 'midterm_score',
+        finalScore: 'final_score',
+        totalScore: 'total_score',
+        gradeCode: 'grade_code',
+        retestGradeCode: 'retest_grade_code',
+        gradingStatus: 'grading_status',
+        isActive: 'is_active'
+      },
+      offering: {
+        id: 'id',
+        classLevel: 'class_level',
+        room: 'room',
+        sectionCode: 'section_code',
+        credit: 'credit'
+      },
+      subject: {
+        code: 'subject_code',
+        name: 'subject_name',
+        credit: 'credit',
+        type: 'subject_type',
+        learningArea: 'learning_area'
+      },
+      teacher: {
+        code: 'teacher_code',
+        name: 'full_name'
+      }
+    };
+
+    function $(id){
+      return document.getElementById(id);
+    }
+
+    function showLoading(show = true){
+      $('loadingOverlay').classList.toggle('show', !!show);
+    }
+
+    function setLoginStatus(message = '', isError = false){
+      const box = $('loginStatus');
+      box.textContent = message;
+      box.className = `status-box ${isError ? 'status-error' : 'status-ok'}`;
+    }
+
+    function escapeHtml(value){
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function safeText(value, fallback = '-'){
+      const text = String(value ?? '').trim();
+      return text || fallback;
+    }
+
+    function safeNumber(value, fallback = 0){
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function formatNumber(value, digits = 1){
+      const n = Number(value);
+      if(!Number.isFinite(n)) return Number(0).toFixed(digits);
+      return n.toFixed(digits);
+    }
+
+    function formatPlainNumber(value){
+      if(value === null || value === undefined || value === '') return '-';
+      const n = Number(value);
+      if(!Number.isFinite(n)) return String(value);
+      return Number.isInteger(n) ? String(n) : String(n);
+    }
+
+    function normalizeGrade(value){
+      const raw = String(value ?? '').trim();
+      if(!raw) return '';
+      const upper = raw.toUpperCase();
+      if(upper === 'R' || raw === 'ร') return 'ร';
+      if(raw === 'มส') return 'มส';
+      if(raw === 'มผ') return 'มผ';
+      if(raw === 'ผ') return 'ผ';
+      return raw;
+    }
+
+    function isPassingGrade(grade){
+      const g = normalizeGrade(grade);
+      return ['ผ', '1', '1.5', '2', '2.5', '3', '3.5', '4'].includes(g);
+    }
+
+    function isFailingGrade(grade){
+      const g = normalizeGrade(grade);
+      return ['0', 'ร', 'มส', 'มผ'].includes(g);
+    }
+
+    function getGradePillClass(grade){
+      const g = normalizeGrade(grade);
+      if(!g) return 'neutral';
+      if(isPassingGrade(g)) return 'pass';
+      if(isFailingGrade(g)) return 'fail';
+      return 'neutral';
+    }
+
+    function renderGradePill(grade){
+      const g = normalizeGrade(grade) || '-';
+      return `<span class="grade-pill ${getGradePillClass(g)}">${escapeHtml(g)}</span>`;
+    }
+
+    function getSubjectTypeClass(subjectType){
+      const type = String(subjectType ?? '').trim();
+      if(type === 'พื้นฐาน') return 'type-basic';
+      if(type === 'เพิ่มเติม') return 'type-additional';
+      if(type === 'กิจกรรม') return 'type-activity';
+      return 'type-other';
+    }
+
+    function renderSubjectTypePill(subjectType){
+      const type = safeText(subjectType);
+      return `<span class="type-pill ${getSubjectTypeClass(type)}">${escapeHtml(type)}</span>`;
+    }
+
+    function setPortalVisible(visible){
+      $('loginSection').classList.toggle('hidden', visible);
+      $('portalSection').classList.toggle('hidden', !visible);
+    }
+
+    function setActiveMenu(pageKey){
+      const pagePairs = [
+        ['home', 'menuHomeBtn'],
+        ['grades', 'menuGradesBtn'],
+        ['remedial', 'menuRemedialStatusBtn']
+      ];
+
+      pagePairs.forEach(([key, btnId]) => {
+        $(btnId).classList.toggle('active', key === pageKey);
+        $(PAGE_IDS[key]).classList.toggle('hidden', key !== pageKey);
+      });
+    }
+
+    function getLatestYearTermKey(row){
+      const y = safeNumber(row?.[FIELD_MAP.grades.academicYear], 0);
+      const t = safeNumber(row?.[FIELD_MAP.grades.term], 0);
+      return `${y}-${t}`;
+    }
+
+    function compareYearTermDesc(a, b){
+      const ay = safeNumber(a?.[FIELD_MAP.grades.academicYear], 0);
+      const by = safeNumber(b?.[FIELD_MAP.grades.academicYear], 0);
+      if(by !== ay) return by - ay;
+
+      const at = safeNumber(a?.[FIELD_MAP.grades.term], 0);
+      const bt = safeNumber(b?.[FIELD_MAP.grades.term], 0);
+      return bt - at;
+    }
+
+function compareGradeRows(a, b){
+  const subjectOrder = ['ท','ค','ว','ส','พ','ศ','ง','อ','ข','จ','ญ','ต','I','ก'];
+
+  const normalizeSubjectCodeForSort = (value) => {
+    return String(value ?? '')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '');
+  };
+
+  const getSubjectPrefixWeight = (code) => {
+    const cleaned = normalizeSubjectCodeForSort(code);
+    const prefix = cleaned.charAt(0);
+    const index = subjectOrder.indexOf(prefix);
+    return index === -1 ? 999 : index;
+  };
+
+  const getSubjectTypeWeight = (type) => {
+    const t = String(type ?? '').trim();
+
+    if(t === 'พื้นฐาน') return 0;
+    if(t === 'เพิ่มเติม') return 1;
+    if(t === 'กิจกรรม') return 2;
+
+    return 3;
+  };
+
+  const codeA = normalizeSubjectCodeForSort(a?.subjects?.[FIELD_MAP.subject.code]);
+  const codeB = normalizeSubjectCodeForSort(b?.subjects?.[FIELD_MAP.subject.code]);
+
+  const prefixCompare = getSubjectPrefixWeight(codeA) - getSubjectPrefixWeight(codeB);
+  if(prefixCompare !== 0) return prefixCompare;
+
+  const typeA = safeText(a?.subjects?.[FIELD_MAP.subject.type], '');
+  const typeB = safeText(b?.subjects?.[FIELD_MAP.subject.type], '');
+
+  const typeCompare = getSubjectTypeWeight(typeA) - getSubjectTypeWeight(typeB);
+  if(typeCompare !== 0) return typeCompare;
+
+  return codeA.localeCompare(codeB, 'th', { numeric:true });
+}
+
+function getLatestClassLevel(rows){
+  if(!rows.length) return '-';
+
+  const first = rows[0];
+
+  const classLevel = safeText(
+    first?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
+    first?.[FIELD_MAP.grades.classLevel],
+    ''
+  );
+
+  const room = safeText(
+    first?.subject_offerings?.[FIELD_MAP.offering.room] ||
+    first?.[FIELD_MAP.grades.room],
+    ''
+  );
+
+  if(!classLevel && !room) return '-';
+  if(classLevel && room) return `${classLevel}/${room}`;
+  if(classLevel) return classLevel;
+  return `ห้อง ${room}`;
+}
+
+    function getYearTermText(rows){
+      if(!rows.length) return '-';
+      const first = rows[0];
+      const year = safeText(first?.[FIELD_MAP.grades.academicYear]);
+      const term = safeText(first?.[FIELD_MAP.grades.term]);
+      return `${term} / ${year}`;
+    }
+
+    function getStudentDisplayRoomNo(studentProfile){
+
+      const no = safeText(studentProfile?.[FIELD_MAP.students.no], '-');
+      return `${no}`;
+    }
+
+    function canRequestRemedial(rows){
+      return rows.some(row => {
+        const g = normalizeGrade(row?.[FIELD_MAP.grades.gradeCode]);
+        return ['0', 'ร', 'มส', 'มผ'].includes(g);
+      });
+    }
+
+    function getNumericGradeForGpa(grade){
+      const g = normalizeGrade(grade);
+      const map = {
+        '4': 4,
+        '3.5': 3.5,
+        '3': 3,
+        '2.5': 2.5,
+        '2': 2,
+        '1.5': 1.5,
+        '1': 1,
+        '0': 0
+      };
+      return Object.prototype.hasOwnProperty.call(map, g) ? map[g] : null;
+    }
+
+    function getEffectiveGrade(row){
+  const retestGrade = normalizeGrade(row?.[FIELD_MAP.grades.retestGradeCode]);
+  const normalGrade = normalizeGrade(row?.[FIELD_MAP.grades.gradeCode]);
+
+  return retestGrade || normalGrade;
+}
+
+function formatNumberFloor(value, digits = 2){
+  const n = Number(value);
+  if(!Number.isFinite(n)) return Number(0).toFixed(digits);
+
+  const factor = Math.pow(10, digits);
+  return (Math.floor(n * factor) / factor).toFixed(digits);
+}
+
+    function getCreditValue(row){
+      const fromSubject = row?.subjects?.[FIELD_MAP.subject.credit];
+      const fromOffering = row?.subject_offerings?.[FIELD_MAP.offering.credit];
+      return safeNumber(fromOffering ?? fromSubject, 0);
+    }
+
+    function updatePortalIdentity(){
+      const profile = APP_STATE.studentProfile;
+      const sid = safeText(profile?.[FIELD_MAP.students.sid]);
+      const fullName = safeText(profile?.[FIELD_MAP.students.fullName]);
+      $('topStudentIdentity').textContent = ` ${sid} ${fullName}`;
+      $('welcomeStudentName').textContent = `${fullName}`;
+      $('metaStudentCode').textContent = sid;
+      $('metaStudentName').textContent = fullName;
+      $('metaRoomNo').textContent = getStudentDisplayRoomNo(profile);
+    }
+
+    function updateGradeHeaderMeta(rows){
+      $('metaClassLevel').textContent = getLatestClassLevel(rows);
+      $('metaYearTerm').textContent = getYearTermText(rows);
+    }
+
+    async function loginStudent(studentCode, password){
+      const { data, error } = await supabaseClient.rpc('login_student', {
+        p_sid: String(studentCode || '').trim(),
+        p_password: String(password || '')
+      });
+
+      if(error) throw error;
+      if(!data || !data.ok){
+        throw new Error(data?.message || 'เข้าสู่ระบบไม่สำเร็จ');
+      }
+      return data;
+    }
+
+    async function fetchStudentProfile(studentId){
+      const { data, error } = await supabaseClient
+        .from('students')
+        .select(`
+          id,
+          sid,
+          raw_full_name,
+          current_room,
+          current_no
+        `)
+        .eq('id', studentId)
+        .single();
+
+      if(error) throw error;
+      return data;
+    }
+
+    async function fetchAllStudentGradeRows(studentId){
+      const { data, error } = await supabaseClient
+        .from('grade_results')
+        .select(`
+          id,
+          student_id,
+          student_code,
+          student_name,
+          student_no,
+          academic_year,
+          term,
+          class_level,
+          room,
+          study_unit_score,
+          midterm_score,
+          final_score,
+          total_score,
+          grade_code,
+          retest_grade_code,
+          grading_status,
+          is_active,
+          subject_offering_id,
+          subject_id,
+          teacher_id,
+          subject_offerings:subject_offerings!fk_grade_results_subject_offering (
+            id,
+            class_level,
+            room,
+            section_code,
+            credit
+          ),
+          subjects:subjects!fk_grade_results_subject (
+            subject_code,
+            subject_name,
+            credit,
+            learning_area,
+            subject_type
+          ),
+          teachers:teachers!fk_grade_results_teacher (
+            teacher_code,
+            full_name
+          )
+        `)
+        .eq('student_id', studentId)
+        .eq('is_active', true)
+        .order('academic_year', { ascending: false })
+        .order('term', { ascending: false });
+
+      if(error) throw error;
+      return Array.isArray(data) ? data : [];
+    }
+
+    function getLatestTermRows(rows){
+      if(!rows.length) return [];
+      const sorted = [...rows].sort(compareYearTermDesc);
+      const latestKey = getLatestYearTermKey(sorted[0]);
+      APP_STATE.latestYearTerm = latestKey;
+      return sorted
+        .filter(row => getLatestYearTermKey(row) === latestKey)
+        .sort(compareGradeRows);
+    }
+
+function buildSummaryFromRows(rows){
+  const result = {
+    basicLearned: 0,
+    basicEarned: 0,
+    additionalLearned: 0,
+    additionalEarned: 0,
+    totalLearned: 0,
+    totalEarned: 0,
+    gpa: 0
+  };
+
+  let totalGradePoint = 0;
+  let totalCreditForGpa = 0;
+
+  rows.forEach(row => {
+    const subjectType = safeText(row?.subjects?.[FIELD_MAP.subject.type]);
+    const credit = getCreditValue(row);
+
+    // ใช้เกรดแก้ตัวที่อนุมัติแล้ว ถ้ามี
+    // ถ้าไม่มี จึงใช้เกรดปกติ
+    const effectiveGrade = getEffectiveGrade(row);
+
+    const numericGrade = getNumericGradeForGpa(effectiveGrade);
+    const earned = isPassingGrade(effectiveGrade) ? credit : 0;
+
+    if(subjectType === 'พื้นฐาน'){
+      result.basicLearned += credit;
+      result.basicEarned += earned;
+    }else if(subjectType === 'เพิ่มเติม'){
+      result.additionalLearned += credit;
+      result.additionalEarned += earned;
+    }
+
+    if(subjectType === 'พื้นฐาน' || subjectType === 'เพิ่มเติม'){
+      result.totalLearned += credit;
+      result.totalEarned += earned;
+
+      if(numericGrade !== null){
+        totalGradePoint += numericGrade * credit;
+        totalCreditForGpa += credit;
+      }
+    }
+  });
+
+  result.gpa = totalCreditForGpa > 0 ? totalGradePoint / totalCreditForGpa : 0;
+  return result;
+}
+
+    function saveSession(){
+      const payload = {
+        currentUser: APP_STATE.currentUser,
+        studentProfile: APP_STATE.studentProfile
+      };
+      sessionStorage.setItem('student_portal_session', JSON.stringify(payload));
+    }
+
+    function clearSession(){
+      sessionStorage.removeItem('student_portal_session');
+    }
+
+    function restoreSession(){
+      const raw = sessionStorage.getItem('student_portal_session');
+      if(!raw) return false;
+
+      try{
+        const parsed = JSON.parse(raw);
+        APP_STATE.currentUser = parsed.currentUser || null;
+        APP_STATE.studentProfile = parsed.studentProfile || null;
+        return !!(APP_STATE.currentUser && APP_STATE.studentProfile);
+      }catch(error){
+        return false;
+      }
+    }
+
+    function applyRemedialEligibility(rows){
+      const eligible = canRequestRemedial(rows);
+
+      $('btnRequestRemedial').disabled = !eligible;
+
+      if(eligible){
+        $('actionEligibilityNote').className = 'action-note ok';
+        $('actionEligibilityNote').textContent = 'ตรวจพบรายวิชาที่มีเกรด 0, ร, มส หรือ มผ ในภาคเรียนล่าสุด จึงสามารถยื่นคำร้องสอบแก้ตัวได้';
+      }else{
+        $('actionEligibilityNote').className = 'action-note warn';
+        $('actionEligibilityNote').textContent = 'ไม่พบรายวิชาที่มีเกรด 0, ร, มส หรือ มผ ในภาคเรียนล่าสุด ปุ่มยื่นคำร้องสอบแก้ตัวจึงถูกปิดใช้งาน';
+      }
+    }
+
+    async function loadPortalData(){
+      if(!APP_STATE.currentUser?.id){
+        throw new Error('ไม่พบข้อมูลผู้ใช้งาน');
+      }
+
+      showLoading(true);
+
+      try{
+        if(!APP_STATE.studentProfile){
+          APP_STATE.studentProfile = await fetchStudentProfile(APP_STATE.currentUser.id);
+        }
+
+        updatePortalIdentity();
+
+        const allGradeRows = await fetchAllStudentGradeRows(APP_STATE.currentUser.id);
+        APP_STATE.latestGradeRows = getLatestTermRows(allGradeRows);
+
+        updateGradeHeaderMeta(APP_STATE.latestGradeRows);
+        renderGradeTable(APP_STATE.latestGradeRows);
+        renderSummary(APP_STATE.latestGradeRows);
+        applyRemedialEligibility(APP_STATE.latestGradeRows);
+        renderRemedialStatus();
+        saveSession();
+      } finally {
+        showLoading(false);
+      }
+    }
+
+        function renderGradeTable(rows){
+      const tbody = $('gradeTableBody');
+
+      if(!rows.length){
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="11" class="empty-state">ยังไม่พบข้อมูลผลการเรียนในระบบ</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = rows.map(row => {
+        const subjectCode = safeText(row?.subjects?.[FIELD_MAP.subject.code]);
+        const subjectName = safeText(row?.subjects?.[FIELD_MAP.subject.name]);
+        const subjectType = safeText(row?.subjects?.[FIELD_MAP.subject.type]);
+        const credit = formatNumber(getCreditValue(row), 1);
+        const studyUnit = formatPlainNumber(row?.[FIELD_MAP.grades.studyUnitScore]);
+        const midterm = formatPlainNumber(row?.[FIELD_MAP.grades.midtermScore]);
+        const finalScore = formatPlainNumber(row?.[FIELD_MAP.grades.finalScore]);
+        const totalScore = formatPlainNumber(row?.[FIELD_MAP.grades.totalScore]);
+        const gradeCode = row?.[FIELD_MAP.grades.gradeCode];
+        const retestGradeCode = row?.[FIELD_MAP.grades.retestGradeCode];
+        const teacherName = safeText(row?.teachers?.[FIELD_MAP.teacher.name]);
+
+        return `
+          <tr>
+            <td class="center mono">${escapeHtml(subjectCode)}</td>
+            <td class="left subject-name">${escapeHtml(subjectName)}</td>
+            <td class="center">${renderSubjectTypePill(subjectType)}</td>
+            <td class="center"><span class="score-badge">${escapeHtml(credit)}</span></td>
+            <td class="center"><span class="score-badge">${escapeHtml(studyUnit)}</span></td>
+            <td class="center"><span class="score-badge">${escapeHtml(midterm)}</span></td>
+            <td class="center"><span class="score-badge">${escapeHtml(finalScore)}</span></td>
+            <td class="center"><span class="score-badge">${escapeHtml(totalScore)}</span></td>
+            <td class="center">${renderGradePill(gradeCode)}</td>
+            <td class="center">${renderGradePill(retestGradeCode)}</td>
+            <td class="left teacher-name">${escapeHtml(teacherName)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderSummary(rows){
+      const summary = buildSummaryFromRows(rows);
+
+      $('sumBasicCreditLearned').textContent = formatNumber(summary.basicLearned, 1);
+      $('sumBasicCreditEarned').textContent = formatNumber(summary.basicEarned, 1);
+
+      $('sumAdditionalCreditLearned').textContent = formatNumber(summary.additionalLearned, 1);
+      $('sumAdditionalCreditEarned').textContent = formatNumber(summary.additionalEarned, 1);
+
+      $('sumTotalCreditLearned').textContent = formatNumber(summary.totalLearned, 1);
+      $('sumTotalCreditEarned').textContent = formatNumber(summary.totalEarned, 1);
+
+     $('sumGpa').textContent = formatNumberFloor(summary.gpa, 2);
+    }
+
+    function renderRemedialStatus(){
+      const container = $('statusList');
+      const rows = APP_STATE.latestGradeRows.filter(row => {
+        const g = normalizeGrade(row?.[FIELD_MAP.grades.gradeCode]);
+        return ['0', 'ร', 'มส', 'มผ'].includes(g);
+      });
+
+      if(!rows.length){
+        container.innerHTML = `
+          <div class="status-item">
+            <div class="status-item-top">
+              <div>
+                <h4 class="status-item-title">ยังไม่มีรายการคำร้องสอบแก้ตัว</h4>
+                <p class="status-item-sub">ภาคเรียนล่าสุดไม่พบรายวิชาที่เข้าเกณฑ์การยื่นคำร้อง หรือยังไม่ได้เชื่อมตารางคำร้องจริง</p>
+              </div>
+              <div class="status-badge approved">ไม่มีรายการ</div>
+            </div>
+
+            <div class="status-meta-grid">
+              <div class="status-meta">
+                <div class="status-meta-label">สถานะระบบ</div>
+                <div class="status-meta-value">พร้อมเชื่อมต่อ</div>
+              </div>
+              <div class="status-meta">
+                <div class="status-meta-label">ภาคเรียนล่าสุด</div>
+                <div class="status-meta-value">${escapeHtml(getYearTermText(APP_STATE.latestGradeRows))}</div>
+              </div>
+              <div class="status-meta">
+                <div class="status-meta-label">ชั้นเรียน</div>
+                <div class="status-meta-value">${escapeHtml(getLatestClassLevel(APP_STATE.latestGradeRows))}</div>
+              </div>
+              <div class="status-meta">
+                <div class="status-meta-label">ห้อง / เลขที่</div>
+                <div class="status-meta-value">${escapeHtml(getStudentDisplayRoomNo(APP_STATE.studentProfile))}</div>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = rows.map(row => {
+        const subjectCode = safeText(row?.subjects?.[FIELD_MAP.subject.code]);
+        const subjectName = safeText(row?.subjects?.[FIELD_MAP.subject.name]);
+        const year = safeText(row?.[FIELD_MAP.grades.academicYear]);
+        const term = safeText(row?.[FIELD_MAP.grades.term]);
+        const gradeCode = normalizeGrade(row?.[FIELD_MAP.grades.gradeCode]);
+        const statusText = 'รอดำเนินการ';
+        const statusClass = 'pending';
+
+        return `
+          <div class="status-item">
+            <div class="status-item-top">
+              <div>
+                <h4 class="status-item-title">${escapeHtml(subjectName)}</h4>
+                <p class="status-item-sub">รายการแสดงจากผลการเรียนที่เข้าเกณฑ์สอบแก้ตัว และพร้อมต่อยอดไปยังระบบคำร้องจริง</p>
+              </div>
+              <div class="status-badge ${statusClass}">${escapeHtml(statusText)}</div>
+            </div>
+
+            <div class="status-meta-grid">
+              <div class="status-meta">
+                <div class="status-meta-label">รหัสวิชา</div>
+                <div class="status-meta-value">${escapeHtml(subjectCode)}</div>
+              </div>
+              <div class="status-meta">
+                <div class="status-meta-label">ผลการเรียนเดิม</div>
+                <div class="status-meta-value">${escapeHtml(gradeCode || '-')}</div>
+              </div>
+              <div class="status-meta">
+                <div class="status-meta-label">ปีการศึกษา / ภาคเรียน</div>
+                <div class="status-meta-value">${escapeHtml(`${year} / ${term}`)}</div>
+              </div>
+              <div class="status-meta">
+                <div class="status-meta-label">สถานะคำร้อง</div>
+                <div class="status-meta-value">${escapeHtml(statusText)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function handleLoginSubmit(event){
+      event.preventDefault();
+
+      const studentCode = $('studentCode').value.trim();
+      const password = $('password').value;
+
+      if(!studentCode || !password){
+        setLoginStatus('กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วน', true);
+        return;
+      }
+
+      try{
+        showLoading(true);
+        setLoginStatus('กำลังตรวจสอบข้อมูล...', false);
+
+        const loginResult = await loginStudent(studentCode, password);
+        APP_STATE.currentUser = loginResult.user || null;
+        APP_STATE.studentProfile = null;
+        APP_STATE.latestGradeRows = [];
+        APP_STATE.latestYearTerm = null;
+
+        setPortalVisible(true);
+        setActiveMenu('home');
+        setLoginStatus('', false);
+
+        await loadPortalData();
+      }catch(error){
+        console.error('LOGIN ERROR RAW =', error);
+        console.error('LOGIN ERROR MESSAGE =', error?.message);
+        console.error('LOGIN ERROR DETAILS =', error?.details);
+        console.error('LOGIN ERROR HINT =', error?.hint);
+        console.error('LOGIN ERROR CODE =', error?.code);
+        console.error('LOGIN ERROR JSON =', JSON.stringify(error, null, 2));
+        setLoginStatus(error?.message || 'เข้าสู่ระบบไม่สำเร็จ', true);
+      }finally{
+        showLoading(false);
+      }
+    }
+
+    function handleLogout(){
+      APP_STATE.currentUser = null;
+      APP_STATE.studentProfile = null;
+      APP_STATE.latestYearTerm = null;
+      APP_STATE.latestGradeRows = [];
+      APP_STATE.remedialRequests = [];
+
+      clearSession();
+      setPortalVisible(false);
+      setActiveMenu('home');
+
+      $('studentCode').value = '';
+      $('password').value = '';
+      $('loginStatus').textContent = '';
+      $('topStudentIdentity').textContent = 'รหัสนักเรียน -';
+      $('welcomeStudentName').textContent = 'คุณ -';
+
+      renderGradeTable([]);
+      renderSummary([]);
+      renderRemedialStatus();
+    }
+
+    async function handleRefresh(){
+      if(!APP_STATE.currentUser?.id) return;
+
+      try{
+        await loadPortalData();
+      }catch(error){
+        console.error('REFRESH ERROR RAW =', error);
+        console.error('REFRESH ERROR MESSAGE =', error?.message);
+        console.error('REFRESH ERROR DETAILS =', error?.details);
+        console.error('REFRESH ERROR HINT =', error?.hint);
+        console.error('REFRESH ERROR CODE =', error?.code);
+        console.error('REFRESH ERROR JSON =', JSON.stringify(error, null, 2));
+        alert(error?.message || 'รีเฟรชข้อมูลไม่สำเร็จ');
+      }
+    }
+
+    function initMenuEvents(){
+      $('menuHomeBtn').addEventListener('click', () => setActiveMenu('home'));
+      $('menuGradesBtn').addEventListener('click', () => setActiveMenu('grades'));
+      $('menuRemedialStatusBtn').addEventListener('click', () => setActiveMenu('remedial'));
+
+      $('btnRequestStatus').addEventListener('click', () => setActiveMenu('remedial'));
+      $('btnRequestHistory').addEventListener('click', () => setActiveMenu('remedial'));
+
+      $('btnRequestRemedial').addEventListener('click', () => {
+        if($('btnRequestRemedial').disabled) return;
+        alert('เมนูนี้เตรียมไว้สำหรับเชื่อมต่อฟอร์มคำร้องสอบแก้ตัวจริงในรอบถัดไป');
+      });
+
+      $('refreshBtn').addEventListener('click', handleRefresh);
+      $('logoutBtn').addEventListener('click', handleLogout);
+    }
+
+    function initLoginEvents(){
+      $('loginForm').addEventListener('submit', handleLoginSubmit);
+    }
+
+    async function bootstrap(){
+      initLoginEvents();
+      initMenuEvents();
+
+      renderGradeTable([]);
+      renderSummary([]);
+      renderRemedialStatus();
+
+      const restored = restoreSession();
+      if(!restored){
+        setPortalVisible(false);
+        return;
+      }
+
+      try{
+        setPortalVisible(true);
+        setActiveMenu('home');
+        updatePortalIdentity();
+        await loadPortalData();
+      }catch(error){
+        console.error('BOOTSTRAP ERROR RAW =', error);
+        console.error('BOOTSTRAP ERROR MESSAGE =', error?.message);
+        console.error('BOOTSTRAP ERROR DETAILS =', error?.details);
+        console.error('BOOTSTRAP ERROR HINT =', error?.hint);
+        console.error('BOOTSTRAP ERROR CODE =', error?.code);
+        console.error('BOOTSTRAP ERROR JSON =', JSON.stringify(error, null, 2));
+        handleLogout();
+        setLoginStatus('ไม่สามารถกู้คืน session ได้ กรุณาเข้าสู่ระบบใหม่', true);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', bootstrap);
+  </script>
+</body>
+</html>
