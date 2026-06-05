@@ -1098,6 +1098,278 @@
         flex-direction:column;
       }
     }
+
+    /* =====================================================
+   STUDENT PORTAL : Sidebar Layout
+   ===================================================== */
+
+:root{
+  --student-sidebar-width: 292px;
+}
+
+#portalSection{
+  position:relative;
+  padding-left:var(--student-sidebar-width);
+  min-height:100vh;
+}
+
+.student-sidebar{
+  position:fixed;
+  left:18px;
+  top:18px;
+  bottom:18px;
+  width:calc(var(--student-sidebar-width) - 32px);
+  z-index:80;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:16px 14px;
+  border-radius:28px;
+  background:rgba(244,234,247,.92);
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(8px);
+  overflow:hidden;
+}
+
+.student-sidebar-brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:8px 8px 12px;
+  border-bottom:1px solid rgba(216,227,239,.9);
+}
+
+.student-sidebar-logo{
+  width:46px;
+  height:46px;
+  border-radius:17px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  background:linear-gradient(135deg, var(--blue), var(--blue-2));
+  color:#fff;
+  font-size:22px;
+  font-weight:900;
+}
+
+.student-sidebar-title{
+  font-size:18px;
+  font-weight:900;
+  line-height:1.2;
+  color:#19324a;
+}
+
+.student-sidebar-sub{
+  margin-top:3px;
+  font-size:12px;
+  color:#6f7f92;
+  font-weight:600;
+  line-height:1.25;
+}
+
+.student-sidebar-user{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  border-radius:20px;
+  background:#f8fbff;
+  border:1px solid var(--line);
+}
+
+.student-sidebar-avatar{
+  width:42px;
+  height:42px;
+  border-radius:15px;
+  display:grid;
+  place-items:center;
+  background:#dbeafe;
+  font-size:23px;
+  flex:0 0 auto;
+}
+
+.student-sidebar-user-main{
+  min-width:0;
+  font-size:13px;
+  font-weight:900;
+  color:#19324a;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.student-sidebar-user-sub{
+  margin-top:2px;
+  font-size:11px;
+  color:#6f7f92;
+  font-weight:700;
+}
+
+.student-sidebar-nav{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:none;
+}
+
+.student-sidebar-nav::-webkit-scrollbar{
+  width:0;
+  height:0;
+}
+
+.student-side-btn{
+  width:100%;
+  min-height:46px;
+  justify-content:flex-start;
+  border-radius:16px;
+  padding:0 14px;
+  background:transparent;
+  border:0;
+  color:#41536c;
+  font-size:15px;
+  font-weight:800;
+  box-shadow:none;
+}
+
+.student-side-btn:hover{
+  background:#eef4ff;
+  color:#1d4ed8;
+  transform:none;
+}
+
+.student-side-btn.active{
+  color:#fff;
+  background:linear-gradient(135deg, var(--blue), var(--blue-2));
+  border-color:transparent;
+  box-shadow:0 10px 22px rgba(47,109,224,.20);
+}
+
+.student-sidebar-footer{
+  display:grid;
+  gap:8px;
+  padding-top:10px;
+  border-top:1px solid rgba(216,227,239,.9);
+}
+
+.student-sidebar-footer .btn{
+  width:100%;
+}
+
+.student-main-area{
+  min-width:0;
+}
+
+.student-mobile-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+  padding:14px 16px;
+  border-radius:24px;
+  background:rgba(244,234,247,.90);
+  border:1px solid rgba(255,255,255,.45);
+  box-shadow:var(--shadow);
+}
+
+.student-topbar-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.student-sidebar-toggle{
+  width:44px;
+  height:44px;
+  border-radius:15px;
+  padding:0;
+  background:#eef4ff;
+  color:#1d4ed8;
+  border:1px solid #d7e7ff;
+  font-size:22px;
+  font-weight:900;
+}
+
+.student-topbar-title{
+  font-size:18px;
+  font-weight:900;
+  color:#19324a;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.student-topbar-sub{
+  font-size:12px;
+  color:#6f7f92;
+  font-weight:700;
+}
+
+.student-sidebar-backdrop{
+  display:none;
+}
+
+/* ซ่อน menu-bar เดิมถ้ายังหลงเหลืออยู่ */
+#portalSection .menu-bar{
+  display:none !important;
+}
+
+@media (max-width:900px){
+  #portalSection{
+    padding-left:0;
+  }
+
+  .student-sidebar{
+    left:0;
+    top:0;
+    bottom:0;
+    width:min(310px, calc(100vw - 44px));
+    border-radius:0 28px 28px 0;
+    transform:translateX(-105%);
+    transition:.22s ease;
+  }
+
+  #portalSection.student-sidebar-open .student-sidebar{
+    transform:translateX(0);
+  }
+
+  .student-sidebar-backdrop{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:70;
+    background:rgba(15,23,42,.42);
+  }
+
+  #portalSection.student-sidebar-open .student-sidebar-backdrop{
+    display:block;
+  }
+}
+
+@media (min-width:901px){
+  .student-sidebar-toggle{
+    display:none;
+  }
+}
+
+@media (max-width:620px){
+  .student-mobile-topbar{
+    padding:12px;
+  }
+
+  .student-topbar-title{
+    font-size:16px;
+  }
+
+  .student-topbar-sub{
+    display:none;
+  }
+}
   </style>
 </head>
 <body>
@@ -1177,29 +1449,65 @@
     </section>
 
     <section id="portalSection" class="hidden">
-      <div class="portal-top">
-        <div class="user-strip card">
-          <div class="user-strip-left">
-            <div class="user-avatar">🧑‍🎓</div>
-            <div>
-              <h2 class="user-title">นักเรียน</h2>
-              <p class="user-subtitle">Student Academic Portal</p>
-            </div>
-          </div>
+<div id="studentSidebarBackdrop" class="student-sidebar-backdrop"></div>
 
-          <div class="user-strip-right">
-            <div class="user-code-pill" id="topStudentIdentity">รหัสนักเรียน -</div>
-            <button class="btn btn-danger" id="logoutBtn" type="button">ออกจากระบบ</button>
-          </div>
-        </div>
+<aside id="studentSidebar" class="student-sidebar">
+  <div class="student-sidebar-brand">
+    <div class="student-sidebar-logo">ทม</div>
+    <div>
+      <div class="student-sidebar-title">Student Portal</div>
+      <div class="student-sidebar-sub">ระบบสารสนเทศผลการเรียน</div>
+    </div>
+  </div>
 
-        <div class="menu-bar card">
-          <button class="btn menu-btn active" id="menuHomeBtn" type="button">🏠 หน้าแรก</button>
-          <button class="btn menu-btn" id="menuGradesBtn" type="button">📚 ดูผลการเรียน</button>
-          <button class="btn menu-btn" id="menuRemedialStatusBtn" type="button">📝 ตรวจสอบสถานะการสอบแก้ตัว</button>
-          <button class="btn btn-soft" id="refreshBtn" type="button">รีเฟรชข้อมูล</button>
-        </div>
+  <div class="student-sidebar-user">
+    <div class="student-sidebar-avatar">🧑‍🎓</div>
+    <div style="min-width:0;">
+      <div id="sidebarStudentName" class="student-sidebar-user-main">นักเรียน</div>
+      <div class="student-sidebar-user-sub">Student Academic Portal</div>
+    </div>
+  </div>
+
+  <nav class="student-sidebar-nav">
+    <button class="btn student-side-btn menu-btn active" id="menuHomeBtn" type="button">
+      🏠 หน้าแรก
+    </button>
+
+    <button class="btn student-side-btn menu-btn" id="menuGradesBtn" type="button">
+      📚 ดูผลการเรียน
+    </button>
+
+    <button class="btn student-side-btn menu-btn" id="menuRemedialStatusBtn" type="button">
+      📝 ตรวจสอบสถานะการสอบแก้ตัว
+    </button>
+
+    <button class="btn student-side-btn" id="refreshBtn" type="button">
+      🔄 รีเฟรชข้อมูล
+    </button>
+  </nav>
+
+  <div class="student-sidebar-footer">
+    <button class="btn btn-danger" id="logoutBtn" type="button">
+      🚪 ออกจากระบบ
+    </button>
+  </div>
+</aside>
+
+<div class="student-main-area">
+  <div class="student-mobile-topbar">
+    <div class="student-topbar-left">
+      <button id="studentSidebarToggleBtn" class="btn student-sidebar-toggle" type="button">
+        ☰
+      </button>
+
+      <div>
+        <div class="student-topbar-title">ระบบสารสนเทศผลการเรียน</div>
+        <div class="student-topbar-sub">โรงเรียนท่าใหม่ “พูลสวัสดิ์ราษฎร์นุกูล”</div>
       </div>
+    </div>
+
+    <div class="user-code-pill" id="topStudentIdentity">รหัสนักเรียน -</div>
+  </div>
 
       <section id="pageHome">
         <div class="page-grid">
@@ -1434,7 +1742,10 @@
           </div>
         </div>
       </section>
-    </section>
+    </div>
+
+    </div>
+  </section>
   </div>
 
   <div class="loading-overlay" id="loadingOverlay">
@@ -1610,18 +1921,20 @@
       $('portalSection').classList.toggle('hidden', !visible);
     }
 
-    function setActiveMenu(pageKey){
-      const pagePairs = [
-        ['home', 'menuHomeBtn'],
-        ['grades', 'menuGradesBtn'],
-        ['remedial', 'menuRemedialStatusBtn']
-      ];
+function setActiveMenu(pageKey){
+  const pagePairs = [
+    ['home', 'menuHomeBtn'],
+    ['grades', 'menuGradesBtn'],
+    ['remedial', 'menuRemedialStatusBtn']
+  ];
 
-      pagePairs.forEach(([key, btnId]) => {
-        $(btnId).classList.toggle('active', key === pageKey);
-        $(PAGE_IDS[key]).classList.toggle('hidden', key !== pageKey);
-      });
-    }
+  pagePairs.forEach(([key, btnId]) => {
+    $(btnId).classList.toggle('active', key === pageKey);
+    $(PAGE_IDS[key]).classList.toggle('hidden', key !== pageKey);
+  });
+
+  closeStudentSidebar();
+}
 
     function getLatestYearTermKey(row){
       const y = safeNumber(row?.[FIELD_MAP.grades.academicYear], 0);
@@ -1761,16 +2074,19 @@ function formatNumberFloor(value, digits = 2){
       return safeNumber(fromOffering ?? fromSubject, 0);
     }
 
-    function updatePortalIdentity(){
-      const profile = APP_STATE.studentProfile;
-      const sid = safeText(profile?.[FIELD_MAP.students.sid]);
-      const fullName = safeText(profile?.[FIELD_MAP.students.fullName]);
-      $('topStudentIdentity').textContent = ` ${sid} ${fullName}`;
-      $('welcomeStudentName').textContent = `${fullName}`;
-      $('metaStudentCode').textContent = sid;
-      $('metaStudentName').textContent = fullName;
-      $('metaRoomNo').textContent = getStudentDisplayRoomNo(profile);
-    }
+function updatePortalIdentity(){
+  const profile = APP_STATE.studentProfile;
+  const sid = safeText(profile?.[FIELD_MAP.students.sid]);
+  const fullName = safeText(profile?.[FIELD_MAP.students.fullName]);
+
+  $('topStudentIdentity').textContent = ` ${sid} ${fullName}`;
+  $('welcomeStudentName').textContent = `${fullName}`;
+  $('metaStudentCode').textContent = sid;
+  $('metaStudentName').textContent = fullName;
+  $('metaRoomNo').textContent = getStudentDisplayRoomNo(profile);
+
+  updateSidebarStudentName();
+}
 
     function updateGradeHeaderMeta(rows){
       $('metaClassLevel').textContent = getLatestClassLevel(rows);
@@ -2185,6 +2501,11 @@ function buildSummaryFromRows(rows){
       renderGradeTable([]);
       renderSummary([]);
       renderRemedialStatus();
+      closeStudentSidebar();
+
+if($('sidebarStudentName')){
+  $('sidebarStudentName').textContent = 'นักเรียน';
+}
     }
 
     async function handleRefresh(){
@@ -2203,6 +2524,23 @@ function buildSummaryFromRows(rows){
       }
     }
 
+      function toggleStudentSidebar(){
+  $('portalSection')?.classList.toggle('student-sidebar-open');
+}
+
+function closeStudentSidebar(){
+  $('portalSection')?.classList.remove('student-sidebar-open');
+}
+
+function updateSidebarStudentName(){
+  const profile = APP_STATE.studentProfile;
+  const fullName = safeText(profile?.[FIELD_MAP.students.fullName], 'นักเรียน');
+
+  if($('sidebarStudentName')){
+    $('sidebarStudentName').textContent = fullName;
+  }
+}
+
     function initMenuEvents(){
       $('menuHomeBtn').addEventListener('click', () => setActiveMenu('home'));
       $('menuGradesBtn').addEventListener('click', () => setActiveMenu('grades'));
@@ -2218,6 +2556,8 @@ function buildSummaryFromRows(rows){
 
       $('refreshBtn').addEventListener('click', handleRefresh);
       $('logoutBtn').addEventListener('click', handleLogout);
+      $('studentSidebarToggleBtn')?.addEventListener('click', toggleStudentSidebar);
+      $('studentSidebarBackdrop')?.addEventListener('click', closeStudentSidebar);
     }
 
     function initLoginEvents(){
