@@ -1099,51 +1099,63 @@
       }
     }
 
-    /* =====================================================
-   STUDENT PORTAL : Sidebar Layout
+/* =====================================================
+   STUDENT PORTAL : TeacherPR-style Sidebar
    ===================================================== */
 
 :root{
-  --student-sidebar-width: 292px;
+  --student-sidebar-width:300px;
+}
+
+body.portal-mode{
+  padding:0;
+  overflow-x:hidden;
+}
+
+body.portal-mode .top-shell{
+  display:none !important;
+}
+
+body.portal-mode .app{
+  width:100%;
+  max-width:none;
+  margin:0;
 }
 
 #portalSection{
-  position:relative;
-  padding-left:var(--student-sidebar-width);
   min-height:100vh;
+  display:grid;
+  grid-template-columns:var(--student-sidebar-width) minmax(0, 1fr);
+  gap:0;
 }
 
 .student-sidebar{
-  position:fixed;
-  left:18px;
-  top:18px;
-  bottom:18px;
-  width:calc(var(--student-sidebar-width) - 32px);
-  z-index:80;
+  position:sticky;
+  top:0;
+  height:100vh;
+  width:var(--student-sidebar-width);
   display:flex;
   flex-direction:column;
-  gap:12px;
-  padding:16px 14px;
-  border-radius:28px;
+  gap:14px;
+  padding:20px 16px;
   background:rgba(244,234,247,.92);
-  border:1px solid rgba(255,255,255,.55);
-  box-shadow:var(--shadow);
-  backdrop-filter:blur(8px);
+  border-right:1px solid rgba(255,255,255,.55);
+  box-shadow:12px 0 34px rgba(15,23,42,.08);
   overflow:hidden;
+  z-index:50;
 }
 
 .student-sidebar-brand{
   display:flex;
   align-items:center;
   gap:12px;
-  padding:8px 8px 12px;
-  border-bottom:1px solid rgba(216,227,239,.9);
+  padding:10px 10px 14px;
 }
 
 .student-sidebar-logo{
-  width:46px;
-  height:46px;
-  border-radius:17px;
+  width:52px;
+  height:52px;
+  border-radius:18px;
   display:grid;
   place-items:center;
   flex:0 0 auto;
@@ -1151,47 +1163,49 @@
   color:#fff;
   font-size:22px;
   font-weight:900;
+  box-shadow:0 12px 24px rgba(47,109,224,.18);
 }
 
 .student-sidebar-title{
-  font-size:18px;
+  font-size:19px;
   font-weight:900;
-  line-height:1.2;
+  line-height:1.15;
   color:#19324a;
 }
 
 .student-sidebar-sub{
-  margin-top:3px;
-  font-size:12px;
+  margin-top:4px;
+  font-size:12.5px;
   color:#6f7f92;
   font-weight:600;
-  line-height:1.25;
+  line-height:1.35;
 }
 
 .student-sidebar-user{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:11px;
   padding:12px;
-  border-radius:20px;
+  border-radius:22px;
   background:#f8fbff;
   border:1px solid var(--line);
+  box-shadow:0 8px 18px rgba(15,23,42,.04);
 }
 
 .student-sidebar-avatar{
-  width:42px;
-  height:42px;
-  border-radius:15px;
+  width:44px;
+  height:44px;
+  border-radius:16px;
   display:grid;
   place-items:center;
   background:#dbeafe;
-  font-size:23px;
+  font-size:24px;
   flex:0 0 auto;
 }
 
 .student-sidebar-user-main{
   min-width:0;
-  font-size:13px;
+  font-size:13.5px;
   font-weight:900;
   color:#19324a;
   white-space:nowrap;
@@ -1201,7 +1215,7 @@
 
 .student-sidebar-user-sub{
   margin-top:2px;
-  font-size:11px;
+  font-size:11.5px;
   color:#6f7f92;
   font-weight:700;
 }
@@ -1209,10 +1223,11 @@
 .student-sidebar-nav{
   display:flex;
   flex-direction:column;
-  gap:6px;
+  gap:8px;
   flex:1;
   overflow-y:auto;
   overflow-x:hidden;
+  padding:4px 0;
   scrollbar-width:none;
 }
 
@@ -1223,10 +1238,10 @@
 
 .student-side-btn{
   width:100%;
-  min-height:46px;
+  min-height:52px;
   justify-content:flex-start;
-  border-radius:16px;
-  padding:0 14px;
+  border-radius:18px;
+  padding:0 16px;
   background:transparent;
   border:0;
   color:#41536c;
@@ -1245,22 +1260,24 @@
   color:#fff;
   background:linear-gradient(135deg, var(--blue), var(--blue-2));
   border-color:transparent;
-  box-shadow:0 10px 22px rgba(47,109,224,.20);
+  box-shadow:0 14px 26px rgba(47,109,224,.24);
 }
 
 .student-sidebar-footer{
   display:grid;
   gap:8px;
   padding-top:10px;
-  border-top:1px solid rgba(216,227,239,.9);
 }
 
 .student-sidebar-footer .btn{
   width:100%;
+  min-height:48px;
+  border-radius:18px;
 }
 
 .student-main-area{
   min-width:0;
+  padding:22px 24px 32px;
 }
 
 .student-mobile-topbar{
@@ -1268,9 +1285,9 @@
   align-items:center;
   justify-content:space-between;
   gap:12px;
-  margin-bottom:14px;
-  padding:14px 16px;
-  border-radius:24px;
+  margin-bottom:18px;
+  padding:16px 20px;
+  border-radius:28px;
   background:rgba(244,234,247,.90);
   border:1px solid rgba(255,255,255,.45);
   box-shadow:var(--shadow);
@@ -1284,9 +1301,9 @@
 }
 
 .student-sidebar-toggle{
-  width:44px;
-  height:44px;
-  border-radius:15px;
+  width:46px;
+  height:46px;
+  border-radius:16px;
   padding:0;
   background:#eef4ff;
   color:#1d4ed8;
@@ -1296,7 +1313,7 @@
 }
 
 .student-topbar-title{
-  font-size:18px;
+  font-size:21px;
   font-weight:900;
   color:#19324a;
   white-space:nowrap;
@@ -1305,7 +1322,8 @@
 }
 
 .student-topbar-sub{
-  font-size:12px;
+  margin-top:2px;
+  font-size:12.5px;
   color:#6f7f92;
   font-weight:700;
 }
@@ -1314,21 +1332,35 @@
   display:none;
 }
 
-/* ซ่อน menu-bar เดิมถ้ายังหลงเหลืออยู่ */
+/* ซ่อน menu-bar เดิม */
 #portalSection .menu-bar{
   display:none !important;
 }
 
+/* Desktop ไม่ต้องโชว์ปุ่ม hamburger */
+@media (min-width:901px){
+  .student-sidebar-toggle{
+    display:none;
+  }
+}
+
+/* Mobile: sidebar เลื่อนออกเหมือน TeacherPR */
 @media (max-width:900px){
   #portalSection{
-    padding-left:0;
+    display:block;
+  }
+
+  .student-main-area{
+    padding:14px 12px 24px;
   }
 
   .student-sidebar{
+    position:fixed;
     left:0;
     top:0;
     bottom:0;
     width:min(310px, calc(100vw - 44px));
+    height:100vh;
     border-radius:0 28px 28px 0;
     transform:translateX(-105%);
     transition:.22s ease;
@@ -1342,32 +1374,35 @@
     display:none;
     position:fixed;
     inset:0;
-    z-index:70;
+    z-index:40;
     background:rgba(15,23,42,.42);
   }
 
   #portalSection.student-sidebar-open .student-sidebar-backdrop{
     display:block;
   }
-}
 
-@media (min-width:901px){
-  .student-sidebar-toggle{
-    display:none;
-  }
-}
-
-@media (max-width:620px){
   .student-mobile-topbar{
     padding:12px;
+    border-radius:22px;
   }
 
   .student-topbar-title{
-    font-size:16px;
+    font-size:17px;
   }
 
   .student-topbar-sub{
     display:none;
+  }
+
+  .user-code-pill{
+    font-size:12px;
+    padding:8px 10px;
+    min-height:38px;
+    max-width:46vw;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
 }
 
