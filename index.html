@@ -1370,6 +1370,37 @@
     display:none;
   }
 }
+
+    /* =====================================================
+   FIX : Portal mode หลัง Login ไม่ให้ hero ชน sidebar
+   ===================================================== */
+
+body.portal-mode .top-shell{
+  display:none !important;
+}
+
+body.portal-mode .app{
+  width:100%;
+  max-width:none;
+  margin:0;
+}
+
+body.portal-mode{
+  padding:18px;
+}
+
+/* ให้เนื้อหาขวาเริ่มสวยขึ้น ไม่ชิด sidebar เกินไป */
+.student-main-area{
+  width:100%;
+  min-width:0;
+}
+
+/* Desktop: topbar ด้านขวาไม่ต้องลอยสูงเกิน */
+@media (min-width:901px){
+  .student-mobile-topbar{
+    margin-top:0;
+  }
+}
   </style>
 </head>
 <body>
@@ -1743,10 +1774,8 @@
         </div>
       </section>
     </div>
-
-    </div>
   </section>
-  </div>
+</div>
 
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-card">
@@ -1916,10 +1945,11 @@
       return `<span class="type-pill ${getSubjectTypeClass(type)}">${escapeHtml(type)}</span>`;
     }
 
-    function setPortalVisible(visible){
-      $('loginSection').classList.toggle('hidden', visible);
-      $('portalSection').classList.toggle('hidden', !visible);
-    }
+function setPortalVisible(visible){
+  $('loginSection').classList.toggle('hidden', visible);
+  $('portalSection').classList.toggle('hidden', !visible);
+  document.body.classList.toggle('portal-mode', !!visible);
+}
 
 function setActiveMenu(pageKey){
   const pagePairs = [
