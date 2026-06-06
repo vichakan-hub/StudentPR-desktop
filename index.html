@@ -1816,6 +1816,97 @@ body.portal-mode .app{
   }
 }
 
+    /* =====================================================
+   Sidebar submenu
+   ===================================================== */
+
+.student-sidebar-group{
+  display:grid;
+  gap:6px;
+}
+
+.student-sidebar-submenu{
+  display:grid;
+  gap:6px;
+  padding-left:20px;
+  margin-top:2px;
+  border-left:2px solid rgba(47,109,224,.16);
+}
+
+.student-side-sub-btn{
+  width:100%;
+  min-height:42px;
+  justify-content:flex-start;
+  border-radius:14px;
+  padding:0 14px;
+  background:transparent;
+  border:0;
+  color:#41536c;
+  font-size:14px;
+  font-weight:800;
+  box-shadow:none;
+}
+
+.student-side-sub-btn:hover{
+  background:#eef4ff;
+  color:#1d4ed8;
+  transform:none;
+}
+
+.student-side-sub-btn.active{
+  color:#fff;
+  background:linear-gradient(135deg, var(--blue), var(--blue-2));
+  box-shadow:0 10px 20px rgba(47,109,224,.18);
+}
+
+    /* =====================================================
+   Overview GPA chart
+   ===================================================== */
+
+.term-gpa-card{
+  background:rgba(244,234,247,.90);
+  overflow:hidden;
+}
+
+.term-gpa-head{
+  padding:18px 20px;
+  border-bottom:1px solid #dde6f0;
+  background:#eef1f5;
+}
+
+.term-gpa-title{
+  margin:0;
+  font-size:21px;
+  color:#123456;
+  font-weight:800;
+}
+
+.term-gpa-subtitle{
+  margin:4px 0 0;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.term-gpa-body{
+  padding:16px;
+}
+
+.term-gpa-chart-wrap{
+  height:320px;
+  width:100%;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:12px;
+}
+
+@media (max-width:720px){
+  .term-gpa-chart-wrap{
+    height:280px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -1919,9 +2010,17 @@ body.portal-mode .app{
       🏠 หน้าแรก
     </button>
 
-    <button class="btn student-side-btn menu-btn" id="menuGradesBtn" type="button">
-      📚 ดูผลการเรียน
+<div class="student-sidebar-group">
+  <button class="btn student-side-btn menu-btn" id="menuGradesBtn" type="button">
+    📚 ดูผลการเรียน
+  </button>
+
+  <div class="student-sidebar-submenu" id="gradeSubmenu">
+    <button class="btn student-side-sub-btn menu-btn" id="menuGradesTermBtn" type="button">
+      └ รายเทอม
     </button>
+  </div>
+</div>
 
     <button class="btn student-side-btn menu-btn" id="menuRemedialStatusBtn" type="button">
       📝 ตรวจสอบสถานะการสอบแก้ตัว
@@ -1985,6 +2084,129 @@ body.portal-mode .app{
           </div>
         </div>
       </section>
+
+  <section id="pageGradeOverview" class="hidden">
+  <div class="student-head card">
+    <div class="student-top">
+      <div>
+        <h2 class="student-title">ภาพรวมผลการเรียนทั้งหมด</h2>
+        <p class="student-subtitle">สรุปผลการเรียนรวมตั้งแต่ภาคเรียนแรกจนถึงปัจจุบัน</p>
+      </div>
+
+      <div class="hero-chip" style="margin:0;background:#eef5ff;border-color:#d7e7ff;color:#1746a2;">
+        Overall Academic Report
+      </div>
+    </div>
+
+    <div class="student-meta">
+      <div class="meta-item">
+        <div class="meta-label">เลขประจำตัวนักเรียน</div>
+        <div class="meta-value" id="overviewStudentCode">-</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">ชื่อ - สกุล</div>
+        <div class="meta-value" id="overviewStudentName">-</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">จำนวนภาคเรียน</div>
+        <div class="meta-value" id="overviewTermCount">0</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">หน่วยกิตรวม</div>
+        <div class="meta-value" id="overviewTotalCredit">0.0</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">GPA รวม</div>
+        <div class="meta-value" id="overviewGpa">0.00</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-grid" style="margin-top:16px;">
+    <div class="summary-card card">
+      <div class="summary-head">
+        <div>
+          <h3 class="summary-title">สรุปผลการประเมินเฉลี่ยรวมทุกภาคเรียน</h3>
+          <p class="summary-subtitle">คำนวณจากผลการเรียนทั้งหมดที่มีในระบบ</p>
+        </div>
+      </div>
+
+      <div class="summary-table-wrap">
+        <div class="table-wrap">
+          <table class="summary-table">
+            <thead>
+              <tr class="group">
+                <th rowspan="2">สรุปผลการประเมิน</th>
+                <th colspan="2">ผลการเรียน</th>
+              </tr>
+              <tr>
+                <th>ที่เรียน</th>
+                <th>ที่ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label-cell">จำนวนหน่วยกิต/น้ำหนักวิชาพื้นฐาน</td>
+                <td class="value-cell" id="overviewBasicCreditLearned">0.0</td>
+                <td class="value-cell" id="overviewBasicCreditEarned">0.0</td>
+              </tr>
+              <tr>
+                <td class="label-cell">จำนวนหน่วยกิต/น้ำหนักวิชาเพิ่มเติม</td>
+                <td class="value-cell" id="overviewAdditionalCreditLearned">0.0</td>
+                <td class="value-cell" id="overviewAdditionalCreditEarned">0.0</td>
+              </tr>
+              <tr>
+                <td class="label-cell">รวมจำนวนหน่วยกิต/น้ำหนัก</td>
+                <td class="value-cell" id="overviewTotalCreditLearned">0.0</td>
+                <td class="value-cell" id="overviewTotalCreditEarned">0.0</td>
+              </tr>
+              <tr>
+                <td class="label-cell">ระดับผลการเรียนเฉลี่ยรวม (GPA)</td>
+                <td class="value-cell" colspan="2" id="overviewSummaryGpa">0.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="term-gpa-card card">
+      <div class="term-gpa-head">
+        <div>
+          <h3 class="term-gpa-title">เกรดเฉลี่ยแต่ละภาคเรียน</h3>
+          <p class="term-gpa-subtitle">เปรียบเทียบ GPA รายเทอมตั้งแต่เริ่มมีข้อมูล</p>
+        </div>
+      </div>
+
+      <div class="term-gpa-body">
+        <div class="term-gpa-chart-wrap">
+          <canvas id="termGpaBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="radar-card card" style="margin-top:16px;">
+    <div class="radar-head">
+      <div>
+        <h3 class="radar-title">ภาพรวมเกรดเฉลี่ยรายกลุ่มสาระรวมทุกภาคเรียน</h3>
+        <p class="radar-subtitle">คำนวณจากเกรดเฉลี่ยถ่วงน้ำหนักตามหน่วยกิตรวมทุกเทอม</p>
+      </div>
+    </div>
+
+    <div class="radar-body">
+      <div class="radar-chart-wrap">
+        <canvas id="overviewLearningAreaRadarChart"></canvas>
+      </div>
+
+      <div id="overviewLearningAreaRadarEmpty" class="radar-empty hidden">
+        ไม่พบข้อมูลเกรดตัวเลขสำหรับสร้างกราฟ
+      </div>
+
+      <div class="radar-score-list" id="overviewLearningAreaRadarList"></div>
+    </div>
+  </div>
+</section>
 
       <section id="pageGrades" class="hidden">
         <div class="student-head card">
@@ -2221,6 +2443,8 @@ body.portal-mode .app{
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let learningAreaRadarChart = null;
+    let overviewLearningAreaRadarChart = null;
+    let termGpaBarChart = null;
 
 const APP_STATE = {
   currentUser: null,
@@ -2232,11 +2456,12 @@ const APP_STATE = {
   remedialRequests: []
 };
 
-    const PAGE_IDS = {
-      home: 'pageHome',
-      grades: 'pageGrades',
-      remedial: 'pageRemedialStatus'
-    };
+const PAGE_IDS = {
+  home: 'pageHome',
+  gradeOverview: 'pageGradeOverview',
+  grades: 'pageGrades',
+  remedial: 'pageRemedialStatus'
+};
 
     const FIELD_MAP = {
       students: {
@@ -2387,14 +2612,23 @@ function setPortalVisible(visible){
 function setActiveMenu(pageKey){
   const pagePairs = [
     ['home', 'menuHomeBtn'],
-    ['grades', 'menuGradesBtn'],
+    ['gradeOverview', 'menuGradesBtn'],
+    ['grades', 'menuGradesTermBtn'],
     ['remedial', 'menuRemedialStatusBtn']
   ];
 
-  pagePairs.forEach(([key, btnId]) => {
-    $(btnId).classList.toggle('active', key === pageKey);
-    $(PAGE_IDS[key]).classList.toggle('hidden', key !== pageKey);
+  Object.entries(PAGE_IDS).forEach(([key, pageId]) => {
+    $(pageId)?.classList.toggle('hidden', key !== pageKey);
   });
+
+  pagePairs.forEach(([key, btnId]) => {
+    $(btnId)?.classList.toggle('active', key === pageKey);
+  });
+
+  // ให้ปุ่มหลัก "ดูผลการเรียน" active ด้วย เมื่ออยู่หน้าเมนูย่อยรายเทอม
+  if(pageKey === 'grades'){
+    $('menuGradesBtn')?.classList.add('active');
+  }
 
   closeStudentSidebar();
 }
@@ -2876,6 +3110,7 @@ APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
 
 renderTermSelector(allGradeRows);
 applySelectedTerm();
+renderGradeOverview(allGradeRows);
 
 saveSession();
       } finally {
@@ -2961,18 +3196,17 @@ function buildLearningAreaRadarData(rows){
     const effectiveGrade = getEffectiveGrade(row);
     const numericGrade = getNumericGradeValue(effectiveGrade);
 
-    // กราฟใช้เฉพาะเกรดตัวเลข 0-4
     if(numericGrade === null) return;
 
     const credit = getCreditValue(row) || 0;
     if(credit <= 0) return;
 
-const groupName = getRadarGroupName(row);
+    const groupName = getRadarGroupName(row);
 
-// ถ้าไม่ใช่ 7 กลุ่มหลัก หรือภาษาต่างประเทศที่กำหนดไว้ เช่น IS / อื่น ๆ ให้ข้าม
-if(!groupName) return;
+    // ถ้าไม่ใช่ 7 กลุ่มหลัก หรือภาษาต่างประเทศที่กำหนดไว้ เช่น IS / อื่น ๆ ให้ข้าม
+    if(!groupName) return;
 
-if(!groupMap.has(groupName)){
+    if(!groupMap.has(groupName)){
       groupMap.set(groupName, {
         name: groupName,
         sumWeightedGrade: 0,
@@ -2994,30 +3228,30 @@ if(!groupMap.has(groupName)){
       credit: item.sumCredit,
       subjectCount: item.subjectCount
     }))
-return Array.from(groupMap.values())
-  .map(item => ({
-    name: item.name,
-    average: item.sumCredit > 0 ? item.sumWeightedGrade / item.sumCredit : 0,
-    credit: item.sumCredit,
-    subjectCount: item.subjectCount
-  }))
-  .sort((a, b) => {
-    return RADAR_GROUP_ORDER.indexOf(a.name) - RADAR_GROUP_ORDER.indexOf(b.name);
-  });
+    .sort((a, b) => {
+      return RADAR_GROUP_ORDER.indexOf(a.name) - RADAR_GROUP_ORDER.indexOf(b.name);
+    });
 }
 
-function renderLearningAreaRadar(rows){
-  const canvas = $('learningAreaRadarChart');
-  const emptyBox = $('learningAreaRadarEmpty');
-  const listBox = $('learningAreaRadarList');
+      function renderRadarChartToTarget(rows, config){
+  const {
+    canvasId,
+    emptyId,
+    listId,
+    chartHolderName
+  } = config;
+
+  const canvas = $(canvasId);
+  const emptyBox = $(emptyId);
+  const listBox = $(listId);
 
   if(!canvas || !listBox) return;
 
   const radarData = buildLearningAreaRadarData(rows);
 
-  if(learningAreaRadarChart){
-    learningAreaRadarChart.destroy();
-    learningAreaRadarChart = null;
+  if(window[chartHolderName]){
+    window[chartHolderName].destroy();
+    window[chartHolderName] = null;
   }
 
   if(!radarData.length){
@@ -3031,7 +3265,7 @@ function renderLearningAreaRadar(rows){
   const labels = radarData.map(item => item.name);
   const values = radarData.map(item => Number(item.average.toFixed(2)));
 
-  learningAreaRadarChart = new Chart(canvas, {
+  window[chartHolderName] = new Chart(canvas, {
     type: 'radar',
     data: {
       labels,
@@ -3053,9 +3287,7 @@ function renderLearningAreaRadar(rows){
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false
-        },
+        legend: { display: false },
         tooltip: {
           callbacks: {
             label: context => `เกรดเฉลี่ย ${Number(context.raw || 0).toFixed(2)}`
@@ -3084,12 +3316,8 @@ function renderLearningAreaRadar(rows){
               weight: '800'
             }
           },
-          grid: {
-            color: '#dbe7f3'
-          },
-          angleLines: {
-            color: '#dbe7f3'
-          }
+          grid: { color: '#dbe7f3' },
+          angleLines: { color: '#dbe7f3' }
         }
       }
     }
@@ -3105,6 +3333,170 @@ function renderLearningAreaRadar(rows){
       </div>
     </div>
   `).join('');
+}
+
+function renderLearningAreaRadar(rows){
+  renderRadarChartToTarget(rows, {
+    canvasId: 'learningAreaRadarChart',
+    emptyId: 'learningAreaRadarEmpty',
+    listId: 'learningAreaRadarList',
+    chartHolderName: 'learningAreaRadarChart'
+  });
+}
+
+function renderOverviewLearningAreaRadar(rows){
+  renderRadarChartToTarget(rows, {
+    canvasId: 'overviewLearningAreaRadarChart',
+    emptyId: 'overviewLearningAreaRadarEmpty',
+    listId: 'overviewLearningAreaRadarList',
+    chartHolderName: 'overviewLearningAreaRadarChart'
+  });
+}
+
+      function buildTermGpaData(rows){
+  const map = new Map();
+
+  rows.forEach(row => {
+    const key = getClassTermKey(row);
+    if(!key || key.includes('--')) return;
+
+    if(!map.has(key)){
+      map.set(key, {
+        key,
+        label: getClassTermLabel(row),
+        academicYear: safeNumber(row?.[FIELD_MAP.grades.academicYear], 0),
+        term: safeNumber(row?.[FIELD_MAP.grades.term], 0),
+        classLevel: safeText(
+          row?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
+          row?.[FIELD_MAP.grades.classLevel],
+          ''
+        ),
+        rows: []
+      });
+    }
+
+    map.get(key).rows.push(row);
+  });
+
+  return Array.from(map.values())
+    .sort((a, b) => {
+      if(a.academicYear !== b.academicYear) return a.academicYear - b.academicYear;
+      if(a.term !== b.term) return a.term - b.term;
+
+      const classOrder = {'ม.1':1,'ม.2':2,'ม.3':3,'ม.4':4,'ม.5':5,'ม.6':6};
+      return (classOrder[a.classLevel] || 99) - (classOrder[b.classLevel] || 99);
+    })
+    .map(item => {
+      const summary = buildSummaryFromRows(item.rows);
+      return {
+        label: item.label,
+        gpa: Number(summary.gpa || 0)
+      };
+    });
+}
+
+function renderTermGpaBarChart(rows){
+  const canvas = $('termGpaBarChart');
+  if(!canvas) return;
+
+  const data = buildTermGpaData(rows);
+
+  if(termGpaBarChart){
+    termGpaBarChart.destroy();
+    termGpaBarChart = null;
+  }
+
+  termGpaBarChart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: data.map(item => item.label),
+      datasets: [{
+        label: 'GPA',
+        data: data.map(item => Number(item.gpa.toFixed(2))),
+        backgroundColor: '#60a5fa',
+        borderColor: '#2563eb',
+        borderWidth: 1,
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: context => `GPA ${Number(context.raw || 0).toFixed(2)}`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 4,
+          ticks: {
+            stepSize: 1,
+            font: {
+              family: 'Kanit',
+              size: 11,
+              weight: '700'
+            }
+          },
+          grid: { color: '#e5e7eb' }
+        },
+        x: {
+          ticks: {
+            font: {
+              family: 'Kanit',
+              size: 11,
+              weight: '700'
+            },
+            maxRotation: 0,
+            minRotation: 0
+          },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderGradeOverview(rows){
+  const profile = APP_STATE.studentProfile;
+  const summary = buildSummaryFromRows(rows);
+  const termCount = buildClassTermOptions(rows).length;
+
+  if($('overviewStudentCode')){
+    $('overviewStudentCode').textContent = safeText(profile?.[FIELD_MAP.students.sid], '-');
+  }
+
+  if($('overviewStudentName')){
+    $('overviewStudentName').textContent = safeText(profile?.[FIELD_MAP.students.fullName], '-');
+  }
+
+  if($('overviewTermCount')){
+    $('overviewTermCount').textContent = String(termCount);
+  }
+
+  if($('overviewTotalCredit')){
+    $('overviewTotalCredit').textContent = formatNumber(summary.totalLearned, 1);
+  }
+
+  if($('overviewGpa')){
+    $('overviewGpa').textContent = formatNumberFloor(summary.gpa, 2);
+  }
+
+  $('overviewBasicCreditLearned').textContent = formatNumber(summary.basicLearned, 1);
+  $('overviewBasicCreditEarned').textContent = formatNumber(summary.basicEarned, 1);
+  $('overviewAdditionalCreditLearned').textContent = formatNumber(summary.additionalLearned, 1);
+  $('overviewAdditionalCreditEarned').textContent = formatNumber(summary.additionalEarned, 1);
+  $('overviewTotalCreditLearned').textContent = formatNumber(summary.totalLearned, 1);
+  $('overviewTotalCreditEarned').textContent = formatNumber(summary.totalEarned, 1);
+  $('overviewSummaryGpa').textContent = formatNumberFloor(summary.gpa, 2);
+
+  renderTermGpaBarChart(rows);
+  renderOverviewLearningAreaRadar(rows);
 }
 
         function renderGradeTable(rows){
@@ -3306,9 +3698,10 @@ APP_STATE.latestGradeRows = [];
       $('topStudentIdentity').textContent = 'รหัสนักเรียน -';
       $('welcomeStudentName').textContent = 'คุณ -';
 
-      renderGradeTable([]);
-      renderSummary([]);
-      renderRemedialStatus();
+renderGradeTable([]);
+renderSummary([]);
+renderRemedialStatus();
+renderGradeOverview([]);
       closeStudentSidebar();
 
 if($('sidebarStudentName')){
@@ -3353,10 +3746,14 @@ function updateSidebarStudentName(){
 }
 
     function initMenuEvents(){
-      $('menuHomeBtn').addEventListener('click', () => setActiveMenu('home'));
-      $('menuGradesBtn').addEventListener('click', () => setActiveMenu('grades'));
-      $('menuRemedialStatusBtn').addEventListener('click', () => setActiveMenu('remedial'));
-
+$('menuHomeBtn').addEventListener('click', () => setActiveMenu('home'));
+$('menuGradesBtn').addEventListener('click', () => {
+  renderGradeOverview(APP_STATE.allGradeRows);
+  setActiveMenu('gradeOverview');
+});
+$('menuGradesTermBtn')?.addEventListener('click', () => setActiveMenu('grades'));
+$('menuRemedialStatusBtn').addEventListener('click', () => setActiveMenu('remedial'));
+      
 $('btnRequestStatus')?.addEventListener('click', () => setActiveMenu('remedial'));
 $('btnRequestHistory')?.addEventListener('click', () => setActiveMenu('remedial'));
 
