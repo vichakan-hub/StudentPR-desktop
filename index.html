@@ -1554,13 +1554,15 @@ body.portal-mode .app{
   }
 }
 
-    /* =====================================================
-   FINAL FIX : ตารางรายวิชาและผลการเรียนให้พอดีหน้าหลังมี Sidebar
+/* =====================================================
+   FINAL FIX : ตารางรายวิชาและผลการเรียน แบบพอดีหน้า
    ===================================================== */
 
 .grade-table-wrap{
-  overflow-x:hidden !important;
+  width:100% !important;
   max-width:100% !important;
+  overflow-x:hidden !important;
+  border-radius:18px !important;
 }
 
 .grade-report-table{
@@ -1568,96 +1570,96 @@ body.portal-mode .app{
   min-width:0 !important;
   max-width:100% !important;
   table-layout:fixed !important;
-  font-size:13px !important;
+  border-collapse:separate !important;
+  border-spacing:0 !important;
+  font-size:12.5px !important;
 }
 
-/* ลด padding ของหัวตารางและข้อมูล */
-.grade-report-table th,
-.grade-report-table td{
-  padding:10px 7px !important;
-  white-space:normal !important;
-  word-break:break-word !important;
+/* หัวตาราง ห้ามตัดทีละตัวอักษร */
+.grade-report-table thead th{
+  padding:10px 5px !important;
+  font-size:12px !important;
+  line-height:1.25 !important;
+  white-space:nowrap !important;
+  word-break:normal !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  text-align:center !important;
+  vertical-align:middle !important;
+}
+
+/* หัวกลุ่มประเมินผลสัมฤทธิ์ */
+.grade-report-table thead tr.group th{
+  height:44px !important;
+  font-size:12px !important;
+}
+
+/* แถวข้อมูล */
+.grade-report-table tbody td{
+  padding:9px 6px !important;
+  font-size:12.5px !important;
+  line-height:1.35 !important;
+  vertical-align:middle !important;
   overflow:hidden !important;
   text-overflow:ellipsis !important;
 }
 
 /* รหัสวิชา */
-.grade-report-table th:nth-child(1),
 .grade-report-table td:nth-child(1){
-  width:7% !important;
+  text-align:center !important;
+  white-space:nowrap !important;
 }
 
-/* รายวิชา */
-.grade-report-table th:nth-child(2),
+/* รายวิชา ให้ขึ้นบรรทัดได้ */
 .grade-report-table td:nth-child(2){
-  width:22% !important;
+  white-space:normal !important;
+  word-break:break-word !important;
+  font-weight:700 !important;
 }
 
-/* ประเภท */
-.grade-report-table th:nth-child(3),
-.grade-report-table td:nth-child(3){
-  width:8% !important;
+/* ประเภท / หน่วยกิต / คะแนน / เกรด */
+.grade-report-table td:nth-child(n+3):nth-child(-n+10){
+  text-align:center !important;
+  white-space:nowrap !important;
 }
 
-/* หน่วยกิต */
-.grade-report-table th:nth-child(4),
-.grade-report-table td:nth-child(4){
-  width:7% !important;
-}
-
-/* คะแนน 4 ช่อง: หน่วยการเรียน / กลางภาค / ปลายภาค / รวม */
-.grade-report-table th:nth-child(5),
-.grade-report-table td:nth-child(5),
-.grade-report-table th:nth-child(6),
-.grade-report-table td:nth-child(6),
-.grade-report-table th:nth-child(7),
-.grade-report-table td:nth-child(7),
-.grade-report-table th:nth-child(8),
-.grade-report-table td:nth-child(8){
-  width:7% !important;
-}
-
-/* เกรดปกติ / แก้ตัว */
-.grade-report-table th:nth-child(9),
-.grade-report-table td:nth-child(9),
-.grade-report-table th:nth-child(10),
-.grade-report-table td:nth-child(10){
-  width:7% !important;
-}
-
-/* ครูผู้สอน */
-.grade-report-table th:nth-child(11),
+/* ครูผู้สอน ให้ขึ้นบรรทัดได้ */
 .grade-report-table td:nth-child(11){
-  width:14% !important;
-}
-
-/* ลดขนาด badge ให้ไม่ดันคอลัมน์ */
-.grade-report-table .score-badge{
-  min-width:38px !important;
-  padding:4px 7px !important;
+  white-space:normal !important;
+  word-break:break-word !important;
   font-size:12px !important;
+  font-weight:700 !important;
 }
 
-.grade-report-table .grade-pill{
-  min-width:58px !important;
-  padding:6px 10px !important;
-  font-size:14px !important;
-}
-
-.grade-report-table .type-pill{
-  min-width:68px !important;
-  padding:5px 8px !important;
-  font-size:11.5px !important;
-}
-
-/* รายวิชาและครูผู้สอน ไม่ต้องบังคับ min-width เดิม */
+/* ยกเลิก min-width เดิมที่เคยดันตาราง */
 .grade-report-table .subject-name,
 .grade-report-table .teacher-name{
   min-width:0 !important;
 }
 
-/* จอเล็กมาก ค่อยให้เลื่อนแนวนอนได้ */
-@media (max-width:900px){
+/* ลดขนาด badge ให้พอดีช่อง */
+.grade-report-table .score-badge{
+  min-width:34px !important;
+  padding:4px 6px !important;
+  font-size:11.5px !important;
+  border-radius:9px !important;
+}
+
+.grade-report-table .grade-pill{
+  min-width:46px !important;
+  padding:5px 7px !important;
+  font-size:13px !important;
+  border-radius:999px !important;
+}
+
+.grade-report-table .type-pill{
+  min-width:62px !important;
+  padding:4px 7px !important;
+  font-size:11px !important;
+}
+
+/* จอเล็กค่อยให้เลื่อนแนวนอน */
+@media (max-width:1100px){
   .grade-table-wrap{
     overflow-x:auto !important;
   }
@@ -1882,6 +1884,19 @@ body.portal-mode .app{
           <div class="table-pad">
           <div class="table-wrap grade-table-wrap">
              <table class="grade-report-table">
+  <colgroup>
+    <col style="width:8%;">
+    <col style="width:25%;">
+    <col style="width:8%;">
+    <col style="width:6%;">
+    <col style="width:6%;">
+    <col style="width:5.5%;">
+    <col style="width:5.5%;">
+    <col style="width:5.5%;">
+    <col style="width:6%;">
+    <col style="width:5.5%;">
+    <col style="width:19%;">
+  </colgroup>
                 <thead>
                   <tr class="group">
                     <th rowspan="2">รหัสวิชา</th>
@@ -1891,14 +1906,14 @@ body.portal-mode .app{
                     <th colspan="6">ประเมินผลสัมฤทธิ์</th>
                     <th rowspan="2">ครูผู้สอน</th>
                   </tr>
-                  <tr>
-                    <th>หน่วยการเรียน</th>
-                    <th>กลางภาค</th>
-                    <th>ปลายภาค</th>
-                    <th>รวม</th>
-                    <th>เกรดปกติ</th>
-                    <th>แก้ตัว</th>
-                  </tr>
+                  <<tr>
+  <th>หน่วย</th>
+  <th>กลาง</th>
+  <th>ปลาย</th>
+  <th>รวม</th>
+  <th>เกรด</th>
+  <th>แก้ตัว</th>
+</tr
                 </thead>
                 <tbody id="gradeTableBody">
                   <tr>
