@@ -2883,13 +2883,12 @@ saveSession();
       }
     }
 
-      const LANGUAGE_PREFIX_MAP = {
+const LANGUAGE_PREFIX_MAP = {
   'อ': 'ภาษาอังกฤษ',
   'จ': 'ภาษาจีน',
   'ญ': 'ภาษาญี่ปุ่น',
   'ต': 'ภาษาเกาหลี',
-  'ข': 'ภาษาเขมร',
-  
+  'ข': 'ภาษาเขมร'
 };
 
 const LEARNING_AREA_PREFIX_MAP = {
@@ -2902,6 +2901,21 @@ const LEARNING_AREA_PREFIX_MAP = {
   'ง': 'การงานอาชีพ'
 };
 
+const RADAR_GROUP_ORDER = [
+  'ภาษาไทย',
+  'คณิตศาสตร์',
+  'วิทยาศาสตร์',
+  'สังคมศึกษา',
+  'สุขศึกษาและพลศึกษา',
+  'ศิลปะ',
+  'การงานอาชีพ',
+  'ภาษาอังกฤษ',
+  'ภาษาจีน',
+  'ภาษาญี่ปุ่น',
+  'ภาษาเกาหลี',
+  'ภาษาเขมร'
+];
+
 function getSubjectCodePrefix(row){
   const code = safeText(row?.subjects?.[FIELD_MAP.subject.code], '');
   return String(code || '').trim().charAt(0);
@@ -2910,23 +2924,18 @@ function getSubjectCodePrefix(row){
 function getRadarGroupName(row){
   const prefix = getSubjectCodePrefix(row);
 
-  // ภาษาต่างประเทศ: แยกจากตัวแรกของรหัสวิชา
+  // กลุ่มสาระภาษาต่างประเทศ ให้แตกเป็นภาษาที่เรียนจริง
   if(LANGUAGE_PREFIX_MAP[prefix]){
     return LANGUAGE_PREFIX_MAP[prefix];
   }
 
-  // กลุ่มสาระหลัก: ใช้ตัวแรกของรหัสวิชาเหมือนกัน เพื่อให้สม่ำเสมอ
+  // 7 กลุ่มสาระหลักอื่น ๆ
   if(LEARNING_AREA_PREFIX_MAP[prefix]){
     return LEARNING_AREA_PREFIX_MAP[prefix];
   }
 
-  // fallback กรณีมี learning_area ใน subjects
-  const learningArea = safeText(row?.subjects?.[FIELD_MAP.subject.learningArea], '');
-  if(learningArea){
-    return learningArea;
-  }
-
-  return 'อื่น ๆ';
+  // IS / กิจกรรม / รหัสอื่น ๆ ไม่ต้องแสดงในกราฟ
+  return null;
 }
 
 function getNumericGradeValue(grade){
@@ -2958,9 +2967,12 @@ function buildLearningAreaRadarData(rows){
     const credit = getCreditValue(row) || 0;
     if(credit <= 0) return;
 
-    const groupName = getRadarGroupName(row);
+const groupName = getRadarGroupName(row);
 
-    if(!groupMap.has(groupName)){
+// ถ้าไม่ใช่ 7 กลุ่มหลัก หรือภาษาต่างประเทศที่กำหนดไว้ เช่น IS / อื่น ๆ ให้ข้าม
+if(!groupName) return;
+
+if(!groupMap.has(groupName)){
       groupMap.set(groupName, {
         name: groupName,
         sumWeightedGrade: 0,
@@ -2982,31 +2994,16 @@ function buildLearningAreaRadarData(rows){
       credit: item.sumCredit,
       subjectCount: item.subjectCount
     }))
-    .sort((a, b) => {
-      const order = [
-        'ภาษาไทย',
-        'คณิตศาสตร์',
-        'วิทยาศาสตร์',
-        'สังคมศึกษา',
-        'สุขศึกษาและพลศึกษา',
-        'ศิลปะ',
-        'การงานอาชีพ',
-        'ภาษาอังกฤษ',
-        'ภาษาจีน',
-        'ภาษาญี่ปุ่น',
-        'ภาษาเกาหลี',
-        'ภาษาเขมร'
-      ];
-
-      const ia = order.indexOf(a.name);
-      const ib = order.indexOf(b.name);
-
-      if(ia !== -1 || ib !== -1){
-        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-      }
-
-      return a.name.localeCompare(b.name, 'th');
-    });
+return Array.from(groupMap.values())
+  .map(item => ({
+    name: item.name,
+    average: item.sumCredit > 0 ? item.sumWeightedGrade / item.sumCredit : 0,
+    credit: item.sumCredit,
+    subjectCount: item.subjectCount
+  }))
+  .sort((a, b) => {
+    return RADAR_GROUP_ORDER.indexOf(a.name) - RADAR_GROUP_ORDER.indexOf(b.name);
+  });
 }
 
 function renderLearningAreaRadar(rows){
