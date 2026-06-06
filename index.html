@@ -2220,6 +2220,8 @@ body.portal-mode .app{
     const SUPABASE_ANON_KEY = 'sb_publishable_bvvfwIdiPxyN2hYXVogVHQ_QxXE0I1_';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let learningAreaRadarChart = null;
+
 const APP_STATE = {
   currentUser: null,
   studentProfile: null,
@@ -2583,7 +2585,7 @@ function getRowsBySelectedClassTerm(rows){
     .sort(compareGradeRows);
 }
 
-      function applySelectedTerm(){
+function applySelectedTerm(){
   const selectedRows = getRowsBySelectedClassTerm(APP_STATE.allGradeRows);
 
   APP_STATE.latestGradeRows = selectedRows;
@@ -2592,6 +2594,7 @@ function getRowsBySelectedClassTerm(rows){
   renderGradeTable(selectedRows);
   renderSummary(selectedRows);
   applyRemedialEligibility(selectedRows);
+  renderLearningAreaRadar(selectedRows);
   renderRemedialStatus();
 }
 
@@ -2829,19 +2832,26 @@ function buildSummaryFromRows(rows){
       }
     }
 
-    function applyRemedialEligibility(rows){
-      const eligible = canRequestRemedial(rows);
+function applyRemedialEligibility(rows){
+  const btn = $('btnRequestRemedial');
+  const note = $('actionEligibilityNote');
 
-      $('btnRequestRemedial').disabled = !eligible;
+  // ตอนนี้หน้าเดิมถูกแทนด้วยกราฟแมงมุมแล้ว
+  // ถ้าไม่มีปุ่ม/กล่องข้อความเดิม ให้ข้ามทันที
+  if(!btn || !note) return;
 
-      if(eligible){
-        $('actionEligibilityNote').className = 'action-note ok';
-        $('actionEligibilityNote').textContent = 'ตรวจพบรายวิชาที่มีเกรด 0, ร, มส หรือ มผ ในภาคเรียนล่าสุด จึงสามารถยื่นคำร้องสอบแก้ตัวได้';
-      }else{
-        $('actionEligibilityNote').className = 'action-note warn';
-        $('actionEligibilityNote').textContent = 'ไม่พบรายวิชาที่มีเกรด 0, ร, มส หรือ มผ ในภาคเรียนล่าสุด ปุ่มยื่นคำร้องสอบแก้ตัวจึงถูกปิดใช้งาน';
-      }
-    }
+  const eligible = canRequestRemedial(rows);
+
+  btn.disabled = !eligible;
+
+  if(eligible){
+    note.className = 'action-note ok';
+    note.textContent = 'ตรวจพบรายวิชาที่มีเกรด 0, ร, มส หรือ มผ ในภาคเรียนล่าสุด จึงสามารถยื่นคำร้องสอบแก้ตัวได้';
+  }else{
+    note.className = 'action-note warn';
+    note.textContent = 'ไม่พบรายวิชาที่มีเกรด 0, ร, มส หรือ มผ ในภาคเรียนล่าสุด ปุ่มยื่นคำร้องสอบแก้ตัวจึงถูกปิดใช้งาน';
+  }
+}
 
     async function loadPortalData(){
       if(!APP_STATE.currentUser?.id){
@@ -2872,6 +2882,233 @@ saveSession();
         showLoading(false);
       }
     }
+
+      const LANGUAGE_PREFIX_MAP = {
+  'อ': 'ภาษาอังกฤษ',
+  'จ': 'ภาษาจีน',
+  'ญ': 'ภาษาญี่ปุ่น',
+  'ต': 'ภาษาเกาหลี',
+  'ข': 'ภาษาเขมร',
+  
+};
+
+const LEARNING_AREA_PREFIX_MAP = {
+  'ท': 'ภาษาไทย',
+  'ค': 'คณิตศาสตร์',
+  'ว': 'วิทยาศาสตร์',
+  'ส': 'สังคมศึกษา',
+  'พ': 'สุขศึกษาและพลศึกษา',
+  'ศ': 'ศิลปะ',
+  'ง': 'การงานอาชีพ'
+};
+
+function getSubjectCodePrefix(row){
+  const code = safeText(row?.subjects?.[FIELD_MAP.subject.code], '');
+  return String(code || '').trim().charAt(0);
+}
+
+function getRadarGroupName(row){
+  const prefix = getSubjectCodePrefix(row);
+
+  // ภาษาต่างประเทศ: แยกจากตัวแรกของรหัสวิชา
+  if(LANGUAGE_PREFIX_MAP[prefix]){
+    return LANGUAGE_PREFIX_MAP[prefix];
+  }
+
+  // กลุ่มสาระหลัก: ใช้ตัวแรกของรหัสวิชาเหมือนกัน เพื่อให้สม่ำเสมอ
+  if(LEARNING_AREA_PREFIX_MAP[prefix]){
+    return LEARNING_AREA_PREFIX_MAP[prefix];
+  }
+
+  // fallback กรณีมี learning_area ใน subjects
+  const learningArea = safeText(row?.subjects?.[FIELD_MAP.subject.learningArea], '');
+  if(learningArea){
+    return learningArea;
+  }
+
+  return 'อื่น ๆ';
+}
+
+function getNumericGradeValue(grade){
+  const g = normalizeGrade(grade);
+  const map = {
+    '4': 4,
+    '3.5': 3.5,
+    '3': 3,
+    '2.5': 2.5,
+    '2': 2,
+    '1.5': 1.5,
+    '1': 1,
+    '0': 0
+  };
+
+  return Object.prototype.hasOwnProperty.call(map, g) ? map[g] : null;
+}
+
+function buildLearningAreaRadarData(rows){
+  const groupMap = new Map();
+
+  rows.forEach(row => {
+    const effectiveGrade = getEffectiveGrade(row);
+    const numericGrade = getNumericGradeValue(effectiveGrade);
+
+    // กราฟใช้เฉพาะเกรดตัวเลข 0-4
+    if(numericGrade === null) return;
+
+    const credit = getCreditValue(row) || 0;
+    if(credit <= 0) return;
+
+    const groupName = getRadarGroupName(row);
+
+    if(!groupMap.has(groupName)){
+      groupMap.set(groupName, {
+        name: groupName,
+        sumWeightedGrade: 0,
+        sumCredit: 0,
+        subjectCount: 0
+      });
+    }
+
+    const item = groupMap.get(groupName);
+    item.sumWeightedGrade += numericGrade * credit;
+    item.sumCredit += credit;
+    item.subjectCount += 1;
+  });
+
+  return Array.from(groupMap.values())
+    .map(item => ({
+      name: item.name,
+      average: item.sumCredit > 0 ? item.sumWeightedGrade / item.sumCredit : 0,
+      credit: item.sumCredit,
+      subjectCount: item.subjectCount
+    }))
+    .sort((a, b) => {
+      const order = [
+        'ภาษาไทย',
+        'คณิตศาสตร์',
+        'วิทยาศาสตร์',
+        'สังคมศึกษา',
+        'สุขศึกษาและพลศึกษา',
+        'ศิลปะ',
+        'การงานอาชีพ',
+        'ภาษาอังกฤษ',
+        'ภาษาจีน',
+        'ภาษาญี่ปุ่น',
+        'ภาษาเกาหลี',
+        'ภาษาเขมร'
+      ];
+
+      const ia = order.indexOf(a.name);
+      const ib = order.indexOf(b.name);
+
+      if(ia !== -1 || ib !== -1){
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      }
+
+      return a.name.localeCompare(b.name, 'th');
+    });
+}
+
+function renderLearningAreaRadar(rows){
+  const canvas = $('learningAreaRadarChart');
+  const emptyBox = $('learningAreaRadarEmpty');
+  const listBox = $('learningAreaRadarList');
+
+  if(!canvas || !listBox) return;
+
+  const radarData = buildLearningAreaRadarData(rows);
+
+  if(learningAreaRadarChart){
+    learningAreaRadarChart.destroy();
+    learningAreaRadarChart = null;
+  }
+
+  if(!radarData.length){
+    emptyBox?.classList.remove('hidden');
+    listBox.innerHTML = '';
+    return;
+  }
+
+  emptyBox?.classList.add('hidden');
+
+  const labels = radarData.map(item => item.name);
+  const values = radarData.map(item => Number(item.average.toFixed(2)));
+
+  learningAreaRadarChart = new Chart(canvas, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'เกรดเฉลี่ย',
+        data: values,
+        fill: true,
+        backgroundColor: 'rgba(47, 109, 224, 0.18)',
+        borderColor: '#2f6de0',
+        pointBackgroundColor: '#2f6de0',
+        pointBorderColor: '#ffffff',
+        pointHoverBackgroundColor: '#ffffff',
+        pointHoverBorderColor: '#2f6de0',
+        borderWidth: 2,
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: context => `เกรดเฉลี่ย ${Number(context.raw || 0).toFixed(2)}`
+          }
+        }
+      },
+      scales: {
+        r: {
+          min: 0,
+          max: 4,
+          ticks: {
+            stepSize: 1,
+            backdropColor: 'transparent',
+            color: '#64748b',
+            font: {
+              family: 'Kanit',
+              size: 11,
+              weight: '700'
+            }
+          },
+          pointLabels: {
+            color: '#17324a',
+            font: {
+              family: 'Kanit',
+              size: 12,
+              weight: '800'
+            }
+          },
+          grid: {
+            color: '#dbe7f3'
+          },
+          angleLines: {
+            color: '#dbe7f3'
+          }
+        }
+      }
+    }
+  });
+
+  listBox.innerHTML = radarData.map(item => `
+    <div class="radar-score-item">
+      <div class="radar-score-name" title="${escapeHtml(item.name)}">
+        ${escapeHtml(item.name)}
+      </div>
+      <div class="radar-score-value">
+        ${formatNumberFloor(item.average, 2)}
+      </div>
+    </div>
+  `).join('');
+}
 
         function renderGradeTable(rows){
       const tbody = $('gradeTableBody');
@@ -3123,13 +3360,13 @@ function updateSidebarStudentName(){
       $('menuGradesBtn').addEventListener('click', () => setActiveMenu('grades'));
       $('menuRemedialStatusBtn').addEventListener('click', () => setActiveMenu('remedial'));
 
-      $('btnRequestStatus').addEventListener('click', () => setActiveMenu('remedial'));
-      $('btnRequestHistory').addEventListener('click', () => setActiveMenu('remedial'));
+$('btnRequestStatus')?.addEventListener('click', () => setActiveMenu('remedial'));
+$('btnRequestHistory')?.addEventListener('click', () => setActiveMenu('remedial'));
 
-      $('btnRequestRemedial').addEventListener('click', () => {
-        if($('btnRequestRemedial').disabled) return;
-        alert('เมนูนี้เตรียมไว้สำหรับเชื่อมต่อฟอร์มคำร้องสอบแก้ตัวจริงในรอบถัดไป');
-      });
+$('btnRequestRemedial')?.addEventListener('click', () => {
+  if($('btnRequestRemedial')?.disabled) return;
+  alert('เมนูนี้เตรียมไว้สำหรับเชื่อมต่อฟอร์มคำร้องสอบแก้ตัวจริงในรอบถัดไป');
+});
 
       $('refreshBtn').addEventListener('click', handleRefresh);
       $('logoutBtn').addEventListener('click', handleLogout);
