@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
     :root{
@@ -1710,6 +1711,110 @@ body.portal-mode .app{
     min-width:0;
   }
 }
+    /* =====================================================
+   Learning Area Radar Chart
+   ===================================================== */
+
+.radar-card{
+  background:rgba(244,234,247,.90);
+  overflow:hidden;
+}
+
+.radar-head{
+  padding:18px 20px;
+  border-bottom:1px solid #dde6f0;
+  background:#eef1f5;
+}
+
+.radar-title{
+  margin:0;
+  font-size:21px;
+  color:#123456;
+  font-weight:800;
+}
+
+.radar-subtitle{
+  margin:4px 0 0;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.radar-body{
+  padding:16px;
+  display:grid;
+  gap:12px;
+}
+
+.radar-chart-wrap{
+  height:320px;
+  width:100%;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:12px;
+}
+
+.radar-empty{
+  padding:18px;
+  border:1px dashed #cbd5e1;
+  border-radius:16px;
+  background:#f8fbff;
+  color:#64748b;
+  text-align:center;
+  font-size:14px;
+  font-weight:700;
+}
+
+.radar-score-list{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:8px;
+}
+
+.radar-score-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  border:1px solid #d9e8ff;
+  border-radius:14px;
+  background:#f8fbff;
+}
+
+.radar-score-name{
+  font-size:13px;
+  font-weight:800;
+  color:#17324a;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.radar-score-value{
+  min-width:54px;
+  text-align:center;
+  padding:5px 9px;
+  border-radius:999px;
+  background:linear-gradient(180deg, #eff6ff, #dbeafe);
+  border:1px solid #cfe0ff;
+  color:#1d4ed8;
+  font-family:'Sarabun',sans-serif;
+  font-size:15px;
+  font-weight:800;
+}
+
+@media (max-width:720px){
+  .radar-chart-wrap{
+    height:280px;
+  }
+
+  .radar-score-list{
+    grid-template-columns:1fr;
+  }
+}
 
   </style>
 </head>
@@ -2021,31 +2126,26 @@ body.portal-mode .app{
             </div>
           </div>
 
-          <div class="action-card card">
-            <div class="action-head">
-              <div>
-                <h3 class="action-title">เมนูคำร้องสอบแก้ตัว</h3>
-                <p class="action-subtitle">แสดงผลตามเงื่อนไขเกรดของภาคเรียนล่าสุด</p>
-              </div>
-            </div>
+<div class="radar-card card">
+  <div class="radar-head">
+    <div>
+      <h3 class="radar-title">ภาพรวมเกรดเฉลี่ยรายกลุ่มสาระ</h3>
+      <p class="radar-subtitle">คำนวณจากเกรดเฉลี่ยถ่วงน้ำหนักตามหน่วยกิตของเทอมที่เลือก</p>
+    </div>
+  </div>
 
-            <div class="action-body">
-              <div class="action-intro">
-                ระบบจะตรวจสอบอัตโนมัติว่าในภาคเรียนล่าสุดมีผลการเรียน 0, ร, มส หรือ มผ หรือไม่
-                หากไม่มี ปุ่มยื่นคำร้องจะถูกปิดใช้งานอัตโนมัติ
-              </div>
+  <div class="radar-body">
+    <div class="radar-chart-wrap">
+      <canvas id="learningAreaRadarChart"></canvas>
+    </div>
 
-              <div class="action-menu">
-                <button class="btn btn-primary action-btn" type="button" id="btnRequestRemedial">ยื่นคำร้องขอสอบแก้ตัว</button>
-                <button class="btn btn-outline action-btn" type="button" id="btnRequestStatus">ตรวจสอบสถานะคำร้อง</button>
-                <button class="btn btn-outline action-btn" type="button" id="btnRequestHistory">ประวัติการยื่นคำร้อง</button>
-              </div>
+    <div id="learningAreaRadarEmpty" class="radar-empty hidden">
+      ไม่พบข้อมูลเกรดตัวเลขสำหรับสร้างกราฟ
+    </div>
 
-              <div class="action-note" id="actionEligibilityNote">
-                หมายเหตุ: ตอนนี้ปุ่มเมนูเป็นโครงหน้าแบบพร้อมต่อระบบจริง หากต้องการสามารถเชื่อมต่อฟอร์มคำร้องจริงได้ภายหลัง
-              </div>
-            </div>
-          </div>
+    <div class="radar-score-list" id="learningAreaRadarList"></div>
+  </div>
+</div>
         </div>
       </section>
 
