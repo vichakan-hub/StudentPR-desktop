@@ -2446,6 +2446,8 @@ body.portal-mode .app{
     let overviewLearningAreaRadarChart = null;
     let termGpaBarChart = null;
 
+    const CHART_INSTANCES = {};
+
 const APP_STATE = {
   currentUser: null,
   studentProfile: null,
@@ -2629,6 +2631,23 @@ function setActiveMenu(pageKey){
   if(pageKey === 'grades'){
     $('menuGradesBtn')?.classList.add('active');
   }
+
+  const titleMap = {
+  home: 'หน้าแรก',
+  gradeOverview: 'ดูผลการเรียน',
+  grades: 'ดูผลการเรียนรายเทอม',
+  remedial: 'ตรวจสอบสถานะการสอบแก้ตัว'
+};
+
+const subMap = {
+  home: 'ระบบสารสนเทศผลการเรียน',
+  gradeOverview: 'ภาพรวมผลการเรียนทั้งหมด',
+  grades: 'เลือกดูผลการเรียนย้อนหลังตามชั้น/ภาคเรียน',
+  remedial: 'ติดตามสถานะคำร้องสอบแก้ตัว'
+};
+
+document.querySelector('.student-topbar-title').textContent = titleMap[pageKey] || 'หน้าแรก';
+document.querySelector('.student-topbar-sub').textContent = subMap[pageKey] || 'ระบบสารสนเทศผลการเรียน';
 
   closeStudentSidebar();
 }
@@ -3233,12 +3252,12 @@ function buildLearningAreaRadarData(rows){
     });
 }
 
-      function renderRadarChartToTarget(rows, config){
+function renderRadarChartToTarget(rows, config){
   const {
     canvasId,
     emptyId,
     listId,
-    chartHolderName
+    chartKey
   } = config;
 
   const canvas = $(canvasId);
@@ -3249,9 +3268,9 @@ function buildLearningAreaRadarData(rows){
 
   const radarData = buildLearningAreaRadarData(rows);
 
-  if(window[chartHolderName]){
-    window[chartHolderName].destroy();
-    window[chartHolderName] = null;
+  if(CHART_INSTANCES[chartKey]){
+    CHART_INSTANCES[chartKey].destroy();
+    CHART_INSTANCES[chartKey] = null;
   }
 
   if(!radarData.length){
@@ -3265,7 +3284,7 @@ function buildLearningAreaRadarData(rows){
   const labels = radarData.map(item => item.name);
   const values = radarData.map(item => Number(item.average.toFixed(2)));
 
-  window[chartHolderName] = new Chart(canvas, {
+  CHART_INSTANCES[chartKey] = new Chart(canvas, {
     type: 'radar',
     data: {
       labels,
@@ -3340,7 +3359,7 @@ function renderLearningAreaRadar(rows){
     canvasId: 'learningAreaRadarChart',
     emptyId: 'learningAreaRadarEmpty',
     listId: 'learningAreaRadarList',
-    chartHolderName: 'learningAreaRadarChart'
+    chartKey: 'termRadar'
   });
 }
 
@@ -3349,7 +3368,7 @@ function renderOverviewLearningAreaRadar(rows){
     canvasId: 'overviewLearningAreaRadarChart',
     emptyId: 'overviewLearningAreaRadarEmpty',
     listId: 'overviewLearningAreaRadarList',
-    chartHolderName: 'overviewLearningAreaRadarChart'
+    chartKey: 'overviewRadar'
   });
 }
 
