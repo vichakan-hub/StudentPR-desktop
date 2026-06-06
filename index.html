@@ -1668,6 +1668,48 @@ body.portal-mode .app{
     min-width:980px !important;
   }
 }
+    /* =====================================================
+   Term Selector : เลือกชั้น/เทอม
+   ===================================================== */
+
+.term-select-box{
+  min-width:260px;
+  display:grid;
+  gap:6px;
+}
+
+.term-select-box label{
+  font-size:12px;
+  font-weight:800;
+  color:#607387;
+}
+
+.term-select-box select{
+  width:100%;
+  height:44px;
+  border-radius:16px;
+  border:1px solid #d7e7ff;
+  background:#f8fbff;
+  color:#17324a;
+  font-family:'Kanit',sans-serif;
+  font-size:14px;
+  font-weight:800;
+  padding:0 14px;
+  outline:none;
+  cursor:pointer;
+}
+
+.term-select-box select:focus{
+  border-color:#8ebcf9;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10);
+}
+
+@media (max-width:720px){
+  .term-select-box{
+    width:100%;
+    min-width:0;
+  }
+}
 
   </style>
 </head>
@@ -1841,13 +1883,19 @@ body.portal-mode .app{
 
       <section id="pageGrades" class="hidden">
         <div class="student-head card">
-          <div class="student-top">
-            <div>
-              <h2 class="student-title">ดูผลการเรียน</h2>
-              <p class="student-subtitle">แสดงรายวิชาเฉพาะภาคเรียนล่าสุดที่มีข้อมูลผลการเรียน</p>
-            </div>
-            <div class="hero-chip" style="margin:0;background:#eef5ff;border-color:#d7e7ff;color:#1746a2;">Student Academic Report</div>
-          </div>
+<div class="student-top">
+  <div>
+    <h2 class="student-title">ดูผลการเรียน</h2>
+    <p class="student-subtitle">เลือกดูผลการเรียนย้อนหลังได้ตามชั้น/ภาคเรียน</p>
+  </div>
+
+  <div class="term-select-box">
+    <label for="termSelector">เลือกชั้น/เทอม</label>
+    <select id="termSelector">
+      <option value="">กำลังโหลดข้อมูล...</option>
+    </select>
+  </div>
+</div>
 
           <div class="student-meta">
             <div class="meta-item">
@@ -1913,7 +1961,7 @@ body.portal-mode .app{
   <th>รวม</th>
   <th>เกรด</th>
   <th>แก้ตัว</th>
-</tr
+                  </tr>
                 </thead>
                 <tbody id="gradeTableBody">
                   <tr>
@@ -2072,13 +2120,15 @@ body.portal-mode .app{
     const SUPABASE_ANON_KEY = 'sb_publishable_bvvfwIdiPxyN2hYXVogVHQ_QxXE0I1_';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const APP_STATE = {
-      currentUser: null,
-      studentProfile: null,
-      latestYearTerm: null,
-      latestGradeRows: [],
-      remedialRequests: []
-    };
+const APP_STATE = {
+  currentUser: null,
+  studentProfile: null,
+  latestYearTerm: null,
+  selectedYearTerm: null,
+  allGradeRows: [],
+  latestGradeRows: [],
+  remedialRequests: []
+};
 
     const PAGE_IDS = {
       home: 'pageHome',
@@ -2335,6 +2385,115 @@ function getLatestClassLevel(rows){
       const term = safeText(first?.[FIELD_MAP.grades.term]);
       return `${term} / ${year}`;
     }
+
+      function getClassTermKey(row){
+  const year = safeNumber(row?.[FIELD_MAP.grades.academicYear], 0);
+  const term = safeNumber(row?.[FIELD_MAP.grades.term], 0);
+
+  const classLevel = safeText(
+    row?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
+    row?.[FIELD_MAP.grades.classLevel],
+    ''
+  );
+
+  return `${year}-${term}-${classLevel}`;
+}
+
+function getClassTermLabel(row){
+  const year = safeText(row?.[FIELD_MAP.grades.academicYear], '-');
+  const term = safeText(row?.[FIELD_MAP.grades.term], '-');
+
+  const classLevel = safeText(
+    row?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
+    row?.[FIELD_MAP.grades.classLevel],
+    '-'
+  );
+
+  return `${classLevel} เทอม ${term} / ${year}`;
+}
+
+function compareClassTermDesc(a, b){
+  if(b.academicYear !== a.academicYear) return b.academicYear - a.academicYear;
+  if(b.term !== a.term) return b.term - a.term;
+
+  const classOrder = {'ม.1':1,'ม.2':2,'ม.3':3,'ม.4':4,'ม.5':5,'ม.6':6};
+  return (classOrder[b.classLevel] || 99) - (classOrder[a.classLevel] || 99);
+}
+
+function buildClassTermOptions(rows){
+  const map = new Map();
+
+  rows.forEach(row => {
+    const key = getClassTermKey(row);
+    if(!key || key.includes('--')) return;
+
+    const year = safeNumber(row?.[FIELD_MAP.grades.academicYear], 0);
+    const term = safeNumber(row?.[FIELD_MAP.grades.term], 0);
+
+    const classLevel = safeText(
+      row?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
+      row?.[FIELD_MAP.grades.classLevel],
+      ''
+    );
+
+    if(!year || !term || !classLevel) return;
+
+    if(!map.has(key)){
+      map.set(key, {
+        key,
+        label: getClassTermLabel(row),
+        academicYear: year,
+        term,
+        classLevel
+      });
+    }
+  });
+
+  return Array.from(map.values()).sort(compareClassTermDesc);
+}
+
+function renderTermSelector(rows){
+  const select = $('termSelector');
+  if(!select) return;
+
+  const options = buildClassTermOptions(rows);
+
+  if(!options.length){
+    select.innerHTML = `<option value="">ไม่พบข้อมูลผลการเรียน</option>`;
+    APP_STATE.selectedYearTerm = null;
+    return;
+  }
+
+  const currentKey = APP_STATE.selectedYearTerm || options[0].key;
+  APP_STATE.selectedYearTerm = currentKey;
+
+  select.innerHTML = options.map(option => `
+    <option value="${escapeHtml(option.key)}" ${option.key === currentKey ? 'selected' : ''}>
+      ${escapeHtml(option.label)}
+    </option>
+  `).join('');
+}
+
+function getRowsBySelectedClassTerm(rows){
+  const selectedKey = APP_STATE.selectedYearTerm;
+  if(!selectedKey) return [];
+
+  return rows
+    .filter(row => getClassTermKey(row) === selectedKey)
+    .sort(compareGradeRows);
+}
+
+      function applySelectedTerm(){
+  const selectedRows = getRowsBySelectedClassTerm(APP_STATE.allGradeRows);
+
+  APP_STATE.latestGradeRows = selectedRows;
+
+  updateGradeHeaderMeta(selectedRows);
+  renderGradeTable(selectedRows);
+  renderSummary(selectedRows);
+  applyRemedialEligibility(selectedRows);
+  renderRemedialStatus();
+}
 
     function getStudentDisplayRoomNo(studentProfile){
 
@@ -2598,15 +2757,17 @@ function buildSummaryFromRows(rows){
 
         updatePortalIdentity();
 
-        const allGradeRows = await fetchAllStudentGradeRows(APP_STATE.currentUser.id);
-        APP_STATE.latestGradeRows = getLatestTermRows(allGradeRows);
+const allGradeRows = await fetchAllStudentGradeRows(APP_STATE.currentUser.id);
+APP_STATE.allGradeRows = allGradeRows;
 
-        updateGradeHeaderMeta(APP_STATE.latestGradeRows);
-        renderGradeTable(APP_STATE.latestGradeRows);
-        renderSummary(APP_STATE.latestGradeRows);
-        applyRemedialEligibility(APP_STATE.latestGradeRows);
-        renderRemedialStatus();
-        saveSession();
+const options = buildClassTermOptions(allGradeRows);
+APP_STATE.selectedYearTerm = APP_STATE.selectedYearTerm || options[0]?.key || null;
+APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
+
+renderTermSelector(allGradeRows);
+applySelectedTerm();
+
+saveSession();
       } finally {
         showLoading(false);
       }
@@ -2795,8 +2956,10 @@ function buildSummaryFromRows(rows){
     function handleLogout(){
       APP_STATE.currentUser = null;
       APP_STATE.studentProfile = null;
-      APP_STATE.latestYearTerm = null;
-      APP_STATE.latestGradeRows = [];
+APP_STATE.latestYearTerm = null;
+APP_STATE.selectedYearTerm = null;
+APP_STATE.allGradeRows = [];
+APP_STATE.latestGradeRows = [];
       APP_STATE.remedialRequests = [];
 
       clearSession();
@@ -2816,6 +2979,9 @@ function buildSummaryFromRows(rows){
 
 if($('sidebarStudentName')){
   $('sidebarStudentName').textContent = 'นักเรียน';
+}
+if($('termSelector')){
+  $('termSelector').innerHTML = `<option value="">ยังไม่มีข้อมูล</option>`;
 }
     }
 
@@ -2869,6 +3035,11 @@ function updateSidebarStudentName(){
       $('logoutBtn').addEventListener('click', handleLogout);
       $('studentSidebarToggleBtn')?.addEventListener('click', toggleStudentSidebar);
       $('studentSidebarBackdrop')?.addEventListener('click', closeStudentSidebar);
+      $('termSelector')?.addEventListener('change', () => {
+  APP_STATE.selectedYearTerm = $('termSelector').value || null;
+  APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
+  applySelectedTerm();
+});
     }
 
     function initLoginEvents(){
