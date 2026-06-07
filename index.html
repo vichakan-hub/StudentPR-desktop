@@ -1948,6 +1948,61 @@ body.portal-mode .app{
   min-width:0 !important;
 }
 
+    /* =====================================================
+   Sidebar grade submenu : ยุบ/ขยาย + ปุ่มรายเทอม
+   ===================================================== */
+
+.grade-main-btn{
+  justify-content:space-between !important;
+}
+
+.submenu-chevron{
+  margin-left:auto;
+  font-size:13px;
+  transition:.18s ease;
+  opacity:.8;
+}
+
+.student-sidebar-group.collapsed .submenu-chevron{
+  transform:rotate(-90deg);
+}
+
+.student-sidebar-group.collapsed .student-sidebar-submenu{
+  display:none !important;
+}
+
+.grade-term-sidebar-list{
+  display:grid;
+  gap:6px;
+}
+
+.grade-term-btn{
+  width:100%;
+  min-height:40px;
+  justify-content:flex-start;
+  border-radius:14px;
+  padding:0 12px;
+  background:transparent;
+  border:0;
+  color:#41536c;
+  font-size:13.5px;
+  font-weight:800;
+  box-shadow:none;
+  text-align:left;
+}
+
+.grade-term-btn:hover{
+  background:#eef4ff;
+  color:#1d4ed8;
+  transform:none;
+}
+
+.grade-term-btn.active{
+  color:#fff;
+  background:linear-gradient(135deg, var(--blue), var(--blue-2));
+  box-shadow:0 10px 20px rgba(47,109,224,.18);
+}
+
   </style>
 </head>
 <body>
@@ -2052,14 +2107,17 @@ body.portal-mode .app{
     </button>
 
 <div class="student-sidebar-group">
-  <button class="btn student-side-btn menu-btn" id="menuGradesBtn" type="button">
-    📚 ดูผลการเรียน
+  <button class="btn student-side-btn menu-btn grade-main-btn" id="menuGradesBtn" type="button">
+    <span>📚 ดูผลการเรียน</span>
+    <span id="gradeSubmenuChevron" class="submenu-chevron">▾</span>
   </button>
 
   <div class="student-sidebar-submenu" id="gradeSubmenu">
-    <button class="btn student-side-sub-btn menu-btn" id="menuGradesTermBtn" type="button">
-      └ รายเทอม
-    </button>
+    <div id="gradeTermSidebarList" class="grade-term-sidebar-list">
+      <button class="btn student-side-sub-btn menu-btn" id="menuGradesTermBtn" type="button">
+        รายเทอม
+      </button>
+    </div>
   </div>
 </div>
 
@@ -2671,6 +2729,18 @@ function setActiveMenu(pageKey){
     $('menuGradesBtn')?.classList.add('active');
   }
 
+  if(pageKey === 'gradeOverview' || pageKey === 'grades'){
+  $('menuGradesBtn')?.classList.add('active');
+}
+
+if(pageKey === 'grades'){
+  updateSidebarTermActive();
+}else{
+  document.querySelectorAll('.grade-term-btn[data-term-key]').forEach(btn => {
+    btn.classList.remove('active');
+  });
+}
+
   const titleMap = {
   home: 'หน้าแรก',
   gradeOverview: 'ดูผลการเรียน',
@@ -2866,6 +2936,57 @@ function renderTermSelector(rows){
       ${escapeHtml(option.label)}
     </option>
   `).join('');
+}
+
+      function renderSidebarTermButtons(rows){
+  const container = $('gradeTermSidebarList');
+  if(!container) return;
+
+  const options = buildClassTermOptions(rows);
+
+  if(!options.length){
+    container.innerHTML = `
+      <button class="btn student-side-sub-btn grade-term-btn" type="button" disabled>
+        ยังไม่มีข้อมูลรายเทอม
+      </button>
+    `;
+    return;
+  }
+
+  container.innerHTML = options.map(option => `
+    <button
+      class="btn student-side-sub-btn grade-term-btn"
+      type="button"
+      data-term-key="${escapeHtml(option.key)}"
+    >
+      ${escapeHtml(option.label)}
+    </button>
+  `).join('');
+
+  container.querySelectorAll('.grade-term-btn[data-term-key]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.termKey || null;
+
+      APP_STATE.selectedYearTerm = key;
+      APP_STATE.latestYearTerm = key;
+
+      if($('termSelector')){
+        $('termSelector').value = key || '';
+      }
+
+      applySelectedTerm();
+      setActiveMenu('grades');
+      updateSidebarTermActive();
+    });
+  });
+
+  updateSidebarTermActive();
+}
+
+function updateSidebarTermActive(){
+  document.querySelectorAll('.grade-term-btn[data-term-key]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.termKey === APP_STATE.selectedYearTerm);
+  });
 }
 
 function getRowsBySelectedClassTerm(rows){
@@ -3167,6 +3288,7 @@ APP_STATE.selectedYearTerm = APP_STATE.selectedYearTerm || options[0]?.key || nu
 APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
 
 renderTermSelector(allGradeRows);
+renderSidebarTermButtons(allGradeRows);
 applySelectedTerm();
 renderGradeOverview(allGradeRows);
 
@@ -3768,6 +3890,13 @@ if($('sidebarStudentName')){
 if($('termSelector')){
   $('termSelector').innerHTML = `<option value="">ยังไม่มีข้อมูล</option>`;
 }
+      if($('gradeTermSidebarList')){
+  $('gradeTermSidebarList').innerHTML = `
+    <button class="btn student-side-sub-btn grade-term-btn" type="button" disabled>
+      ยังไม่มีข้อมูลรายเทอม
+    </button>
+  `;
+}
     }
 
     async function handleRefresh(){
@@ -3803,13 +3932,28 @@ function updateSidebarStudentName(){
   }
 }
 
+      function toggleGradeSubmenu(){
+  const group = $('menuGradesBtn')?.closest('.student-sidebar-group');
+  if(!group) return;
+
+  group.classList.toggle('collapsed');
+}
+
+function openGradeSubmenu(){
+  const group = $('menuGradesBtn')?.closest('.student-sidebar-group');
+  if(!group) return;
+
+  group.classList.remove('collapsed');
+}
+
 function initMenuEvents(){
   $('menuHomeBtn')?.addEventListener('click', () => setActiveMenu('home'));
 
-  $('menuGradesBtn')?.addEventListener('click', () => {
-    renderGradeOverview(APP_STATE.allGradeRows);
-    setActiveMenu('gradeOverview');
-  });
+$('menuGradesBtn')?.addEventListener('click', () => {
+  renderGradeOverview(APP_STATE.allGradeRows);
+  setActiveMenu('gradeOverview');
+  openGradeSubmenu();
+});
 
   $('menuGradesTermBtn')?.addEventListener('click', () => {
     setActiveMenu('grades');
@@ -3837,10 +3981,12 @@ function initMenuEvents(){
   $('studentSidebarToggleBtn')?.addEventListener('click', toggleStudentSidebar);
   $('studentSidebarBackdrop')?.addEventListener('click', closeStudentSidebar);
 
-  $('termSelector')?.addEventListener('change', () => {
-    APP_STATE.selectedYearTerm = $('termSelector').value || null;
-    APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
-    applySelectedTerm();
+$('termSelector')?.addEventListener('change', () => {
+  APP_STATE.selectedYearTerm = $('termSelector').value || null;
+  APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
+  applySelectedTerm();
+  updateSidebarTermActive();
+});
   });
 }
 
