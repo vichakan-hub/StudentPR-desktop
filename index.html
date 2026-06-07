@@ -1917,6 +1917,36 @@ body.portal-mode .app{
 #loginSection.hidden{
   display:none !important;
 }
+    /* =====================================================
+   FIX : ตารางสรุปไม่ต้องมี scrollbar / scorebar
+   ===================================================== */
+
+.summary-no-scroll{
+  overflow:visible !important;
+}
+
+.summary-no-scroll .summary-table{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  table-layout:fixed !important;
+}
+
+.summary-no-scroll th,
+.summary-no-scroll td{
+  white-space:normal !important;
+  word-break:break-word !important;
+}
+
+.summary-no-scroll .label-cell{
+  width:60% !important;
+  min-width:0 !important;
+}
+
+.summary-no-scroll .value-cell{
+  width:20% !important;
+  min-width:0 !important;
+}
 
   </style>
 </head>
@@ -2142,9 +2172,9 @@ body.portal-mode .app{
         </div>
       </div>
 
-      <div class="summary-table-wrap">
-        <div class="table-wrap">
-          <table class="summary-table">
+<div class="summary-table-wrap">
+  <div class="table-wrap summary-no-scroll">
+    <table class="summary-table">
             <thead>
               <tr class="group">
                 <th rowspan="2">สรุปผลการประเมิน</th>
@@ -2320,9 +2350,9 @@ body.portal-mode .app{
               </div>
             </div>
 
-            <div class="summary-table-wrap">
-              <div class="table-wrap">
-                <table class="summary-table">
+<div class="summary-table-wrap">
+  <div class="table-wrap summary-no-scroll">
+    <table class="summary-table">
                   <thead>
                     <tr class="group">
                       <th rowspan="2">สรุปผลการประเมิน</th>
