@@ -2058,7 +2058,7 @@ body.portal-mode .app{
 
           <div class="login-note">
             กรุณาเข้าสู่ระบบก่อนใช้งาน<br>
-            ระบบนี้ใช้ RPC <strong>login_student()</strong> และดึงผลการเรียนจาก <strong>grade_results</strong> โดยระบุ explicit relationship ของ Supabase ชัดเจนแล้ว
+            ระบบนี้ใช้ RPC <strong>login_student()</strong> และดึงผลการเรียนจาก <strong>student_grade_report_cache</strong> ผ่าน RPC เพื่อรองรับผู้ใช้งานจำนวนมาก
           </div>
         </div>
 
@@ -2550,6 +2550,8 @@ const APP_STATE = {
   studentProfile: null,
   latestYearTerm: null,
   selectedYearTerm: null,
+  availableTerms: [],
+  termRowsCache: {},
   allGradeRows: [],
   latestGradeRows: [],
   remedialRequests: []
@@ -2819,15 +2821,53 @@ function compareGradeRows(a, b){
   return codeA.localeCompare(codeB, 'th', { numeric:true });
 }
 
+
+function formatClassLevelLabel(value){
+  const raw = String(value ?? '').trim();
+  if(!raw) return '';
+  if(raw.startsWith('ม.')) return raw;
+  if(/^\d+$/.test(raw)) return `ม.${raw}`;
+  return raw;
+}
+
+function makeTermKey(academicYear, term, classLevel){
+  const y = safeNumber(academicYear, 0);
+  const t = safeNumber(term, 0);
+  const c = formatClassLevelLabel(classLevel);
+  if(!y || !t || !c) return '';
+  return `${y}-${t}-${c}`;
+}
+
+function normalizeAvailableTerm(raw){
+  const academicYear = safeNumber(raw?.academic_year ?? raw?.academicYear, 0);
+  const term = safeNumber(raw?.term, 0);
+  const classLevel = formatClassLevelLabel(raw?.class_level ?? raw?.classLevel);
+  const room = safeText(raw?.room, '');
+  const key = makeTermKey(academicYear, term, classLevel);
+  const label = safeText(raw?.label, `${classLevel} เทอม ${term}/${academicYear}`);
+
+  return {
+    key,
+    label,
+    academicYear,
+    term,
+    classLevel,
+    room,
+    totalSubjects: safeNumber(raw?.total_subjects ?? raw?.totalSubjects, 0),
+    totalCredit: safeNumber(raw?.total_credit ?? raw?.totalCredit, 0),
+    gpa: raw?.gpa === null || raw?.gpa === undefined ? null : safeNumber(raw?.gpa, 0),
+    updatedAt: raw?.updated_at ?? raw?.updatedAt ?? null
+  };
+}
+
 function getLatestClassLevel(rows){
   if(!rows.length) return '-';
 
   const first = rows[0];
 
-  const classLevel = safeText(
+  const classLevel = formatClassLevelLabel(
     first?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
-    first?.[FIELD_MAP.grades.classLevel],
-    ''
+    first?.[FIELD_MAP.grades.classLevel]
   );
 
   const room = safeText(
@@ -2851,29 +2891,31 @@ function getLatestClassLevel(rows){
     }
 
       function getClassTermKey(row){
-  const year = safeNumber(row?.[FIELD_MAP.grades.academicYear], 0);
-  const term = safeNumber(row?.[FIELD_MAP.grades.term], 0);
+  const year = safeNumber(row?.[FIELD_MAP.grades.academicYear] ?? row?.academicYear ?? row?.academic_year, 0);
+  const term = safeNumber(row?.[FIELD_MAP.grades.term] ?? row?.term, 0);
 
-  const classLevel = safeText(
+  const classLevel = formatClassLevelLabel(
     row?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
-    row?.[FIELD_MAP.grades.classLevel],
-    ''
+    row?.[FIELD_MAP.grades.classLevel] ||
+    row?.classLevel ||
+    row?.class_level
   );
 
-  return `${year}-${term}-${classLevel}`;
+  return makeTermKey(year, term, classLevel);
 }
 
 function getClassTermLabel(row){
-  const year = safeText(row?.[FIELD_MAP.grades.academicYear], '-');
-  const term = safeText(row?.[FIELD_MAP.grades.term], '-');
+  const year = safeText(row?.[FIELD_MAP.grades.academicYear] ?? row?.academicYear ?? row?.academic_year, '-');
+  const term = safeText(row?.[FIELD_MAP.grades.term] ?? row?.term, '-');
 
-  const classLevel = safeText(
+  const classLevel = formatClassLevelLabel(
     row?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
-    row?.[FIELD_MAP.grades.classLevel],
-    '-'
-  );
+    row?.[FIELD_MAP.grades.classLevel] ||
+    row?.classLevel ||
+    row?.class_level
+  ) || '-';
 
-  return `${classLevel} เทอม ${term} / ${year}`;
+  return `${classLevel} เทอม ${term}/${year}`;
 }
 
 function compareClassTermDesc(a, b){
@@ -2884,20 +2926,28 @@ function compareClassTermDesc(a, b){
   return (classOrder[b.classLevel] || 99) - (classOrder[a.classLevel] || 99);
 }
 
-function buildClassTermOptions(rows){
+function buildClassTermOptions(rowsOrTerms){
+  const source = Array.isArray(rowsOrTerms) ? rowsOrTerms : [];
+
+  if(source.length && source[0]?.key && source[0]?.academicYear){
+    return source
+      .map(normalizeAvailableTerm)
+      .filter(item => item.key)
+      .sort(compareClassTermDesc);
+  }
+
   const map = new Map();
 
-  rows.forEach(row => {
+  source.forEach(row => {
     const key = getClassTermKey(row);
-    if(!key || key.includes('--')) return;
+    if(!key) return;
 
     const year = safeNumber(row?.[FIELD_MAP.grades.academicYear], 0);
     const term = safeNumber(row?.[FIELD_MAP.grades.term], 0);
 
-    const classLevel = safeText(
+    const classLevel = formatClassLevelLabel(
       row?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
-      row?.[FIELD_MAP.grades.classLevel],
-      ''
+      row?.[FIELD_MAP.grades.classLevel]
     );
 
     if(!year || !term || !classLevel) return;
@@ -2908,7 +2958,8 @@ function buildClassTermOptions(rows){
         label: getClassTermLabel(row),
         academicYear: year,
         term,
-        classLevel
+        classLevel,
+        room: safeText(row?.subject_offerings?.[FIELD_MAP.offering.room] || row?.[FIELD_MAP.grades.room], '')
       });
     }
   });
@@ -2916,11 +2967,11 @@ function buildClassTermOptions(rows){
   return Array.from(map.values()).sort(compareClassTermDesc);
 }
 
-function renderTermSelector(rows){
+function renderTermSelector(rowsOrTerms){
   const select = $('termSelector');
   if(!select) return;
 
-  const options = buildClassTermOptions(rows);
+  const options = buildClassTermOptions(rowsOrTerms);
 
   if(!options.length){
     select.innerHTML = `<option value="">ไม่พบข้อมูลผลการเรียน</option>`;
@@ -2938,11 +2989,11 @@ function renderTermSelector(rows){
   `).join('');
 }
 
-      function renderSidebarTermButtons(rows){
+      function renderSidebarTermButtons(rowsOrTerms){
   const container = $('gradeTermSidebarList');
   if(!container) return;
 
-  const options = buildClassTermOptions(rows);
+  const options = buildClassTermOptions(rowsOrTerms);
 
   if(!options.length){
     container.innerHTML = `
@@ -2964,7 +3015,7 @@ function renderTermSelector(rows){
   `).join('');
 
   container.querySelectorAll('.grade-term-btn[data-term-key]').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const key = btn.dataset.termKey || null;
 
       APP_STATE.selectedYearTerm = key;
@@ -2974,7 +3025,7 @@ function renderTermSelector(rows){
         $('termSelector').value = key || '';
       }
 
-      applySelectedTerm();
+      await applySelectedTerm();
       setActiveMenu('grades');
       updateSidebarTermActive();
     });
@@ -2998,8 +3049,8 @@ function getRowsBySelectedClassTerm(rows){
     .sort(compareGradeRows);
 }
 
-function applySelectedTerm(){
-  const selectedRows = getRowsBySelectedClassTerm(APP_STATE.allGradeRows);
+async function applySelectedTerm(){
+  const selectedRows = await ensureSelectedTermRows(false);
 
   APP_STATE.latestGradeRows = selectedRows;
 
@@ -3109,56 +3160,202 @@ function updatePortalIdentity(){
       return data;
     }
 
-    async function fetchAllStudentGradeRows(studentId){
-      const { data, error } = await supabaseClient
-        .from('grade_results')
-        .select(`
-          id,
-          student_id,
-          student_code,
-          student_name,
-          student_no,
-          academic_year,
-          term,
-          class_level,
-          room,
-          study_unit_score,
-          midterm_score,
-          final_score,
-          total_score,
-          grade_code,
-          retest_grade_code,
-          grading_status,
-          is_active,
-          subject_offering_id,
-          subject_id,
-          teacher_id,
-          subject_offerings:subject_offerings!fk_grade_results_subject_offering (
-            id,
-            class_level,
-            room,
-            section_code,
-            credit
-          ),
-          subjects:subjects!fk_grade_results_subject (
-            subject_code,
-            subject_name,
-            credit,
-            learning_area,
-            subject_type
-          ),
-          teachers:teachers!fk_grade_results_teacher (
-            teacher_code,
-            full_name
-          )
-        `)
-        .eq('student_id', studentId)
-        .eq('is_active', true)
-        .order('academic_year', { ascending: false })
-        .order('term', { ascending: false });
+    function getStudentSidForRpc(){
+      return safeText(APP_STATE.studentProfile?.[FIELD_MAP.students.sid] || APP_STATE.currentUser?.sid || APP_STATE.currentUser?.student_code, '');
+    }
+
+    function getSessionCache(key){
+      try{
+        const raw = sessionStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      }catch(error){
+        return null;
+      }
+    }
+
+    function setSessionCache(key, value){
+      try{
+        sessionStorage.setItem(key, JSON.stringify(value));
+      }catch(error){
+        // ถ้า browser ไม่อนุญาตให้เก็บ cache ให้ข้ามได้ ระบบยังทำงานจาก RPC ตามปกติ
+      }
+    }
+
+    async function fetchStudentAvailableTerms(forceRefresh = false){
+      const studentCode = getStudentSidForRpc();
+      if(!studentCode) return [];
+
+      const cacheKey = `student_available_terms_${studentCode}`;
+      if(!forceRefresh){
+        const cached = getSessionCache(cacheKey);
+        if(Array.isArray(cached)){
+          return cached.map(normalizeAvailableTerm).filter(item => item.key).sort(compareClassTermDesc);
+        }
+      }
+
+      const { data, error } = await supabaseClient.rpc('rpc_student_available_terms', {
+        p_student_code: studentCode
+      });
 
       if(error) throw error;
-      return Array.isArray(data) ? data : [];
+
+      const terms = (Array.isArray(data) ? data : [])
+        .map(normalizeAvailableTerm)
+        .filter(item => item.key)
+        .sort(compareClassTermDesc);
+
+      setSessionCache(cacheKey, terms);
+      return terms;
+    }
+
+    function normalizeReportJsonItems(reportJson){
+      if(Array.isArray(reportJson)) return reportJson;
+      if(typeof reportJson === 'string'){
+        try{
+          const parsed = JSON.parse(reportJson);
+          return Array.isArray(parsed) ? parsed : [];
+        }catch(error){
+          return [];
+        }
+      }
+      return [];
+    }
+
+    function buildGradeRowFromCacheItem(item, termInfo, reportMeta){
+      const profile = APP_STATE.studentProfile || {};
+      const studentCode = getStudentSidForRpc();
+      const classLevel = formatClassLevelLabel(reportMeta?.class_level ?? reportMeta?.classLevel ?? termInfo?.classLevel);
+      const room = safeText(reportMeta?.room ?? termInfo?.room, '');
+
+      const subjectCode = item?.subject_code ?? item?.subjectCode ?? item?.code;
+      const subjectName = item?.subject_name ?? item?.subjectName ?? item?.name;
+      const subjectType = item?.subject_type ?? item?.subjectType ?? item?.type;
+      const learningArea = item?.learning_area ?? item?.learningArea;
+      const credit = item?.credit ?? item?.subject_credit ?? item?.subjectCredit ?? 0;
+
+      const grade = item?.grade ?? item?.grade_code ?? item?.gradeCode ?? item?.display_grade ?? item?.displayGrade;
+      const retestGrade = item?.retake_grade ?? item?.retest_grade_code ?? item?.retestGradeCode ?? item?.retest_grade ?? item?.retestGrade;
+
+      return {
+        id: `${studentCode}_${termInfo.academicYear}_${termInfo.term}_${subjectCode || Math.random()}`,
+        student_id: APP_STATE.currentUser?.id ?? null,
+        student_code: studentCode,
+        student_name: safeText(profile?.[FIELD_MAP.students.fullName], ''),
+        student_no: safeText(profile?.[FIELD_MAP.students.no], ''),
+        academic_year: termInfo.academicYear,
+        term: termInfo.term,
+        class_level: classLevel,
+        room,
+        study_unit_score: item?.study_unit_score ?? item?.studyUnitScore ?? item?.unit_score ?? item?.unitScore ?? item?.score_unit ?? item?.scoreUnit ?? item?.score_study_unit ?? item?.scoreStudyUnit ?? null,
+        midterm_score: item?.midterm_score ?? item?.midtermScore ?? item?.score_mid ?? item?.scoreMid ?? item?.mid_score ?? item?.midScore ?? null,
+        final_score: item?.final_score ?? item?.finalScore ?? item?.score_final ?? item?.scoreFinal ?? null,
+        total_score: item?.total_score ?? item?.totalScore ?? item?.score_total ?? item?.scoreTotal ?? null,
+        grade_code: grade,
+        retest_grade_code: retestGrade,
+        grading_status: item?.grading_status ?? item?.gradingStatus ?? null,
+        is_active: true,
+        subject_offerings: {
+          id: item?.subject_offering_id ?? item?.subjectOfferingId ?? null,
+          class_level: classLevel,
+          room,
+          section_code: item?.section_code ?? item?.sectionCode ?? null,
+          credit
+        },
+        subjects: {
+          subject_code: subjectCode,
+          subject_name: subjectName,
+          credit,
+          learning_area: learningArea,
+          subject_type: subjectType
+        },
+        teachers: {
+          teacher_code: item?.teacher_code ?? item?.teacherCode ?? null,
+          full_name: item?.teacher_name ?? item?.teacherName ?? item?.teacher ?? item?.teachers ?? '-'
+        }
+      };
+    }
+
+    async function fetchStudentTermRows(termInfo, forceRefresh = false){
+      if(!termInfo?.key) return [];
+
+      if(!forceRefresh && Array.isArray(APP_STATE.termRowsCache[termInfo.key])){
+        return APP_STATE.termRowsCache[termInfo.key];
+      }
+
+      const studentCode = getStudentSidForRpc();
+      const cacheKey = `student_term_report_${studentCode}_${termInfo.academicYear}_${termInfo.term}`;
+
+      if(!forceRefresh){
+        const cached = getSessionCache(cacheKey);
+        if(Array.isArray(cached)){
+          APP_STATE.termRowsCache[termInfo.key] = cached;
+          return cached;
+        }
+      }
+
+      const { data, error } = await supabaseClient.rpc('rpc_student_term_report_cache', {
+        p_student_code: studentCode,
+        p_academic_year: termInfo.academicYear,
+        p_term: termInfo.term
+      });
+
+      if(error) throw error;
+
+      const reportMeta = Array.isArray(data) ? data[0] : data;
+      if(!reportMeta){
+        APP_STATE.termRowsCache[termInfo.key] = [];
+        return [];
+      }
+
+      const rows = normalizeReportJsonItems(reportMeta.report_json)
+        .map(item => buildGradeRowFromCacheItem(item, termInfo, reportMeta))
+        .sort(compareGradeRows);
+
+      APP_STATE.termRowsCache[termInfo.key] = rows;
+      setSessionCache(cacheKey, rows);
+      return rows;
+    }
+
+    async function ensureSelectedTermRows(forceRefresh = false){
+      const options = buildClassTermOptions(APP_STATE.availableTerms);
+      if(!options.length) return [];
+
+      const selectedKey = APP_STATE.selectedYearTerm || options[0].key;
+      APP_STATE.selectedYearTerm = selectedKey;
+      APP_STATE.latestYearTerm = selectedKey;
+
+      const termInfo = options.find(item => item.key === selectedKey) || options[0];
+      return await fetchStudentTermRows(termInfo, forceRefresh);
+    }
+
+    async function fetchAllStudentGradeRows(forceRefresh = false){
+      const terms = buildClassTermOptions(APP_STATE.availableTerms);
+      const allRows = [];
+
+      for(const termInfo of terms){
+        const rows = await fetchStudentTermRows(termInfo, forceRefresh);
+        allRows.push(...rows);
+      }
+
+      return allRows;
+    }
+
+    async function ensureOverviewRows(forceRefresh = false){
+      const expectedTermCount = buildClassTermOptions(APP_STATE.availableTerms).length;
+      const loadedTermCount = new Set(APP_STATE.allGradeRows.map(row => getClassTermKey(row))).size;
+
+      if(!forceRefresh && APP_STATE.allGradeRows.length && loadedTermCount >= expectedTermCount){
+        return APP_STATE.allGradeRows;
+      }
+
+      showLoading(true);
+      try{
+        APP_STATE.allGradeRows = await fetchAllStudentGradeRows(forceRefresh);
+        renderGradeOverview(APP_STATE.allGradeRows);
+        return APP_STATE.allGradeRows;
+      }finally{
+        showLoading(false);
+      }
     }
 
     function getLatestTermRows(rows){
@@ -3266,7 +3463,7 @@ function applyRemedialEligibility(rows){
   }
 }
 
-    async function loadPortalData(){
+    async function loadPortalData(forceRefresh = false){
       if(!APP_STATE.currentUser?.id){
         throw new Error('ไม่พบข้อมูลผู้ใช้งาน');
       }
@@ -3280,19 +3477,19 @@ function applyRemedialEligibility(rows){
 
         updatePortalIdentity();
 
-const allGradeRows = await fetchAllStudentGradeRows(APP_STATE.currentUser.id);
-APP_STATE.allGradeRows = allGradeRows;
+        APP_STATE.availableTerms = await fetchStudentAvailableTerms(forceRefresh);
 
-const options = buildClassTermOptions(allGradeRows);
-APP_STATE.selectedYearTerm = APP_STATE.selectedYearTerm || options[0]?.key || null;
-APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
+        const options = buildClassTermOptions(APP_STATE.availableTerms);
+        APP_STATE.selectedYearTerm = APP_STATE.selectedYearTerm || options[0]?.key || null;
+        APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
 
-renderTermSelector(allGradeRows);
-renderSidebarTermButtons(allGradeRows);
-applySelectedTerm();
-renderGradeOverview(allGradeRows);
+        renderTermSelector(APP_STATE.availableTerms);
+        renderSidebarTermButtons(APP_STATE.availableTerms);
 
-saveSession();
+        await applySelectedTerm();
+        renderGradeOverview(APP_STATE.allGradeRows.length ? APP_STATE.allGradeRows : APP_STATE.latestGradeRows);
+
+        saveSession();
       } finally {
         showLoading(false);
       }
@@ -3645,7 +3842,7 @@ function renderTermGpaBarChart(rows){
 function renderGradeOverview(rows){
   const profile = APP_STATE.studentProfile;
   const summary = buildSummaryFromRows(rows);
-  const termCount = buildClassTermOptions(rows).length;
+  const termCount = buildClassTermOptions(rows).length || buildClassTermOptions(APP_STATE.availableTerms).length;
 
   if($('overviewStudentCode')){
     $('overviewStudentCode').textContent = safeText(profile?.[FIELD_MAP.students.sid], '-');
@@ -3838,14 +4035,18 @@ function renderGradeOverview(rows){
         const loginResult = await loginStudent(studentCode, password);
         APP_STATE.currentUser = loginResult.user || null;
         APP_STATE.studentProfile = null;
+        APP_STATE.availableTerms = [];
+        APP_STATE.termRowsCache = {};
+        APP_STATE.allGradeRows = [];
         APP_STATE.latestGradeRows = [];
         APP_STATE.latestYearTerm = null;
+        APP_STATE.selectedYearTerm = null;
 
         setPortalVisible(true);
         setActiveMenu('home');
         setLoginStatus('', false);
 
-        await loadPortalData();
+        await loadPortalData(false);
       }catch(error){
         console.error('LOGIN ERROR RAW =', error);
         console.error('LOGIN ERROR MESSAGE =', error?.message);
@@ -3864,6 +4065,8 @@ function renderGradeOverview(rows){
       APP_STATE.studentProfile = null;
 APP_STATE.latestYearTerm = null;
 APP_STATE.selectedYearTerm = null;
+APP_STATE.availableTerms = [];
+APP_STATE.termRowsCache = {};
 APP_STATE.allGradeRows = [];
 APP_STATE.latestGradeRows = [];
       APP_STATE.remedialRequests = [];
@@ -3903,7 +4106,7 @@ if($('termSelector')){
       if(!APP_STATE.currentUser?.id) return;
 
       try{
-        await loadPortalData();
+        await loadPortalData(true);
       }catch(error){
         console.error('REFRESH ERROR RAW =', error);
         console.error('REFRESH ERROR MESSAGE =', error?.message);
@@ -3949,14 +4152,25 @@ function openGradeSubmenu(){
 function initMenuEvents(){
   $('menuHomeBtn')?.addEventListener('click', () => setActiveMenu('home'));
 
-$('menuGradesBtn')?.addEventListener('click', () => {
-  renderGradeOverview(APP_STATE.allGradeRows);
-  setActiveMenu('gradeOverview');
-  openGradeSubmenu();
-});
+  $('menuGradesBtn')?.addEventListener('click', async () => {
+    try{
+      await ensureOverviewRows(false);
+      setActiveMenu('gradeOverview');
+      openGradeSubmenu();
+    }catch(error){
+      console.error('LOAD OVERVIEW ERROR =', error);
+      alert(error?.message || 'โหลดภาพรวมผลการเรียนไม่สำเร็จ');
+    }
+  });
 
-  $('menuGradesTermBtn')?.addEventListener('click', () => {
-    setActiveMenu('grades');
+  $('menuGradesTermBtn')?.addEventListener('click', async () => {
+    try{
+      await applySelectedTerm();
+      setActiveMenu('grades');
+    }catch(error){
+      console.error('LOAD TERM ERROR =', error);
+      alert(error?.message || 'โหลดผลการเรียนรายเทอมไม่สำเร็จ');
+    }
   });
 
   $('menuRemedialStatusBtn')?.addEventListener('click', () => {
@@ -3981,12 +4195,17 @@ $('menuGradesBtn')?.addEventListener('click', () => {
   $('studentSidebarToggleBtn')?.addEventListener('click', toggleStudentSidebar);
   $('studentSidebarBackdrop')?.addEventListener('click', closeStudentSidebar);
 
-$('termSelector')?.addEventListener('change', () => {
-  APP_STATE.selectedYearTerm = $('termSelector').value || null;
-  APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
-  applySelectedTerm();
-  updateSidebarTermActive();
-});
+  $('termSelector')?.addEventListener('change', async () => {
+    APP_STATE.selectedYearTerm = $('termSelector').value || null;
+    APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
+
+    try{
+      await applySelectedTerm();
+      updateSidebarTermActive();
+    }catch(error){
+      console.error('TERM SELECT ERROR =', error);
+      alert(error?.message || 'โหลดผลการเรียนรายเทอมไม่สำเร็จ');
+    }
   });
 }
 
