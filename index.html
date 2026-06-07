@@ -3803,33 +3803,46 @@ function updateSidebarStudentName(){
   }
 }
 
-    function initMenuEvents(){
-$('menuHomeBtn').addEventListener('click', () => setActiveMenu('home'));
-$('menuGradesBtn').addEventListener('click', () => {
-  renderGradeOverview(APP_STATE.allGradeRows);
-  setActiveMenu('gradeOverview');
-});
-$('menuGradesTermBtn')?.addEventListener('click', () => setActiveMenu('grades'));
-$('menuRemedialStatusBtn').addEventListener('click', () => setActiveMenu('remedial'));
-      
-$('btnRequestStatus')?.addEventListener('click', () => setActiveMenu('remedial'));
-$('btnRequestHistory')?.addEventListener('click', () => setActiveMenu('remedial'));
+function initMenuEvents(){
+  $('menuHomeBtn')?.addEventListener('click', () => setActiveMenu('home'));
 
-$('btnRequestRemedial')?.addEventListener('click', () => {
-  if($('btnRequestRemedial')?.disabled) return;
-  alert('เมนูนี้เตรียมไว้สำหรับเชื่อมต่อฟอร์มคำร้องสอบแก้ตัวจริงในรอบถัดไป');
-});
+  $('menuGradesBtn')?.addEventListener('click', () => {
+    renderGradeOverview(APP_STATE.allGradeRows);
+    setActiveMenu('gradeOverview');
+  });
 
-      $('refreshBtn').addEventListener('click', handleRefresh);
-      $('logoutBtn').addEventListener('click', handleLogout);
-      $('studentSidebarToggleBtn')?.addEventListener('click', toggleStudentSidebar);
-      $('studentSidebarBackdrop')?.addEventListener('click', closeStudentSidebar);
-      $('termSelector')?.addEventListener('change', () => {
-  APP_STATE.selectedYearTerm = $('termSelector').value || null;
-  APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
-  applySelectedTerm();
-});
-    }
+  $('menuGradesTermBtn')?.addEventListener('click', () => {
+    setActiveMenu('grades');
+  });
+
+  $('menuRemedialStatusBtn')?.addEventListener('click', () => {
+    setActiveMenu('remedial');
+  });
+
+  $('btnRequestStatus')?.addEventListener('click', () => {
+    setActiveMenu('remedial');
+  });
+
+  $('btnRequestHistory')?.addEventListener('click', () => {
+    setActiveMenu('remedial');
+  });
+
+  $('btnRequestRemedial')?.addEventListener('click', () => {
+    if($('btnRequestRemedial')?.disabled) return;
+    alert('เมนูนี้เตรียมไว้สำหรับเชื่อมต่อฟอร์มคำร้องสอบแก้ตัวจริงในรอบถัดไป');
+  });
+
+  $('refreshBtn')?.addEventListener('click', handleRefresh);
+  $('logoutBtn')?.addEventListener('click', handleLogout);
+  $('studentSidebarToggleBtn')?.addEventListener('click', toggleStudentSidebar);
+  $('studentSidebarBackdrop')?.addEventListener('click', closeStudentSidebar);
+
+  $('termSelector')?.addEventListener('change', () => {
+    APP_STATE.selectedYearTerm = $('termSelector').value || null;
+    APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
+    applySelectedTerm();
+  });
+}
 
     function initLoginEvents(){
       $('loginForm').addEventListener('submit', handleLoginSubmit);
