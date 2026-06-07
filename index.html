@@ -4204,10 +4204,18 @@ function initMenuEvents(){
   $('menuHomeBtn')?.addEventListener('click', () => setActiveMenu('home'));
 
   $('menuGradesBtn')?.addEventListener('click', async () => {
+    const group = $('menuGradesBtn')?.closest('.student-sidebar-group');
+    const shouldCollapse = group && !group.classList.contains('collapsed');
+
     try{
       await ensureOverviewRows(false);
       setActiveMenu('gradeOverview');
-      openGradeSubmenu();
+
+      // ให้ปุ่ม "ดูผลการเรียน" เป็นปุ่มยุบ/ขยายเมนูย่อยได้จริง
+      // ถ้าเมนูย่อยเปิดอยู่ ให้ยุบ / ถ้ายุบอยู่ ให้เปิด
+      if(group){
+        group.classList.toggle('collapsed', shouldCollapse);
+      }
     }catch(error){
       console.error('LOAD OVERVIEW ERROR =', error);
       alert(error?.message || 'โหลดภาพรวมผลการเรียนไม่สำเร็จ');
