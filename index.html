@@ -2544,6 +2544,7 @@ body.portal-mode .app{
     let termGpaBarChart = null;
 
     const CHART_INSTANCES = {};
+    const STUDENT_CACHE_VERSION = 'v2_auto_refresh';
 
 const APP_STATE = {
   currentUser: null,
@@ -3181,28 +3182,69 @@ function updatePortalIdentity(){
       }
     }
 
+    async function refreshStudentReportCacheIfPossible(){
+      const studentCode = getStudentSidForRpc();
+      if(!studentCode) return false;
+
+      const { error } = await supabaseClient.rpc('refresh_student_grade_report_cache', {
+        p_student_code: studentCode
+      });
+
+      if(error){
+        console.warn('REFRESH STUDENT CACHE SKIPPED =', error);
+        return false;
+      }
+
+      const prefix = `${STUDENT_CACHE_VERSION}_student_term_report_${studentCode}_`;
+      try{
+        sessionStorage.removeItem(`${STUDENT_CACHE_VERSION}_student_available_terms_${studentCode}`);
+        Object.keys(sessionStorage).forEach(key => {
+          if(key.startsWith(prefix)) sessionStorage.removeItem(key);
+        });
+      }catch(error){
+        // ข้ามได้ ถ้า browser ไม่อนุญาตให้ลบ cache
+      }
+
+      APP_STATE.termRowsCache = {};
+      APP_STATE.allGradeRows = [];
+      APP_STATE.latestGradeRows = [];
+      return true;
+    }
+
     async function fetchStudentAvailableTerms(forceRefresh = false){
       const studentCode = getStudentSidForRpc();
       if(!studentCode) return [];
 
-      const cacheKey = `student_available_terms_${studentCode}`;
+      const cacheKey = `${STUDENT_CACHE_VERSION}_student_available_terms_${studentCode}`;
       if(!forceRefresh){
         const cached = getSessionCache(cacheKey);
-        if(Array.isArray(cached)){
+        if(Array.isArray(cached) && cached.length > 0){
           return cached.map(normalizeAvailableTerm).filter(item => item.key).sort(compareClassTermDesc);
         }
       }
 
-      const { data, error } = await supabaseClient.rpc('rpc_student_available_terms', {
-        p_student_code: studentCode
-      });
+      const loadTerms = async () => {
+        const { data, error } = await supabaseClient.rpc('rpc_student_available_terms', {
+          p_student_code: studentCode
+        });
 
-      if(error) throw error;
+        if(error) throw error;
 
-      const terms = (Array.isArray(data) ? data : [])
-        .map(normalizeAvailableTerm)
-        .filter(item => item.key)
-        .sort(compareClassTermDesc);
+        return (Array.isArray(data) ? data : [])
+          .map(normalizeAvailableTerm)
+          .filter(item => item.key)
+          .sort(compareClassTermDesc);
+      };
+
+      let terms = await loadTerms();
+
+      // เคลียร์ฝั่ง Student ให้จบ: ถ้ายังไม่มี cache ให้ StudentPR สั่งสร้าง cache เฉพาะนักเรียนคนนี้ 1 ครั้ง
+      if(!terms.length){
+        const refreshed = await refreshStudentReportCacheIfPossible();
+        if(refreshed){
+          terms = await loadTerms();
+        }
+      }
 
       setSessionCache(cacheKey, terms);
       return terms;
@@ -3283,7 +3325,7 @@ function updatePortalIdentity(){
       }
 
       const studentCode = getStudentSidForRpc();
-      const cacheKey = `student_term_report_${studentCode}_${termInfo.academicYear}_${termInfo.term}`;
+      const cacheKey = `${STUDENT_CACHE_VERSION}_student_term_report_${studentCode}_${termInfo.academicYear}_${termInfo.term}`;
 
       if(!forceRefresh){
         const cached = getSessionCache(cacheKey);
@@ -3301,7 +3343,16 @@ function updatePortalIdentity(){
 
       if(error) throw error;
 
-      const reportMeta = Array.isArray(data) ? data[0] : data;
+      let reportMeta = Array.isArray(data) ? data[0] : data;
+
+      // ถ้ารายเทอมมีแล้วแต่ report_json ยังไม่มา ให้ refresh cache เฉพาะนักเรียนคนนี้ 1 ครั้ง แล้วลองโหลดใหม่
+      if(!reportMeta && !forceRefresh){
+        const refreshed = await refreshStudentReportCacheIfPossible();
+        if(refreshed){
+          return await fetchStudentTermRows(termInfo, true);
+        }
+      }
+
       if(!reportMeta){
         APP_STATE.termRowsCache[termInfo.key] = [];
         return [];
