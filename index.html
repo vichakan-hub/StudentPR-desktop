@@ -2845,7 +2845,7 @@ function normalizeAvailableTerm(raw){
   const classLevel = formatClassLevelLabel(raw?.class_level ?? raw?.classLevel);
   const room = safeText(raw?.room, '');
   const key = makeTermKey(academicYear, term, classLevel);
-  const label = safeText(raw?.label, `${classLevel} เทอม ${term}/${academicYear}`);
+  const label = `${classLevel} เทอม ${term}`;
 
   return {
     key,
