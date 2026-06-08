@@ -2906,7 +2906,6 @@ function getLatestClassLevel(rows){
 }
 
 function getClassTermLabel(row){
-  const year = safeText(row?.[FIELD_MAP.grades.academicYear] ?? row?.academicYear ?? row?.academic_year, '-');
   const term = safeText(row?.[FIELD_MAP.grades.term] ?? row?.term, '-');
 
   const classLevel = formatClassLevelLabel(
@@ -2916,7 +2915,7 @@ function getClassTermLabel(row){
     row?.class_level
   ) || '-';
 
-  return `${classLevel} เทอม ${term}/${year}`;
+  return `${classLevel} เทอม ${term}`;
 }
 
 function compareClassTermDesc(a, b){
