@@ -2003,6 +2003,40 @@ body.portal-mode .app{
   box-shadow:0 10px 20px rgba(47,109,224,.18);
 }
 
+    /* =====================================================
+   FIX : ตารางสรุปปรับความกว้างได้
+   ===================================================== */
+
+.summary-no-scroll{
+  overflow-x:auto !important;
+  overflow-y:visible !important;
+}
+
+.summary-no-scroll .summary-table{
+  width:auto !important;
+  min-width:100% !important;
+  max-width:none !important;
+  table-layout:auto !important;
+}
+
+.summary-no-scroll th,
+.summary-no-scroll td{
+  white-space:normal !important;
+  word-break:normal !important;
+}
+
+.summary-no-scroll .label-cell{
+  width:auto !important;
+  min-width:280px !important;
+}
+
+.summary-no-scroll .value-cell{
+  width:90px !important;
+  min-width:90px !important;
+  max-width:110px !important;
+  text-align:center !important;
+}
+
   </style>
 </head>
 <body>
@@ -2223,8 +2257,8 @@ body.portal-mode .app{
     <div class="summary-card card">
       <div class="summary-head">
         <div>
-          <h3 class="summary-title">สรุปผลการประเมินเฉลี่ยรวมทุกภาคเรียน</h3>
-          <p class="summary-subtitle">คำนวณจากผลการเรียนทั้งหมดที่มีในระบบ</p>
+          <h3 class="summary-title">สรุปผลการประเมินเฉลี่ยตลอดหลักสูตร</h3>
+          <p class="summary-subtitle">คำนวณจากผลการเรียนทั้งหมด</p>
         </div>
       </div>
 
