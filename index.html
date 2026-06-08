@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Portal - ระบบสารสนเทศผลการเรียน</title>
+  <title>StudentPR - ระบบสารสนเทศผลการเรียน</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2012,11 +2012,11 @@ body.portal-mode .app{
         <div class="hero-left">
           <div class="hero-chip">🏫 โรงเรียนท่าใหม่ “พูลสวัสดิ์ราษฎร์นุกูล”</div>
           <h1 class="hero-title">ระบบสารสนเทศผลการเรียน</h1>
-          <p class="hero-subtitle">ระบบสำหรับนักเรียน ใช้ตรวจสอบผลการเรียน ข่าวประชาสัมพันธ์ และสถานะการสอบแก้ตัว</p>
+          <p class="hero-subtitle">สำหรับนักเรียน ใช้ติดตามข่าวประชาสัมพันธ์  ผลการเรียน และสถานะการสอบแก้ตัว</p>
         </div>
 
         <div class="hero-box">
-          <div class="hero-box-label">ฝ่ายบริการ</div>
+          <div class="hero-box-label">ฝ่ายบริหารวิชาการ</div>
           <div class="hero-box-value">งานทะเบียน-วัดผล</div>
         </div>
       </div>
@@ -2035,7 +2035,7 @@ body.portal-mode .app{
 
           <form id="loginForm" autocomplete="off">
             <div class="field">
-              <label for="studentCode">ชื่อผู้ใช้</label>
+              <label for="studentCode">เลขประจำตัวนักเรียน</label>
               <div class="input-wrap">
                 <span class="input-icon">👤</span>
                 <input id="studentCode" name="studentCode" type="text" placeholder="เช่น 25129" />
@@ -2088,7 +2088,7 @@ body.portal-mode .app{
   <div class="student-sidebar-brand">
     <div class="student-sidebar-logo">ทม</div>
     <div>
-      <div class="student-sidebar-title">Student Portal</div>
+      <div class="student-sidebar-title">StudentPR</div>
       <div class="student-sidebar-sub">ระบบสารสนเทศผลการเรียน</div>
     </div>
   </div>
@@ -2108,7 +2108,7 @@ body.portal-mode .app{
 
 <div class="student-sidebar-group">
   <button class="btn student-side-btn menu-btn grade-main-btn" id="menuGradesBtn" type="button">
-    <span>📚 ดูผลการเรียน</span>
+    <span>📚 ผลการเรียน</span>
     <span id="gradeSubmenuChevron" class="submenu-chevron">▾</span>
   </button>
 
@@ -2173,7 +2173,7 @@ body.portal-mode .app{
             <div class="box-body">
               <div class="news-body-card">
                 <h4 class="news-title">🔔 ระบบสารสนเทศผลการเรียน</h4>
-                <p>เมนู <strong>ดูผลการเรียน</strong> ใช้สำหรับแสดงรายวิชา เกรด หน่วยกิต และสรุปผลการประเมิน</p>
+                <p>เมนู <strong>ผลการเรียน</strong> ใช้สำหรับแสดงรายวิชา เกรด หน่วยกิต และสรุปผลการประเมิน</p>
                 <p>เมนู <strong>ติดตามสถานะการสอบแก้ตัว</strong> ใช้สำหรับติดตามการสอบแก้ตัวของนักเรียน</p>
                 <p>หากภายหลังมีการเชื่อมต่อฐานข้อมูลคำร้อง เมนูนี้จะสามารถแสดงสถานะจริงได้ทันที</p>
               </div>
@@ -2309,7 +2309,7 @@ body.portal-mode .app{
         <div class="student-head card">
 <div class="student-top">
   <div>
-    <h2 class="student-title">ดูผลการเรียนรายเทอม</h2>
+    <h2 class="student-title">ผลการเรียนรายเทอม</h2>
     <p class="student-subtitle">เลือกดูผลการเรียนย้อนหลังได้ตามชั้น/ภาคเรียน</p>
   </div>
 
@@ -2746,8 +2746,8 @@ if(pageKey === 'grades'){
 
   const titleMap = {
   home: 'หน้าแรก',
-  gradeOverview: 'ดูผลการเรียน',
-  grades: 'ดูผลการเรียนรายเทอม',
+  gradeOverview: 'ผลการเรียน',
+  grades: 'ผลการเรียนรายเทอม',
   remedial: 'ติดตามสถานะการสอบแก้ตัว'
 };
 
