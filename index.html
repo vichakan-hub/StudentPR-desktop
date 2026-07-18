@@ -907,6 +907,95 @@
       color:#9a5a00;
     }
 
+    /* =====================================================
+   Remedial Status KPI
+   ===================================================== */
+
+.remedial-kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:12px;
+}
+
+.remedial-kpi-card{
+  appearance:none;
+  width:100%;
+  min-height:104px;
+  padding:14px 16px;
+  border:1px solid #dbe7f3;
+  border-radius:18px;
+  background:linear-gradient(180deg, #ffffff, #f8fbff);
+  color:#17324a;
+  font-family:'Kanit', sans-serif;
+  cursor:pointer;
+  text-align:left;
+  transition:.18s ease;
+  box-shadow:0 8px 18px rgba(15,23,42,.04);
+}
+
+.remedial-kpi-card:hover{
+  transform:translateY(-2px);
+  border-color:#a8c9f7;
+  box-shadow:0 12px 24px rgba(47,109,224,.10);
+}
+
+.remedial-kpi-card.active{
+  color:#ffffff;
+  border-color:transparent;
+  background:linear-gradient(135deg, var(--blue), var(--blue-2));
+  box-shadow:0 14px 28px rgba(47,109,224,.22);
+}
+
+.remedial-kpi-label{
+  display:block;
+  font-size:14px;
+  font-weight:800;
+  line-height:1.4;
+}
+
+.remedial-kpi-value{
+  display:block;
+  margin-top:7px;
+  font-family:'Sarabun', sans-serif;
+  font-size:30px;
+  font-weight:800;
+  line-height:1;
+}
+
+.remedial-kpi-card[data-remedial-filter="unresolved"]:not(.active){
+  color:#b91c1c;
+  border-color:#fecaca;
+  background:linear-gradient(180deg, #fffafa, #fef2f2);
+}
+
+.remedial-kpi-card[data-remedial-filter="pending"]:not(.active){
+  color:#b45309;
+  border-color:#fed7aa;
+  background:linear-gradient(180deg, #fffdf8, #fff7ed);
+}
+
+.remedial-kpi-card[data-remedial-filter="approved"]:not(.active){
+  color:#15803d;
+  border-color:#bbf7d0;
+  background:linear-gradient(180deg, #f8fff9, #f0fdf4);
+}
+
+@media (max-width:900px){
+  .remedial-kpi-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:520px){
+  .remedial-kpi-grid{
+    grid-template-columns:1fr;
+  }
+
+  .remedial-kpi-card{
+    min-height:86px;
+  }
+}
+
     .status-list{
       display:grid;
       gap:12px;
@@ -980,6 +1069,22 @@
       grid-template-columns:repeat(4, minmax(110px, 1fr));
       gap:10px;
     }
+
+    .status-item:has(.status-meta:nth-child(5)) .status-meta-grid{
+  grid-template-columns:repeat(5, minmax(110px, 1fr));
+}
+
+@media (max-width:1100px){
+  .status-item:has(.status-meta:nth-child(5)) .status-meta-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:620px){
+  .status-item:has(.status-meta:nth-child(5)) .status-meta-grid{
+    grid-template-columns:1fr;
+  }
+}
 
     .status-meta{
       border:1px solid #e4edf6;
@@ -2517,6 +2622,46 @@ body.portal-mode .app{
               ขณะนี้แสดงผลตัวอย่างหน้าตาและโครงสร้างเมนูให้พร้อมใช้งานในสไตล์เดียวกับระบบงานทะเบียน-วัดผล
             </div>
 
+            <div class="remedial-kpi-grid" id="remedialKpiGrid">
+
+  <button
+    class="remedial-kpi-card active"
+    type="button"
+    data-remedial-filter="all"
+  >
+    <span class="remedial-kpi-label">ทั้งหมด</span>
+    <span class="remedial-kpi-value" id="remedialKpiAll">0</span>
+  </button>
+
+  <button
+    class="remedial-kpi-card"
+    type="button"
+    data-remedial-filter="unresolved"
+  >
+    <span class="remedial-kpi-label">ยังไม่แก้</span>
+    <span class="remedial-kpi-value" id="remedialKpiUnresolved">0</span>
+  </button>
+
+  <button
+    class="remedial-kpi-card"
+    type="button"
+    data-remedial-filter="pending"
+  >
+    <span class="remedial-kpi-label">รออนุมัติ</span>
+    <span class="remedial-kpi-value" id="remedialKpiPending">0</span>
+  </button>
+
+  <button
+    class="remedial-kpi-card"
+    type="button"
+    data-remedial-filter="approved"
+  >
+    <span class="remedial-kpi-label">อนุมัติแล้ว</span>
+    <span class="remedial-kpi-value" id="remedialKpiApproved">0</span>
+  </button>
+
+</div>
+
             <div class="status-list" id="statusList">
               <div class="status-item">
                 <div class="status-item-top">
@@ -2589,7 +2734,10 @@ const APP_STATE = {
   termRowsCache: {},
   allGradeRows: [],
   latestGradeRows: [],
-  remedialRequests: []
+  remedialRequests: [],
+
+  // ตัวกรองรายการสอบแก้ตัว
+  remedialStatusFilter: 'all'
 };
 
 const PAGE_IDS = {
@@ -3198,6 +3346,50 @@ function updatePortalIdentity(){
       return safeText(APP_STATE.studentProfile?.[FIELD_MAP.students.sid] || APP_STATE.currentUser?.sid || APP_STATE.currentUser?.student_code, '');
     }
 
+    async function fetchStudentRemedialRequests(){
+  const studentCode = getStudentSidForRpc();
+
+  if(!studentCode){
+    return [];
+  }
+
+  const { data, error } = await supabaseClient
+    .from('grade_retest_requests')
+    .select(`
+      id,
+      grade_result_id,
+      student_code,
+      subject_code,
+      subject_name,
+      teacher_id,
+      teacher_code,
+      academic_year,
+      term,
+      class_level,
+      room,
+      original_grade_code,
+      requested_retest_grade_code,
+      status,
+      submitted_at,
+      updated_at,
+      approved_at,
+      rejected_at,
+      rejected_reason,
+      is_active
+    `)
+    .eq('student_code', studentCode)
+    .eq('is_active', true)
+    .order('academic_year', { ascending:false })
+    .order('term', { ascending:false })
+    .order('updated_at', { ascending:false });
+
+  if(error){
+    throw error;
+  }
+
+  return Array.isArray(data) ? data : [];
+}
+
     function getSessionCache(key){
       try{
         const raw = sessionStorage.getItem(key);
@@ -3562,6 +3754,18 @@ function applyRemedialEligibility(rows){
         updatePortalIdentity();
 
         APP_STATE.availableTerms = await fetchStudentAvailableTerms(forceRefresh);
+
+        try{
+  APP_STATE.remedialRequests =
+    await fetchStudentRemedialRequests();
+}catch(error){
+  console.error(
+    'LOAD REMEDIAL REQUESTS ERROR =',
+    error
+  );
+
+  APP_STATE.remedialRequests = [];
+}
 
         const options = buildClassTermOptions(APP_STATE.availableTerms);
         APP_STATE.selectedYearTerm = APP_STATE.selectedYearTerm || options[0]?.key || null;
@@ -4018,88 +4222,439 @@ function renderGradeOverview(rows){
      $('sumGpa').textContent = formatNumberFloor(summary.gpa, 2);
     }
 
-    function renderRemedialStatus(){
-      const container = $('statusList');
-      const rows = APP_STATE.latestGradeRows.filter(row => {
-        const g = normalizeGrade(row?.[FIELD_MAP.grades.gradeCode]);
-        return ['0', 'ร', 'มส', 'มผ'].includes(g);
-      });
+    function updateRemedialKpiActive(){
+  document
+    .querySelectorAll('.remedial-kpi-card[data-remedial-filter]')
+    .forEach(button => {
+      const filter = button.dataset.remedialFilter || 'all';
 
-      if(!rows.length){
-        container.innerHTML = `
-          <div class="status-item">
-            <div class="status-item-top">
-              <div>
-                <h4 class="status-item-title">ยังไม่มีรายการคำร้องสอบแก้ตัว</h4>
-                <p class="status-item-sub">ภาคเรียนล่าสุดไม่พบรายวิชาที่เข้าเกณฑ์การยื่นคำร้อง หรือยังไม่ได้เชื่อมตารางคำร้องจริง</p>
-              </div>
-              <div class="status-badge approved">ไม่มีรายการ</div>
-            </div>
+      button.classList.toggle(
+        'active',
+        filter === APP_STATE.remedialStatusFilter
+      );
+    });
+}
 
-            <div class="status-meta-grid">
-              <div class="status-meta">
-                <div class="status-meta-label">สถานะระบบ</div>
-                <div class="status-meta-value">พร้อมเชื่อมต่อ</div>
-              </div>
-              <div class="status-meta">
-                <div class="status-meta-label">ภาคเรียนล่าสุด</div>
-                <div class="status-meta-value">${escapeHtml(getYearTermText(APP_STATE.latestGradeRows))}</div>
-              </div>
-              <div class="status-meta">
-                <div class="status-meta-label">ชั้นเรียน</div>
-                <div class="status-meta-value">${escapeHtml(getLatestClassLevel(APP_STATE.latestGradeRows))}</div>
-              </div>
-              <div class="status-meta">
-                <div class="status-meta-label">ห้อง / เลขที่</div>
-                <div class="status-meta-value">${escapeHtml(getStudentDisplayRoomNo(APP_STATE.studentProfile))}</div>
-              </div>
-            </div>
-          </div>
-        `;
-        return;
-      }
+function normalizeRemedialRequestStatus(value){
+  const status = String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
 
-      container.innerHTML = rows.map(row => {
-        const subjectCode = safeText(row?.subjects?.[FIELD_MAP.subject.code]);
-        const subjectName = safeText(row?.subjects?.[FIELD_MAP.subject.name]);
-        const year = safeText(row?.[FIELD_MAP.grades.academicYear]);
-        const term = safeText(row?.[FIELD_MAP.grades.term]);
-        const gradeCode = normalizeGrade(row?.[FIELD_MAP.grades.gradeCode]);
-        const statusText = 'รอดำเนินการ';
-        const statusClass = 'pending';
+  if([
+    'approved',
+    'approve',
+    'completed',
+    'complete',
+    'อนุมัติ',
+    'อนุมัติแล้ว'
+  ].includes(status)){
+    return 'approved';
+  }
 
-        return `
-          <div class="status-item">
-            <div class="status-item-top">
-              <div>
-                <h4 class="status-item-title">${escapeHtml(subjectName)}</h4>
-                <p class="status-item-sub">รายการแสดงจากผลการเรียนที่เข้าเกณฑ์สอบแก้ตัว และพร้อมต่อยอดไปยังระบบคำร้องจริง</p>
-              </div>
-              <div class="status-badge ${statusClass}">${escapeHtml(statusText)}</div>
-            </div>
+  if([
+    'pending',
+    'pending_approval',
+    'submitted',
+    'waiting',
+    'waiting_approval',
+    'รออนุมัติ',
+    'รอตรวจสอบ',
+    'รอดำเนินการ'
+  ].includes(status)){
+    return 'pending';
+  }
 
-            <div class="status-meta-grid">
-              <div class="status-meta">
-                <div class="status-meta-label">รหัสวิชา</div>
-                <div class="status-meta-value">${escapeHtml(subjectCode)}</div>
-              </div>
-              <div class="status-meta">
-                <div class="status-meta-label">ผลการเรียนเดิม</div>
-                <div class="status-meta-value">${escapeHtml(gradeCode || '-')}</div>
-              </div>
-              <div class="status-meta">
-                <div class="status-meta-label">ปีการศึกษา / ภาคเรียน</div>
-                <div class="status-meta-value">${escapeHtml(`${year} / ${term}`)}</div>
-              </div>
-              <div class="status-meta">
-                <div class="status-meta-label">สถานะคำร้อง</div>
-                <div class="status-meta-value">${escapeHtml(statusText)}</div>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
+  if([
+    'rejected',
+    'reject',
+    'cancelled',
+    'canceled',
+    'ยกเลิก',
+    'ไม่อนุมัติ'
+  ].includes(status)){
+    return 'rejected';
+  }
+
+  return '';
+}
+
+function getRemedialRequestSubjectCode(request){
+  return safeText(
+    request?.subject_code ??
+    request?.subjectCode ??
+    request?.subjects?.subject_code,
+    ''
+  );
+}
+
+function getRemedialRequestYear(request){
+  return safeNumber(
+    request?.academic_year ??
+    request?.academicYear,
+    0
+  );
+}
+
+function getRemedialRequestTerm(request){
+  return safeNumber(
+    request?.term,
+    0
+  );
+}
+
+function findRemedialRequestForRow(row){
+  const subjectCode = safeText(
+    row?.subjects?.[FIELD_MAP.subject.code],
+    ''
+  );
+
+  const academicYear = safeNumber(
+    row?.[FIELD_MAP.grades.academicYear],
+    0
+  );
+
+  const term = safeNumber(
+    row?.[FIELD_MAP.grades.term],
+    0
+  );
+
+  const matches = APP_STATE.remedialRequests.filter(request => {
+    return (
+      getRemedialRequestSubjectCode(request) === subjectCode &&
+      getRemedialRequestYear(request) === academicYear &&
+      getRemedialRequestTerm(request) === term
+    );
+  });
+
+  if(!matches.length) return null;
+
+  return matches.sort((a, b) => {
+    const dateA = new Date(
+      a?.updated_at ??
+      a?.created_at ??
+      a?.submitted_at ??
+      0
+    ).getTime();
+
+    const dateB = new Date(
+      b?.updated_at ??
+      b?.created_at ??
+      b?.submitted_at ??
+      0
+    ).getTime();
+
+    return dateB - dateA;
+  })[0];
+}
+
+function getRemedialItemStatus(row, request){
+  const originalGrade = normalizeGrade(
+    row?.[FIELD_MAP.grades.gradeCode]
+  );
+
+  const retestGrade = normalizeGrade(
+    row?.[FIELD_MAP.grades.retestGradeCode]
+  );
+
+  const requestStatus = normalizeRemedialRequestStatus(
+    request?.status ??
+    request?.request_status ??
+    request?.approval_status
+  );
+
+  // มีเกรดแก้ตัวแล้ว หรือคำร้องอนุมัติแล้ว
+  if(retestGrade || requestStatus === 'approved'){
+    return 'approved';
+  }
+
+  // ครูส่งผลแล้วและกำลังรออนุมัติ
+  if(requestStatus === 'pending'){
+    return 'pending';
+  }
+
+  // ยังมีผลการเรียนไม่ผ่านและยังไม่มีการส่งผลแก้ตัว
+  if(['0', 'ร', 'มส', 'มผ'].includes(originalGrade)){
+    return 'unresolved';
+  }
+
+  return '';
+}
+
+function buildRemedialStatusItems(){
+const sourceRows =
+  Array.isArray(APP_STATE.allGradeRows) &&
+  APP_STATE.allGradeRows.length
+    ? APP_STATE.allGradeRows
+    : (
+        Array.isArray(APP_STATE.latestGradeRows)
+          ? APP_STATE.latestGradeRows
+          : []
+      );
+
+  
+
+  return sourceRows
+    .map(row => {
+      const request = findRemedialRequestForRow(row);
+      const status = getRemedialItemStatus(row, request);
+
+      return {
+        row,
+        request,
+        status
+      };
+    })
+    .filter(item => item.status)
+    .sort((a, b) => {
+      const yearA = safeNumber(
+        a.row?.[FIELD_MAP.grades.academicYear],
+        0
+      );
+
+      const yearB = safeNumber(
+        b.row?.[FIELD_MAP.grades.academicYear],
+        0
+      );
+
+      if(yearB !== yearA) return yearB - yearA;
+
+      const termA = safeNumber(
+        a.row?.[FIELD_MAP.grades.term],
+        0
+      );
+
+      const termB = safeNumber(
+        b.row?.[FIELD_MAP.grades.term],
+        0
+      );
+
+      if(termB !== termA) return termB - termA;
+
+      return compareGradeRows(a.row, b.row);
+    });
+}
+
+function updateRemedialKpiCounts(items){
+  const counts = {
+    all: items.length,
+    unresolved: items.filter(item => item.status === 'unresolved').length,
+    pending: items.filter(item => item.status === 'pending').length,
+    approved: items.filter(item => item.status === 'approved').length
+  };
+
+  if($('remedialKpiAll')){
+    $('remedialKpiAll').textContent = String(counts.all);
+  }
+
+  if($('remedialKpiUnresolved')){
+    $('remedialKpiUnresolved').textContent = String(counts.unresolved);
+  }
+
+  if($('remedialKpiPending')){
+    $('remedialKpiPending').textContent = String(counts.pending);
+  }
+
+  if($('remedialKpiApproved')){
+    $('remedialKpiApproved').textContent = String(counts.approved);
+  }
+}
+
+function getRemedialStatusDisplay(status){
+  const map = {
+    unresolved: {
+      text: 'ยังไม่แก้',
+      className: 'rejected'
+    },
+    pending: {
+      text: 'รออนุมัติ',
+      className: 'pending'
+    },
+    approved: {
+      text: 'อนุมัติแล้ว',
+      className: 'approved'
     }
+  };
+
+  return map[status] || {
+    text: '-',
+    className: 'pending'
+  };
+}
+
+function renderRemedialStatus(){
+  const container = $('statusList');
+  if(!container) return;
+
+  const allItems = buildRemedialStatusItems();
+
+  updateRemedialKpiCounts(allItems);
+  updateRemedialKpiActive();
+
+  const currentFilter =
+    APP_STATE.remedialStatusFilter || 'all';
+
+  const filteredItems = currentFilter === 'all'
+    ? allItems
+    : allItems.filter(item => item.status === currentFilter);
+
+  if(!filteredItems.length){
+    const emptyText = currentFilter === 'all'
+      ? 'ยังไม่มีรายการสอบแก้ตัว'
+      : 'ไม่พบรายการในสถานะที่เลือก';
+
+    container.innerHTML = `
+      <div class="status-item">
+        <div class="status-item-top">
+          <div>
+            <h4 class="status-item-title">
+              ${escapeHtml(emptyText)}
+            </h4>
+
+            <p class="status-item-sub">
+              ลองเลือกสถานะอื่น หรือตรวจสอบข้อมูลผลการเรียนอีกครั้ง
+            </p>
+          </div>
+
+          <div class="status-badge approved">
+            ไม่มีรายการ
+          </div>
+        </div>
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML = filteredItems.map(item => {
+    const row = item.row;
+    const request = item.request;
+
+    const subjectCode = safeText(
+      row?.subjects?.[FIELD_MAP.subject.code]
+    );
+
+    const subjectName = safeText(
+      row?.subjects?.[FIELD_MAP.subject.name]
+    );
+
+    const teacherName = safeText(
+      row?.teachers?.[FIELD_MAP.teacher.name],
+      '-'
+    );
+
+    const academicYear = safeText(
+      row?.[FIELD_MAP.grades.academicYear]
+    );
+
+    const term = safeText(
+      row?.[FIELD_MAP.grades.term]
+    );
+
+    const originalGrade = normalizeGrade(
+      row?.[FIELD_MAP.grades.gradeCode]
+    ) || '-';
+
+const retestGrade =
+  normalizeGrade(
+    row?.[FIELD_MAP.grades.retestGradeCode]
+  ) ||
+  normalizeGrade(
+    request?.requested_retest_grade_code
+  ) ||
+  normalizeGrade(
+    request?.retest_grade_code
+  ) ||
+  normalizeGrade(
+    request?.new_grade
+  ) ||
+  normalizeGrade(
+    request?.approved_grade
+  );
+
+    const statusDisplay =
+      getRemedialStatusDisplay(item.status);
+
+    const approvedGradeHtml = item.status === 'approved'
+      ? `
+        <div class="status-meta">
+          <div class="status-meta-label">
+            เกรดที่แก้แล้ว
+          </div>
+
+          <div class="status-meta-value">
+            ${renderGradePill(retestGrade || '-')}
+          </div>
+        </div>
+      `
+      : '';
+
+    return `
+      <div class="status-item">
+        <div class="status-item-top">
+          <div>
+            <h4 class="status-item-title">
+              ${escapeHtml(subjectName)}
+            </h4>
+
+            <p class="status-item-sub">
+              ติดตามผลการดำเนินการสอบแก้ตัวรายวิชา
+              ${escapeHtml(subjectCode)}
+            </p>
+          </div>
+
+          <div class="status-badge ${statusDisplay.className}">
+            ${escapeHtml(statusDisplay.text)}
+          </div>
+        </div>
+
+        <div class="status-meta-grid">
+          <div class="status-meta">
+            <div class="status-meta-label">
+              รหัสวิชา
+            </div>
+
+            <div class="status-meta-value">
+              ${escapeHtml(subjectCode)}
+            </div>
+          </div>
+
+          <div class="status-meta">
+            <div class="status-meta-label">
+              ผลการเรียนเดิม
+            </div>
+
+            <div class="status-meta-value">
+              ${renderGradePill(originalGrade)}
+            </div>
+          </div>
+
+          <div class="status-meta">
+            <div class="status-meta-label">
+              ปีการศึกษา / ภาคเรียน
+            </div>
+
+            <div class="status-meta-value">
+              ${escapeHtml(`${academicYear} / ${term}`)}
+            </div>
+          </div>
+
+          <div class="status-meta">
+            <div class="status-meta-label">
+              ครูผู้สอน
+            </div>
+
+            <div class="status-meta-value">
+              ${escapeHtml(teacherName)}
+            </div>
+          </div>
+
+          ${approvedGradeHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
 
     async function handleLoginSubmit(event){
       event.preventDefault();
@@ -4125,6 +4680,8 @@ function renderGradeOverview(rows){
         APP_STATE.latestGradeRows = [];
         APP_STATE.latestYearTerm = null;
         APP_STATE.selectedYearTerm = null;
+        APP_STATE.remedialRequests = [];
+        APP_STATE.remedialStatusFilter = 'all';
 
         setPortalVisible(true);
         setActiveMenu('home');
@@ -4154,6 +4711,7 @@ APP_STATE.termRowsCache = {};
 APP_STATE.allGradeRows = [];
 APP_STATE.latestGradeRows = [];
       APP_STATE.remedialRequests = [];
+      APP_STATE.remedialStatusFilter = 'all';
 
       clearSession();
       setPortalVisible(false);
@@ -4184,6 +4742,7 @@ if($('termSelector')){
     </button>
   `;
 }
+      updateRemedialKpiActive();
     }
 
     async function handleRefresh(){
@@ -4265,9 +4824,33 @@ function initMenuEvents(){
     }
   });
 
-  $('menuRemedialStatusBtn')?.addEventListener('click', () => {
-    setActiveMenu('remedial');
-  });
+$('menuRemedialStatusBtn')?.addEventListener(
+  'click',
+  async () => {
+    try{
+      // โหลดผลการเรียนทุกเทอม เพื่อใช้คำนวณ KPI
+      await ensureOverviewRows(false);
+
+      // โหลดคำร้องล่าสุดอีกครั้ง
+      APP_STATE.remedialRequests =
+        await fetchStudentRemedialRequests();
+
+      renderRemedialStatus();
+      setActiveMenu('remedial');
+
+    }catch(error){
+      console.error(
+        'LOAD REMEDIAL STATUS ERROR =',
+        error
+      );
+
+      alert(
+        error?.message ||
+        'โหลดสถานะการสอบแก้ตัวไม่สำเร็จ'
+      );
+    }
+  }
+);
 
   $('btnRequestStatus')?.addEventListener('click', () => {
     setActiveMenu('remedial');
@@ -4298,6 +4881,18 @@ function initMenuEvents(){
       console.error('TERM SELECT ERROR =', error);
       alert(error?.message || 'โหลดผลการเรียนรายเทอมไม่สำเร็จ');
     }
+  });
+  
+  document
+  .querySelectorAll('.remedial-kpi-card[data-remedial-filter]')
+  .forEach(button => {
+    button.addEventListener('click', () => {
+      APP_STATE.remedialStatusFilter =
+        button.dataset.remedialFilter || 'all';
+
+      updateRemedialKpiActive();
+      renderRemedialStatus();
+    });
   });
 }
 
