@@ -2141,6 +2141,518 @@ body.portal-mode .app{
   max-width:110px !important;
   text-align:center !important;
 }
+    /* =====================================================
+   StudentPR : Retest Tracking แบบ TeacherPR
+   ===================================================== */
+
+.retest-tracking-card{
+  overflow:hidden;
+  background:rgba(244,234,247,.92);
+  border-radius:24px;
+}
+
+.retest-tracking-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:24px 24px 18px;
+  border-bottom:1px solid #dde6f0;
+  background:linear-gradient(
+    90deg,
+    rgba(247,232,249,.94),
+    rgba(229,241,251,.94)
+  );
+}
+
+.retest-tracking-title{
+  margin:0;
+  font-size:25px;
+  line-height:1.3;
+  font-weight:900;
+  color:#123456;
+}
+
+.retest-tracking-subtitle{
+  margin:7px 0 0;
+  color:#64748b;
+  font-size:14px;
+  line-height:1.6;
+  font-weight:500;
+}
+
+
+/* =====================================================
+   Filter section
+   ===================================================== */
+
+.retest-filter-section{
+  padding:20px 24px 12px;
+}
+
+.retest-filter-grid{
+  display:grid;
+  grid-template-columns:
+    minmax(145px, .8fr)
+    minmax(145px, .8fr)
+    minmax(210px, 1.2fr)
+    minmax(210px, 1.2fr)
+    minmax(260px, 1.5fr);
+  gap:12px;
+  align-items:end;
+}
+
+.retest-filter-field{
+  min-width:0;
+  display:grid;
+  gap:7px;
+}
+
+.retest-filter-field label{
+  color:#344a60;
+  font-size:13px;
+  font-weight:800;
+}
+
+.retest-filter-field select,
+.retest-filter-field input{
+  width:100%;
+  height:46px;
+  border:1px solid #cfdceb;
+  border-radius:15px;
+  background:#fff;
+  color:#17324a;
+  font-family:'Kanit',sans-serif;
+  font-size:14px;
+  font-weight:600;
+  padding:0 14px;
+  outline:none;
+  transition:.18s ease;
+}
+
+.retest-filter-field select{
+  cursor:pointer;
+}
+
+.retest-filter-field input::placeholder{
+  color:#8a98a8;
+  font-weight:500;
+}
+
+.retest-filter-field select:focus,
+.retest-filter-field input:focus{
+  border-color:#75aef7;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10);
+}
+
+.retest-filter-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:14px;
+}
+
+.retest-filter-actions .btn{
+  min-width:128px;
+  min-height:44px;
+  border-radius:15px;
+}
+
+
+/* =====================================================
+   KPI cards
+   ===================================================== */
+
+.retest-tracking-card .remedial-kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:12px;
+  padding:0 24px 12px;
+}
+
+.retest-tracking-card .remedial-kpi-card{
+  position:relative;
+  width:100%;
+  min-height:92px;
+  padding:15px 16px;
+  border:1px solid #d7e2ef;
+  border-radius:18px;
+  background:#f8fbff;
+  color:#17324a;
+  font-family:'Kanit',sans-serif;
+  text-align:left;
+  cursor:pointer;
+  transition:.18s ease;
+  box-shadow:none;
+}
+
+.retest-tracking-card .remedial-kpi-card:hover{
+  transform:translateY(-1px);
+  border-color:#a8c9f7;
+  box-shadow:0 9px 20px rgba(47,109,224,.08);
+}
+
+.retest-tracking-card .remedial-kpi-label{
+  display:block;
+  font-size:13px;
+  line-height:1.4;
+  font-weight:800;
+  color:inherit;
+}
+
+.retest-tracking-card .remedial-kpi-value{
+  display:block;
+  margin-top:8px;
+  font-family:'Sarabun',sans-serif;
+  font-size:28px;
+  line-height:1;
+  font-weight:900;
+  color:inherit;
+}
+
+/* ทั้งหมด */
+.retest-tracking-card
+.remedial-kpi-card[data-remedial-filter="all"]{
+  background:#f5f9ff;
+  border-color:#d7e7ff;
+}
+
+/* ยังไม่แก้ */
+.retest-tracking-card
+.remedial-kpi-card[data-remedial-filter="unresolved"]{
+  background:#fff8f8;
+  border-color:#fecaca;
+  color:#b91c1c;
+}
+
+/* รออนุมัติ */
+.retest-tracking-card
+.remedial-kpi-card[data-remedial-filter="pending"]{
+  background:#fffaf2;
+  border-color:#fed7aa;
+  color:#b45309;
+}
+
+/* อนุมัติแล้ว */
+.retest-tracking-card
+.remedial-kpi-card[data-remedial-filter="approved"]{
+  background:#f4fff8;
+  border-color:#bbf7d0;
+  color:#15803d;
+}
+
+/* KPI ที่กำลังเลือก */
+.retest-tracking-card .remedial-kpi-card.active{
+  color:#fff !important;
+  border-color:#4c91ed !important;
+  background:linear-gradient(135deg, #2f6de0, #43b7e8) !important;
+  box-shadow:0 12px 24px rgba(47,109,224,.20) !important;
+}
+
+.retest-tracking-card .remedial-kpi-card.active::after{
+  content:'✓';
+  position:absolute;
+  top:12px;
+  right:14px;
+  width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:rgba(255,255,255,.22);
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+}
+
+
+/* =====================================================
+   Result summary
+   ===================================================== */
+
+.retest-result-summary{
+  padding:2px 24px 10px;
+  color:#15803d;
+  font-size:13px;
+  line-height:1.5;
+  font-weight:800;
+}
+
+
+/* =====================================================
+   Table
+   ===================================================== */
+
+.retest-table-wrap{
+  width:calc(100% - 48px);
+  margin:0 24px 24px;
+  overflow:auto;
+  border:1px solid #d5e1ed;
+  border-radius:18px;
+  background:#fff;
+}
+
+.retest-tracking-table{
+  width:100%;
+  min-width:1120px;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+  font-size:13.5px;
+}
+
+.retest-tracking-table th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  padding:14px 12px;
+  border-right:1px solid #e1e9f1;
+  border-bottom:1px solid #d5e1ed;
+  background:#f1f6fc;
+  color:#17324a;
+  text-align:center;
+  font-size:13px;
+  line-height:1.35;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.retest-tracking-table th:last-child{
+  border-right:0;
+}
+
+.retest-tracking-table td{
+  padding:15px 12px;
+  border-right:1px solid #edf2f7;
+  border-bottom:1px solid #e8eef5;
+  background:#fff;
+  color:#17324a;
+  line-height:1.45;
+  vertical-align:middle;
+}
+
+.retest-tracking-table td:last-child{
+  border-right:0;
+}
+
+.retest-tracking-table tbody tr:last-child td{
+  border-bottom:0;
+}
+
+.retest-tracking-table tbody tr:hover td{
+  background:#fbfdff;
+}
+
+/* ความกว้างแต่ละคอลัมน์ */
+.retest-tracking-table th:nth-child(1),
+.retest-tracking-table td:nth-child(1){
+  width:110px;
+  text-align:center;
+  font-weight:800;
+}
+
+.retest-tracking-table th:nth-child(2),
+.retest-tracking-table td:nth-child(2){
+  width:220px;
+  text-align:left;
+}
+
+.retest-tracking-table th:nth-child(3),
+.retest-tracking-table td:nth-child(3){
+  width:145px;
+  text-align:center;
+}
+
+.retest-tracking-table th:nth-child(4),
+.retest-tracking-table td:nth-child(4){
+  width:190px;
+  text-align:left;
+}
+
+.retest-tracking-table th:nth-child(5),
+.retest-tracking-table td:nth-child(5){
+  width:190px;
+  text-align:left;
+}
+
+.retest-tracking-table th:nth-child(6),
+.retest-tracking-table td:nth-child(6){
+  width:100px;
+  text-align:center;
+}
+
+.retest-tracking-table th:nth-child(7),
+.retest-tracking-table td:nth-child(7){
+  width:120px;
+  text-align:center;
+}
+
+.retest-tracking-table th:nth-child(8),
+.retest-tracking-table td:nth-child(8){
+  width:130px;
+  text-align:center;
+}
+
+
+/* =====================================================
+   Grade and status display inside table
+   ===================================================== */
+
+.retest-grade-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:64px;
+  min-height:34px;
+  padding:6px 12px;
+  border-radius:999px;
+  font-family:'Sarabun',sans-serif;
+  font-size:15px;
+  line-height:1;
+  font-weight:900;
+  border:1px solid #dbe7f3;
+  background:#f8fbff;
+  color:#17324a;
+}
+
+.retest-grade-pill.original{
+  background:linear-gradient(180deg, #fff1f2, #fee2e2);
+  border-color:#fecaca;
+  color:#b91c1c;
+}
+
+.retest-grade-pill.approved{
+  background:linear-gradient(180deg, #f0fdf4, #dcfce7);
+  border-color:#bbf7d0;
+  color:#15803d;
+}
+
+.retest-grade-pill.empty{
+  background:#f8fafc;
+  border-color:#e2e8f0;
+  color:#64748b;
+}
+
+.retest-status-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:105px;
+  min-height:34px;
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1.2;
+  font-weight:900;
+  border:1px solid transparent;
+  white-space:nowrap;
+}
+
+.retest-status-pill.unresolved{
+  background:#fef2f2;
+  border-color:#fecaca;
+  color:#b91c1c;
+}
+
+.retest-status-pill.pending{
+  background:#fff7ed;
+  border-color:#fed7aa;
+  color:#b45309;
+}
+
+.retest-status-pill.approved{
+  background:#f0fdf4;
+  border-color:#bbf7d0;
+  color:#15803d;
+}
+
+
+/* =====================================================
+   Responsive
+   ===================================================== */
+
+@media (max-width:1280px){
+  .retest-filter-grid{
+    grid-template-columns:repeat(3, minmax(0,1fr));
+  }
+
+  .retest-search-field{
+    grid-column:span 2;
+  }
+}
+
+@media (max-width:900px){
+  .retest-tracking-head{
+    padding:20px 18px 16px;
+  }
+
+  .retest-filter-section{
+    padding:18px 18px 12px;
+  }
+
+  .retest-filter-grid{
+    grid-template-columns:repeat(2, minmax(0,1fr));
+  }
+
+  .retest-search-field{
+    grid-column:span 2;
+  }
+
+  .retest-tracking-card .remedial-kpi-grid{
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    padding-left:18px;
+    padding-right:18px;
+  }
+
+  .retest-result-summary{
+    padding-left:18px;
+    padding-right:18px;
+  }
+
+  .retest-table-wrap{
+    width:calc(100% - 36px);
+    margin-left:18px;
+    margin-right:18px;
+  }
+}
+
+@media (max-width:620px){
+  .retest-tracking-title{
+    font-size:21px;
+  }
+
+  .retest-filter-grid{
+    grid-template-columns:1fr;
+  }
+
+  .retest-search-field{
+    grid-column:auto;
+  }
+
+  .retest-filter-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+
+  .retest-filter-actions .btn{
+    width:100%;
+    min-width:0;
+  }
+
+  .retest-tracking-card .remedial-kpi-grid{
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+  }
+
+  .retest-tracking-card .remedial-kpi-card{
+    min-height:82px;
+    padding:13px;
+  }
+
+  .retest-tracking-card .remedial-kpi-value{
+    font-size:24px;
+  }
+}
 
   </style>
 </head>
@@ -2607,99 +3119,263 @@ body.portal-mode .app{
         </div>
       </section>
 
-      <section id="pageRemedialStatus" class="hidden">
-        <div class="status-card card">
-          <div class="status-head">
-            <div>
-              <h3 class="status-title">ติดตามสถานะการสอบแก้ตัว</h3>
-              <p class="status-subtitle">แสดงสถานะการสอบแก้ตัวของนักเรียน</p>
-            </div>
-          </div>
+<section id="pageRemedialStatus" class="hidden">
 
-          <div class="status-body">
-            <div class="status-intro">
-              หน้านี้เตรียมไว้สำหรับเชื่อมต่อข้อมูลคำร้องสอบแก้ตัวจริงจากฐานข้อมูล
-              ขณะนี้แสดงผลตัวอย่างหน้าตาและโครงสร้างเมนูให้พร้อมใช้งานในสไตล์เดียวกับระบบงานทะเบียน-วัดผล
-            </div>
+  <div class="retest-tracking-card card">
 
-            <div class="remedial-kpi-grid" id="remedialKpiGrid">
+    <!-- =========================
+         หัวข้อหน้า
+         ========================= -->
+    <div class="retest-tracking-head">
+      <div>
+        <h2 class="retest-tracking-title">
+          ติดตามการสอบแก้ตัว
+        </h2>
 
-  <button
-    class="remedial-kpi-card active"
-    type="button"
-    data-remedial-filter="all"
-  >
-    <span class="remedial-kpi-label">ทั้งหมด</span>
-    <span class="remedial-kpi-value" id="remedialKpiAll">0</span>
-  </button>
+        <p class="retest-tracking-subtitle">
+          แสดงประวัติรายวิชาที่เคยมีผลการเรียน 0, ร, มส และ มผ
+          พร้อมติดตามสถานะการแก้ไขผลการเรียน
+        </p>
+      </div>
+    </div>
 
-  <button
-    class="remedial-kpi-card"
-    type="button"
-    data-remedial-filter="unresolved"
-  >
-    <span class="remedial-kpi-label">ยังไม่แก้</span>
-    <span class="remedial-kpi-value" id="remedialKpiUnresolved">0</span>
-  </button>
 
-  <button
-    class="remedial-kpi-card"
-    type="button"
-    data-remedial-filter="pending"
-  >
-    <span class="remedial-kpi-label">รออนุมัติ</span>
-    <span class="remedial-kpi-value" id="remedialKpiPending">0</span>
-  </button>
+    <!-- =========================
+         ตัวกรองข้อมูล
+         ========================= -->
+    <div class="retest-filter-section">
 
-  <button
-    class="remedial-kpi-card"
-    type="button"
-    data-remedial-filter="approved"
-  >
-    <span class="remedial-kpi-label">อนุมัติแล้ว</span>
-    <span class="remedial-kpi-value" id="remedialKpiApproved">0</span>
-  </button>
+      <div class="retest-filter-grid">
 
-</div>
+        <!-- ปีการศึกษา -->
+        <div class="retest-filter-field">
+          <label for="remedialYearFilter">
+            ปีการศึกษา
+          </label>
 
-            <div class="status-list" id="statusList">
-              <div class="status-item">
-                <div class="status-item-top">
-                  <div>
-                    <h4 class="status-item-title">คำร้องสอบแก้ตัว - ตัวอย่างรายการ</h4>
-                    <p class="status-item-sub">รายการตัวอย่างสำหรับเตรียมเชื่อมต่อระบบจริง</p>
-                  </div>
-                  <div class="status-badge pending">รอดำเนินการ</div>
-                </div>
-
-                <div class="status-meta-grid">
-                  <div class="status-meta">
-                    <div class="status-meta-label">รหัสวิชา</div>
-                    <div class="status-meta-value">-</div>
-                  </div>
-                  <div class="status-meta">
-                    <div class="status-meta-label">รายวิชา</div>
-                    <div class="status-meta-value">-</div>
-                  </div>
-                  <div class="status-meta">
-                    <div class="status-meta-label">ภาคเรียน</div>
-                    <div class="status-meta-value">-</div>
-                  </div>
-                  <div class="status-meta">
-                    <div class="status-meta-label">วันที่ยื่นคำร้อง</div>
-                    <div class="status-meta-value">-</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="status-note">
-              หากต้องการเชื่อมเมนูนี้เข้ากับ Supabase ในรอบถัดไป
-              สามารถดึงข้อมูลจากตารางคำร้องสอบแก้ตัวมาแสดงเป็นรายการจริงได้ทันที
-            </div>
-          </div>
+          <select id="remedialYearFilter">
+            <option value="">ทั้งหมด</option>
+          </select>
         </div>
-      </section>
+
+
+        <!-- ภาคเรียน -->
+        <div class="retest-filter-field">
+          <label for="remedialTermFilter">
+            ภาคเรียน
+          </label>
+
+          <select id="remedialTermFilter">
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
+
+
+        <!-- กลุ่มสาระการเรียนรู้ -->
+        <div class="retest-filter-field">
+          <label for="remedialAreaFilter">
+            กลุ่มสาระการเรียนรู้
+          </label>
+
+          <select id="remedialAreaFilter">
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
+
+
+        <!-- ครูผู้สอน -->
+        <div class="retest-filter-field">
+          <label for="remedialTeacherFilter">
+            ครูผู้สอน
+          </label>
+
+          <select id="remedialTeacherFilter">
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
+
+
+        <!-- ค้นหา -->
+        <div class="retest-filter-field retest-search-field">
+          <label for="remedialSearchInput">
+            ค้นหา
+          </label>
+
+          <input
+            id="remedialSearchInput"
+            type="search"
+            placeholder="รหัสวิชา / รายวิชา / ครูผู้สอน / สถานะ"
+            autocomplete="off"
+          >
+        </div>
+
+      </div>
+
+
+      <div class="retest-filter-actions">
+        <button
+          id="remedialApplyFilterBtn"
+          class="btn btn-primary"
+          type="button"
+        >
+          แสดงรายการ
+        </button>
+
+        <button
+          id="remedialResetFilterBtn"
+          class="btn btn-outline"
+          type="button"
+        >
+          ล้างตัวกรอง
+        </button>
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         KPI สถานะ
+         ========================= -->
+    <div
+      class="remedial-kpi-grid"
+      id="remedialKpiGrid"
+    >
+
+      <button
+        class="remedial-kpi-card active"
+        type="button"
+        data-remedial-filter="all"
+      >
+        <span class="remedial-kpi-label">
+          รายการทั้งหมด
+        </span>
+
+        <span
+          class="remedial-kpi-value"
+          id="remedialKpiAll"
+        >
+          0
+        </span>
+      </button>
+
+
+      <button
+        class="remedial-kpi-card"
+        type="button"
+        data-remedial-filter="unresolved"
+      >
+        <span class="remedial-kpi-label">
+          ยังไม่แก้
+        </span>
+
+        <span
+          class="remedial-kpi-value"
+          id="remedialKpiUnresolved"
+        >
+          0
+        </span>
+      </button>
+
+
+      <button
+        class="remedial-kpi-card"
+        type="button"
+        data-remedial-filter="pending"
+      >
+        <span class="remedial-kpi-label">
+          รออนุมัติ
+        </span>
+
+        <span
+          class="remedial-kpi-value"
+          id="remedialKpiPending"
+        >
+          0
+        </span>
+      </button>
+
+
+      <button
+        class="remedial-kpi-card"
+        type="button"
+        data-remedial-filter="approved"
+      >
+        <span class="remedial-kpi-label">
+          อนุมัติแล้ว
+        </span>
+
+        <span
+          class="remedial-kpi-value"
+          id="remedialKpiApproved"
+        >
+          0
+        </span>
+      </button>
+
+    </div>
+
+
+    <!-- =========================
+         สรุปจำนวนรายการ
+         ========================= -->
+    <div
+      class="retest-result-summary"
+      id="remedialResultSummary"
+    >
+      แสดงรายการทั้งหมด 0 จาก 0 รายการ
+    </div>
+
+
+    <!-- =========================
+         ตารางรายการ
+         ========================= -->
+    <div class="retest-table-wrap">
+
+      <table class="retest-tracking-table">
+
+        <thead>
+          <tr>
+            <th>รหัสวิชา</th>
+            <th>รายวิชา</th>
+            <th>ปีการศึกษา / ภาคเรียน</th>
+            <th>กลุ่มสาระการเรียนรู้</th>
+            <th>ครูผู้สอน</th>
+            <th>เกรดเดิม</th>
+            <th>เกรดที่แก้แล้ว</th>
+            <th>สถานะ</th>
+          </tr>
+        </thead>
+
+        <tbody id="remedialTableBody">
+
+          <tr>
+            <td
+              colspan="8"
+              class="empty-state"
+            >
+              กำลังเตรียมข้อมูลการสอบแก้ตัว
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+    <!--
+      เก็บไว้ชั่วคราวเพื่อป้องกัน JavaScript เดิมหา element ไม่พบ
+      จุดถัดไปเราจะเปลี่ยน renderRemedialStatus() ให้ใช้ remedialTableBody
+    -->
+    <div
+      id="statusList"
+      class="hidden"
+    ></div>
+
+  </div>
+
+</section>
     </div>
   </section>
 </div>
@@ -2737,7 +3413,15 @@ const APP_STATE = {
   remedialRequests: [],
 
   // ตัวกรองรายการสอบแก้ตัว
-  remedialStatusFilter: 'all'
+remedialStatusFilter: 'all',
+
+remedialFilters: {
+  year: '',
+  term: '',
+  learningArea: '',
+  teacher: '',
+  keyword: ''
+}
 };
 
 const PAGE_IDS = {
@@ -4222,6 +4906,589 @@ function renderGradeOverview(rows){
      $('sumGpa').textContent = formatNumberFloor(summary.gpa, 2);
     }
 
+      /* =====================================================
+   Remedial filters
+   ===================================================== */
+
+function getRemedialSourceRow(item){
+  return item?.row || item || {};
+}
+
+function getRemedialOriginalGrade(item){
+  const row = getRemedialSourceRow(item);
+
+  return normalizeGrade(
+    item?.original_grade_code ??
+    item?.originalGradeCode ??
+    row?.original_grade_code ??
+    row?.[FIELD_MAP.grades.gradeCode]
+  );
+}
+
+function getRemedialAcademicYear(item){
+  const row = getRemedialSourceRow(item);
+
+  return String(
+    item?.academic_year ??
+    item?.academicYear ??
+    row?.[FIELD_MAP.grades.academicYear] ??
+    ''
+  ).trim();
+}
+
+function getRemedialTerm(item){
+  const row = getRemedialSourceRow(item);
+
+  return String(
+    item?.term ??
+    row?.[FIELD_MAP.grades.term] ??
+    ''
+  ).trim();
+}
+
+function getRemedialLearningArea(item){
+  const row = getRemedialSourceRow(item);
+
+  const directValue =
+    item?.learning_area ??
+    item?.learningArea ??
+    row?.learning_area ??
+    row?.subjects?.[FIELD_MAP.subject.learningArea];
+
+  if(String(directValue ?? '').trim()){
+    return String(directValue).trim();
+  }
+
+  // สำรองกรณีข้อมูลเดิมไม่มี learning_area
+  if(typeof getRadarGroupName === 'function'){
+    return String(getRadarGroupName(row) || '').trim();
+  }
+
+  return '';
+}
+
+function getRemedialTeacherName(item){
+  const row = getRemedialSourceRow(item);
+
+  return String(
+    item?.teacher_name ??
+    item?.teacherName ??
+    row?.teacher_name ??
+    row?.teachers?.[FIELD_MAP.teacher.name] ??
+    ''
+  ).trim();
+}
+
+function getRemedialTeacherCode(item){
+  const row = getRemedialSourceRow(item);
+
+  return String(
+    item?.teacher_code ??
+    item?.teacherCode ??
+    row?.teacher_code ??
+    row?.teachers?.[FIELD_MAP.teacher.code] ??
+    ''
+  ).trim();
+}
+
+function getRemedialTeacherFilterValue(item){
+  const teacherCode = getRemedialTeacherCode(item);
+  const teacherName = getRemedialTeacherName(item);
+
+  if(teacherCode){
+    return `code:${teacherCode}`;
+  }
+
+  if(teacherName){
+    return `name:${teacherName}`;
+  }
+
+  return '';
+}
+
+function isRemedialOriginalFailGrade(item){
+  return ['0', 'ร', 'มส', 'มผ'].includes(
+    getRemedialOriginalGrade(item)
+  );
+}
+
+function setRemedialSelectOptions(
+  selectId,
+  options,
+  selectedValue = ''
+){
+  const select = $(selectId);
+  if(!select) return '';
+
+  const normalizedOptions = options
+    .filter(option => String(option?.value ?? '').trim())
+    .map(option => ({
+      value: String(option.value).trim(),
+      label: String(option.label ?? option.value).trim()
+    }));
+
+  const validValues = new Set(
+    normalizedOptions.map(option => option.value)
+  );
+
+  const nextValue = validValues.has(String(selectedValue))
+    ? String(selectedValue)
+    : '';
+
+  select.innerHTML = `
+    <option value="">ทั้งหมด</option>
+
+    ${normalizedOptions.map(option => `
+      <option value="${escapeHtml(option.value)}">
+        ${escapeHtml(option.label)}
+      </option>
+    `).join('')}
+  `;
+
+  select.value = nextValue;
+
+  return nextValue;
+}
+
+function buildUniqueRemedialOptions(
+  items,
+  valueGetter,
+  labelGetter = valueGetter
+){
+  const map = new Map();
+
+  items.forEach(item => {
+    const value = String(valueGetter(item) ?? '').trim();
+    const label = String(labelGetter(item) ?? '').trim();
+
+    if(!value || !label) return;
+
+    if(!map.has(value)){
+      map.set(value, {
+        value,
+        label
+      });
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+function populateRemedialFilterOptions(allItems){
+  const filters = APP_STATE.remedialFilters;
+
+  /*
+   * รายการต้นทางของ Dropdown ทั้งหมดต้องเป็นรายวิชา
+   * ที่ผลการเรียนเดิมเป็น 0, ร, มส หรือ มผ เท่านั้น
+   */
+  const failItems = (Array.isArray(allItems) ? allItems : [])
+    .filter(isRemedialOriginalFailGrade);
+
+  /* -------------------------
+     ปีการศึกษา
+     ------------------------- */
+
+  const yearOptions = buildUniqueRemedialOptions(
+    failItems,
+    getRemedialAcademicYear
+  ).sort((a, b) => {
+    return Number(b.value || 0) - Number(a.value || 0);
+  });
+
+  filters.year = setRemedialSelectOptions(
+    'remedialYearFilter',
+    yearOptions,
+    filters.year
+  );
+
+
+  /* -------------------------
+     ภาคเรียน
+     ขึ้นอยู่กับปีที่เลือก
+     ------------------------- */
+
+  const termSource = failItems.filter(item => {
+    if(!filters.year) return true;
+
+    return getRemedialAcademicYear(item) === filters.year;
+  });
+
+  const termOptions = buildUniqueRemedialOptions(
+    termSource,
+    getRemedialTerm
+  ).sort((a, b) => {
+    return Number(a.value || 0) - Number(b.value || 0);
+  });
+
+  filters.term = setRemedialSelectOptions(
+    'remedialTermFilter',
+    termOptions,
+    filters.term
+  );
+
+
+  /* -------------------------
+     กลุ่มสาระ
+     ขึ้นอยู่กับปีและเทอม
+     ------------------------- */
+
+  const areaSource = termSource.filter(item => {
+    if(!filters.term) return true;
+
+    return getRemedialTerm(item) === filters.term;
+  });
+
+  const areaOptions = buildUniqueRemedialOptions(
+    areaSource,
+    getRemedialLearningArea
+  ).sort((a, b) => {
+    return a.label.localeCompare(
+      b.label,
+      'th',
+      { sensitivity:'base' }
+    );
+  });
+
+  filters.learningArea = setRemedialSelectOptions(
+    'remedialAreaFilter',
+    areaOptions,
+    filters.learningArea
+  );
+
+
+  /* -------------------------
+     ครูผู้สอน
+     ขึ้นอยู่กับปี เทอม และกลุ่มสาระ
+     และมาจากรายการเกรดเดิมไม่ผ่านเท่านั้น
+     ------------------------- */
+
+  const teacherSource = areaSource.filter(item => {
+    if(!filters.learningArea) return true;
+
+    return (
+      getRemedialLearningArea(item) ===
+      filters.learningArea
+    );
+  });
+
+  const teacherOptions = buildUniqueRemedialOptions(
+    teacherSource,
+    getRemedialTeacherFilterValue,
+    getRemedialTeacherName
+  ).sort((a, b) => {
+    return a.label.localeCompare(
+      b.label,
+      'th',
+      { sensitivity:'base' }
+    );
+  });
+
+  filters.teacher = setRemedialSelectOptions(
+    'remedialTeacherFilter',
+    teacherOptions,
+    filters.teacher
+  );
+}
+
+      /* =====================================================
+   Remedial tracking table helpers
+   ===================================================== */
+
+function getRemedialSubjectCode(item){
+  const row = getRemedialSourceRow(item);
+
+  return String(
+    item?.subject_code ??
+    item?.subjectCode ??
+    row?.subject_code ??
+    row?.subjects?.[FIELD_MAP.subject.code] ??
+    ''
+  ).trim();
+}
+
+function getRemedialSubjectName(item){
+  const row = getRemedialSourceRow(item);
+
+  return String(
+    item?.subject_name ??
+    item?.subjectName ??
+    row?.subject_name ??
+    row?.subjects?.[FIELD_MAP.subject.name] ??
+    ''
+  ).trim();
+}
+
+/*
+ * เกรดที่แก้แล้ว:
+ * อ่านเฉพาะจาก grade_results.retest_grade_code
+ *
+ * ห้ามนำ requested_retest_grade_code มาใช้ในช่องนี้
+ * เพราะค่านั้นเป็นเพียงผลที่ครูเสนอเพื่อรออนุมัติ
+ */
+function getRemedialApprovedGrade(item){
+  const row = getRemedialSourceRow(item);
+
+  return normalizeGrade(
+    item?.approved_retest_grade_code ??
+    item?.retest_grade_code ??
+    row?.approved_retest_grade_code ??
+    row?.retest_grade_code ??
+    row?.[FIELD_MAP.grades.retestGradeCode]
+  );
+}
+
+function getRemedialRequestStatus(item){
+  const request = item?.request || {};
+
+  return String(
+    item?.request_status ??
+    item?.requestStatus ??
+    request?.status ??
+    request?.request_status ??
+    request?.approval_status ??
+    ''
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+}
+
+/*
+ * ลำดับตัดสินสถานะ
+ *
+ * 1. grade_results.retest_grade_code มีค่า = อนุมัติแล้ว
+ * 2. คำร้องเป็น pending_approval = รออนุมัติ
+ * 3. เกรดเดิมเป็น 0 ร มส มผ = ยังไม่แก้
+ *
+ * request_status = approved เพียงอย่างเดียว
+ * จะไม่ถือว่าอนุมัติแล้ว
+ */
+function getRemedialStatusKey(item){
+  const approvedGrade = getRemedialApprovedGrade(item);
+
+  if(approvedGrade){
+    return 'approved';
+  }
+
+  const requestStatus = getRemedialRequestStatus(item);
+
+  if([
+    'pending',
+    'pending_approval',
+    'submitted',
+    'waiting',
+    'waiting_approval'
+  ].includes(requestStatus)){
+    return 'pending';
+  }
+
+  if(isRemedialOriginalFailGrade(item)){
+    return 'unresolved';
+  }
+
+  return '';
+}
+
+function getRemedialStatusText(statusKey){
+  const map = {
+    unresolved: 'ยังไม่แก้',
+    pending: 'รออนุมัติ',
+    approved: 'อนุมัติแล้ว'
+  };
+
+  return map[statusKey] || '-';
+}
+
+function normalizeRemedialTrackingItems(items){
+  return (Array.isArray(items) ? items : [])
+    .map(item => ({
+      ...item,
+      status: getRemedialStatusKey(item)
+    }))
+    .filter(item => item.status);
+}
+
+      function syncRemedialFiltersFromControls(){
+  APP_STATE.remedialFilters.year =
+    $('remedialYearFilter')?.value || '';
+
+  APP_STATE.remedialFilters.term =
+    $('remedialTermFilter')?.value || '';
+
+  APP_STATE.remedialFilters.learningArea =
+    $('remedialAreaFilter')?.value || '';
+
+  APP_STATE.remedialFilters.teacher =
+    $('remedialTeacherFilter')?.value || '';
+
+  APP_STATE.remedialFilters.keyword =
+    $('remedialSearchInput')?.value.trim() || '';
+}
+
+  function filterRemedialItemsByControls(items){
+  const filters = APP_STATE.remedialFilters || {};
+
+  const keyword = String(filters.keyword || '')
+    .trim()
+    .toLowerCase();
+
+  return items.filter(item => {
+    const academicYear = getRemedialAcademicYear(item);
+    const term = getRemedialTerm(item);
+    const learningArea = getRemedialLearningArea(item);
+    const teacherValue = getRemedialTeacherFilterValue(item);
+
+    if(
+      filters.year &&
+      academicYear !== filters.year
+    ){
+      return false;
+    }
+
+    if(
+      filters.term &&
+      term !== filters.term
+    ){
+      return false;
+    }
+
+    if(
+      filters.learningArea &&
+      learningArea !== filters.learningArea
+    ){
+      return false;
+    }
+
+    if(
+      filters.teacher &&
+      teacherValue !== filters.teacher
+    ){
+      return false;
+    }
+
+    if(keyword){
+      const statusText = getRemedialStatusText(
+        getRemedialStatusKey(item)
+      );
+
+      const searchableText = [
+        getRemedialSubjectCode(item),
+        getRemedialSubjectName(item),
+        academicYear,
+        term,
+        learningArea,
+        getRemedialTeacherName(item),
+        getRemedialOriginalGrade(item),
+        getRemedialApprovedGrade(item),
+        statusText
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      if(!searchableText.includes(keyword)){
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+function sortRemedialTrackingItems(items){
+  return [...items].sort((a, b) => {
+    const yearA = Number(getRemedialAcademicYear(a) || 0);
+    const yearB = Number(getRemedialAcademicYear(b) || 0);
+
+    if(yearB !== yearA){
+      return yearB - yearA;
+    }
+
+    const termA = Number(getRemedialTerm(a) || 0);
+    const termB = Number(getRemedialTerm(b) || 0);
+
+    if(termB !== termA){
+      return termB - termA;
+    }
+
+    return getRemedialSubjectCode(a).localeCompare(
+      getRemedialSubjectCode(b),
+      'th',
+      {
+        numeric: true,
+        sensitivity: 'base'
+      }
+    );
+  });
+}
+
+function updateRemedialTrackingKpi(items){
+  const counts = {
+    all: items.length,
+
+    unresolved: items.filter(item => {
+      return getRemedialStatusKey(item) === 'unresolved';
+    }).length,
+
+    pending: items.filter(item => {
+      return getRemedialStatusKey(item) === 'pending';
+    }).length,
+
+    approved: items.filter(item => {
+      return getRemedialStatusKey(item) === 'approved';
+    }).length
+  };
+
+  if($('remedialKpiAll')){
+    $('remedialKpiAll').textContent =
+      String(counts.all);
+  }
+
+  if($('remedialKpiUnresolved')){
+    $('remedialKpiUnresolved').textContent =
+      String(counts.unresolved);
+  }
+
+  if($('remedialKpiPending')){
+    $('remedialKpiPending').textContent =
+      String(counts.pending);
+  }
+
+  if($('remedialKpiApproved')){
+    $('remedialKpiApproved').textContent =
+      String(counts.approved);
+  }
+}
+
+function renderRemedialGradePill(
+  grade,
+  type = 'empty'
+){
+  const normalizedGrade =
+    normalizeGrade(grade) || '-';
+
+  const className = normalizedGrade === '-'
+    ? 'empty'
+    : type;
+
+  return `
+    <span class="retest-grade-pill ${className}">
+      ${escapeHtml(normalizedGrade)}
+    </span>
+  `;
+}
+
+function renderRemedialStatusPill(statusKey){
+  const statusText =
+    getRemedialStatusText(statusKey);
+
+  return `
+    <span class="retest-status-pill ${escapeHtml(statusKey)}">
+      ${escapeHtml(statusText)}
+    </span>
+  `;
+}
+      
+
     function updateRemedialKpiActive(){
   document
     .querySelectorAll('.remedial-kpi-card[data-remedial-filter]')
@@ -4483,175 +5750,154 @@ function getRemedialStatusDisplay(status){
 }
 
 function renderRemedialStatus(){
-  const container = $('statusList');
-  if(!container) return;
+  const tbody = $('remedialTableBody');
+  const summaryBox = $('remedialResultSummary');
 
-  const allItems = buildRemedialStatusItems();
+  if(!tbody) return;
 
-  updateRemedialKpiCounts(allItems);
+  /*
+   * รับข้อมูลจาก buildRemedialStatusItems()
+   * แล้วคำนวณสถานะใหม่ โดยยึด grade_results เป็นหลัก
+   */
+  const rawItems = buildRemedialStatusItems();
+
+  const allItems = normalizeRemedialTrackingItems(
+    rawItems
+  );
+
+  /*
+   * กรองตามปี / เทอม / กลุ่มสาระ /
+   * ครูผู้สอน / คำค้น
+   */
+  const controlFilteredItems =
+    filterRemedialItemsByControls(allItems);
+
+  /*
+   * KPI นับจากตัวกรองด้านบน
+   * แต่ยังไม่จำกัดด้วย KPI ที่กำลังกด
+   */
+  updateRemedialTrackingKpi(
+    controlFilteredItems
+  );
+
   updateRemedialKpiActive();
 
-  const currentFilter =
+  /*
+   * กรองตาม KPI ที่เลือก
+   */
+  const statusFilter =
     APP_STATE.remedialStatusFilter || 'all';
 
-  const filteredItems = currentFilter === 'all'
-    ? allItems
-    : allItems.filter(item => item.status === currentFilter);
+  const visibleItems =
+    statusFilter === 'all'
+      ? controlFilteredItems
+      : controlFilteredItems.filter(item => {
+          return (
+            getRemedialStatusKey(item) ===
+            statusFilter
+          );
+        });
 
-  if(!filteredItems.length){
-    const emptyText = currentFilter === 'all'
-      ? 'ยังไม่มีรายการสอบแก้ตัว'
-      : 'ไม่พบรายการในสถานะที่เลือก';
+  const sortedItems =
+    sortRemedialTrackingItems(visibleItems);
 
-    container.innerHTML = `
-      <div class="status-item">
-        <div class="status-item-top">
-          <div>
-            <h4 class="status-item-title">
-              ${escapeHtml(emptyText)}
-            </h4>
+  if(summaryBox){
+    summaryBox.textContent =
+      `แสดง ${sortedItems.length} จาก ` +
+      `${controlFilteredItems.length} รายการ`;
+  }
 
-            <p class="status-item-sub">
-              ลองเลือกสถานะอื่น หรือตรวจสอบข้อมูลผลการเรียนอีกครั้ง
-            </p>
-          </div>
-
-          <div class="status-badge approved">
-            ไม่มีรายการ
-          </div>
-        </div>
-      </div>
+  if(!sortedItems.length){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty-state">
+          ไม่พบรายการที่ตรงกับตัวกรอง
+        </td>
+      </tr>
     `;
 
     return;
   }
 
-  container.innerHTML = filteredItems.map(item => {
-    const row = item.row;
-    const request = item.request;
+  tbody.innerHTML = sortedItems.map(item => {
+    const subjectCode =
+      getRemedialSubjectCode(item) || '-';
 
-    const subjectCode = safeText(
-      row?.subjects?.[FIELD_MAP.subject.code]
-    );
+    const subjectName =
+      getRemedialSubjectName(item) || '-';
 
-    const subjectName = safeText(
-      row?.subjects?.[FIELD_MAP.subject.name]
-    );
+    const academicYear =
+      getRemedialAcademicYear(item) || '-';
 
-    const teacherName = safeText(
-      row?.teachers?.[FIELD_MAP.teacher.name],
-      '-'
-    );
+    const term =
+      getRemedialTerm(item) || '-';
 
-    const academicYear = safeText(
-      row?.[FIELD_MAP.grades.academicYear]
-    );
+    const learningArea =
+      getRemedialLearningArea(item) || '-';
 
-    const term = safeText(
-      row?.[FIELD_MAP.grades.term]
-    );
+    const teacherName =
+      getRemedialTeacherName(item) || '-';
 
-    const originalGrade = normalizeGrade(
-      row?.[FIELD_MAP.grades.gradeCode]
-    ) || '-';
+    const originalGrade =
+      getRemedialOriginalGrade(item) || '-';
 
-const retestGrade =
-  normalizeGrade(
-    row?.[FIELD_MAP.grades.retestGradeCode]
-  ) ||
-  normalizeGrade(
-    request?.requested_retest_grade_code
-  ) ||
-  normalizeGrade(
-    request?.retest_grade_code
-  ) ||
-  normalizeGrade(
-    request?.new_grade
-  ) ||
-  normalizeGrade(
-    request?.approved_grade
-  );
+    /*
+     * มาจาก grade_results.retest_grade_code เท่านั้น
+     */
+    const approvedGrade =
+      getRemedialApprovedGrade(item);
 
-    const statusDisplay =
-      getRemedialStatusDisplay(item.status);
-
-    const approvedGradeHtml = item.status === 'approved'
-      ? `
-        <div class="status-meta">
-          <div class="status-meta-label">
-            เกรดที่แก้แล้ว
-          </div>
-
-          <div class="status-meta-value">
-            ${renderGradePill(retestGrade || '-')}
-          </div>
-        </div>
-      `
-      : '';
+    const statusKey =
+      getRemedialStatusKey(item);
 
     return `
-      <div class="status-item">
-        <div class="status-item-top">
-          <div>
-            <h4 class="status-item-title">
-              ${escapeHtml(subjectName)}
-            </h4>
+      <tr>
 
-            <p class="status-item-sub">
-              ติดตามผลการดำเนินการสอบแก้ตัวรายวิชา
-              ${escapeHtml(subjectCode)}
-            </p>
-          </div>
+        <td>
+          ${escapeHtml(subjectCode)}
+        </td>
 
-          <div class="status-badge ${statusDisplay.className}">
-            ${escapeHtml(statusDisplay.text)}
-          </div>
-        </div>
+        <td>
+          ${escapeHtml(subjectName)}
+        </td>
 
-        <div class="status-meta-grid">
-          <div class="status-meta">
-            <div class="status-meta-label">
-              รหัสวิชา
-            </div>
+        <td>
+          ${escapeHtml(
+            `${academicYear} / ${term}`
+          )}
+        </td>
 
-            <div class="status-meta-value">
-              ${escapeHtml(subjectCode)}
-            </div>
-          </div>
+        <td>
+          ${escapeHtml(learningArea)}
+        </td>
 
-          <div class="status-meta">
-            <div class="status-meta-label">
-              ผลการเรียนเดิม
-            </div>
+        <td>
+          ${escapeHtml(teacherName)}
+        </td>
 
-            <div class="status-meta-value">
-              ${renderGradePill(originalGrade)}
-            </div>
-          </div>
+        <td>
+          ${renderRemedialGradePill(
+            originalGrade,
+            'original'
+          )}
+        </td>
 
-          <div class="status-meta">
-            <div class="status-meta-label">
-              ปีการศึกษา / ภาคเรียน
-            </div>
+        <td>
+          ${renderRemedialGradePill(
+            approvedGrade,
+            approvedGrade
+              ? 'approved'
+              : 'empty'
+          )}
+        </td>
 
-            <div class="status-meta-value">
-              ${escapeHtml(`${academicYear} / ${term}`)}
-            </div>
-          </div>
+        <td>
+          ${renderRemedialStatusPill(
+            statusKey
+          )}
+        </td>
 
-          <div class="status-meta">
-            <div class="status-meta-label">
-              ครูผู้สอน
-            </div>
-
-            <div class="status-meta-value">
-              ${escapeHtml(teacherName)}
-            </div>
-          </div>
-
-          ${approvedGradeHtml}
-        </div>
-      </div>
+      </tr>
     `;
   }).join('');
 }
@@ -4712,6 +5958,14 @@ APP_STATE.allGradeRows = [];
 APP_STATE.latestGradeRows = [];
       APP_STATE.remedialRequests = [];
       APP_STATE.remedialStatusFilter = 'all';
+
+      APP_STATE.remedialFilters = {
+  year: '',
+  term: '',
+  learningArea: '',
+  teacher: '',
+  keyword: ''
+};
 
       clearSession();
       setPortalVisible(false);
@@ -4828,12 +6082,14 @@ $('menuRemedialStatusBtn')?.addEventListener(
   'click',
   async () => {
     try{
-      // โหลดผลการเรียนทุกเทอม เพื่อใช้คำนวณ KPI
       await ensureOverviewRows(false);
 
-      // โหลดคำร้องล่าสุดอีกครั้ง
       APP_STATE.remedialRequests =
         await fetchStudentRemedialRequests();
+
+      populateRemedialFilterOptions(
+        buildRemedialStatusItems()
+      );
 
       renderRemedialStatus();
       setActiveMenu('remedial');
@@ -4884,15 +6140,117 @@ $('menuRemedialStatusBtn')?.addEventListener(
   });
   
   document
-  .querySelectorAll('.remedial-kpi-card[data-remedial-filter]')
+  .querySelectorAll(
+    '.remedial-kpi-card[data-remedial-filter]'
+  )
   .forEach(button => {
+
     button.addEventListener('click', () => {
       APP_STATE.remedialStatusFilter =
         button.dataset.remedialFilter || 'all';
 
+      /*
+       * อ่านค่าปัจจุบันจาก Dropdown ก่อน
+       * เพื่อไม่ให้ค่าที่เลือกหายเมื่อกด KPI
+       */
+      syncRemedialFiltersFromControls();
+
       updateRemedialKpiActive();
       renderRemedialStatus();
     });
+
+  });
+  
+  $('remedialYearFilter')?.addEventListener('change', () => {
+  APP_STATE.remedialFilters.year =
+    $('remedialYearFilter').value || '';
+
+  // เปลี่ยนปีแล้วให้ล้างตัวเลือกที่อยู่ถัดไป
+  APP_STATE.remedialFilters.term = '';
+  APP_STATE.remedialFilters.learningArea = '';
+  APP_STATE.remedialFilters.teacher = '';
+
+  populateRemedialFilterOptions(
+    buildRemedialStatusItems()
+  );
+});
+
+$('remedialTermFilter')?.addEventListener('change', () => {
+  APP_STATE.remedialFilters.term =
+    $('remedialTermFilter').value || '';
+
+  // เปลี่ยนเทอมแล้วให้ล้างกลุ่มสาระและครู
+  APP_STATE.remedialFilters.learningArea = '';
+  APP_STATE.remedialFilters.teacher = '';
+
+  populateRemedialFilterOptions(
+    buildRemedialStatusItems()
+  );
+});
+
+$('remedialAreaFilter')?.addEventListener('change', () => {
+  APP_STATE.remedialFilters.learningArea =
+    $('remedialAreaFilter').value || '';
+
+  // เปลี่ยนกลุ่มสาระแล้วให้สร้างรายชื่อครูใหม่
+  APP_STATE.remedialFilters.teacher = '';
+
+  populateRemedialFilterOptions(
+    buildRemedialStatusItems()
+  );
+});
+
+$('remedialTeacherFilter')?.addEventListener('change', () => {
+  APP_STATE.remedialFilters.teacher =
+    $('remedialTeacherFilter').value || '';
+});
+
+$('remedialSearchInput')?.addEventListener('input', () => {
+  APP_STATE.remedialFilters.keyword =
+    $('remedialSearchInput').value.trim();
+});
+$('remedialApplyFilterBtn')
+  ?.addEventListener('click', () => {
+
+    syncRemedialFiltersFromControls();
+
+    renderRemedialStatus();
+  });
+  $('remedialResetFilterBtn')
+  ?.addEventListener('click', () => {
+
+    APP_STATE.remedialFilters = {
+      year: '',
+      term: '',
+      learningArea: '',
+      teacher: '',
+      keyword: ''
+    };
+
+    APP_STATE.remedialStatusFilter = 'all';
+
+    if($('remedialSearchInput')){
+      $('remedialSearchInput').value = '';
+    }
+
+    const items =
+      normalizeRemedialTrackingItems(
+        buildRemedialStatusItems()
+      );
+
+    populateRemedialFilterOptions(items);
+    updateRemedialKpiActive();
+    renderRemedialStatus();
+  });
+  $('remedialSearchInput')
+  ?.addEventListener('keydown', event => {
+
+    if(event.key !== 'Enter') return;
+
+    event.preventDefault();
+
+    syncRemedialFiltersFromControls();
+    renderRemedialStatus();
   });
 }
 
