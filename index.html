@@ -2781,6 +2781,62 @@ body.portal-mode .app{
   font-size:11px !important;
 }
 
+  /* =====================================================
+   GPAX Percentile
+   ===================================================== */
+
+.student-meta.overview-meta{
+  grid-template-columns:1fr 2fr 1fr 1fr 1fr 1fr;
+}
+
+.percentile-value{
+  color:#2563eb;
+  font-family:'Sarabun', sans-serif;
+  font-size:22px;
+  font-weight:900;
+}
+
+.percentile-note{
+  margin-top:5px;
+  color:#6f7f92;
+  font-size:11.5px;
+  font-weight:600;
+  line-height:1.45;
+}
+
+.summary-percentile-value{
+  color:#2563eb;
+  font-family:'Sarabun', sans-serif;
+  font-size:18px;
+  font-weight:900;
+}
+
+.summary-percentile-note{
+  margin-top:4px;
+  color:#6f7f92;
+  font-size:11px;
+  font-weight:600;
+  line-height:1.4;
+}
+
+@media (max-width:1180px){
+  .student-meta.overview-meta{
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:820px){
+  .student-meta.overview-meta{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:620px){
+  .student-meta.overview-meta{
+    grid-template-columns:1fr;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -2964,7 +3020,7 @@ body.portal-mode .app{
   <div class="student-head card">
     <div class="student-top">
       <div>
-        <h2 class="student-title">ผลการเรียนตลอดหลักสูตร</h2>
+        <div class="student-meta overview-meta">
         <p class="student-subtitle">สรุปผลการเรียนรวมตั้งแต่ภาคเรียนแรกจนถึงปัจจุบัน</p>
       </div>
 
@@ -2994,6 +3050,23 @@ body.portal-mode .app{
         <div class="meta-label">GPAX</div>
         <div class="meta-value" id="overviewGpa">0.00</div>
       </div>
+      <div class="meta-item">
+  <div class="meta-label">เปอร์เซ็นไทล์ GPAX</div>
+
+  <div
+    class="meta-value percentile-value"
+    id="overviewPercentile"
+  >
+    -
+  </div>
+
+  <div
+    class="percentile-note"
+    id="overviewPercentileNote"
+  >
+    กำลังรอข้อมูล
+  </div>
+</div>
     </div>
   </div>
 
@@ -3039,6 +3112,25 @@ body.portal-mode .app{
                 <td class="label-cell">ระดับผลการเรียนเฉลี่ย (GPAX)</td>
                 <td class="value-cell" colspan="2" id="overviewSummaryGpa">0.00</td>
               </tr>
+              <tr>
+  <td class="label-cell">เปอร์เซ็นไทล์ของ GPAX</td>
+
+  <td class="value-cell" colspan="2">
+    <div
+      class="summary-percentile-value"
+      id="overviewSummaryPercentile"
+    >
+      -
+    </div>
+
+    <div
+      class="summary-percentile-note"
+      id="overviewSummaryPercentileNote"
+    >
+      กำลังรอข้อมูล
+    </div>
+  </td>
+</tr>
             </tbody>
           </table>
         </div>
@@ -3527,6 +3619,7 @@ body.portal-mode .app{
 
     const CHART_INSTANCES = {};
     const STUDENT_CACHE_VERSION = 'v2_auto_refresh';
+    const CURRENT_ACADEMIC_YEAR = 2569;
 
 const APP_STATE = {
   currentUser: null,
@@ -3538,6 +3631,7 @@ const APP_STATE = {
   allGradeRows: [],
   latestGradeRows: [],
   remedialRequests: [],
+  gpaxPercentile: null,
 
   // ตัวกรองรายการสอบแก้ตัว
 remedialStatusFilter: 'all',
@@ -4157,6 +4251,34 @@ function updatePortalIdentity(){
       return safeText(APP_STATE.studentProfile?.[FIELD_MAP.students.sid] || APP_STATE.currentUser?.sid || APP_STATE.currentUser?.student_code, '');
     }
 
+    async function fetchStudentGpaxPercentile(
+  academicYear = CURRENT_ACADEMIC_YEAR
+){
+  const studentCode = getStudentSidForRpc();
+
+  if(!studentCode){
+    return null;
+  }
+
+  const { data, error } = await supabaseClient.rpc(
+    'rpc_student_gpax_percentile',
+    {
+      p_student_code: studentCode,
+      p_academic_year: academicYear
+    }
+  );
+
+  if(error){
+    throw error;
+  }
+
+  if(Array.isArray(data)){
+    return data[0] || null;
+  }
+
+  return data || null;
+}
+
     async function fetchStudentRemedialRequests(){
   const studentCode = getStudentSidForRpc();
 
@@ -4565,6 +4687,19 @@ function applyRemedialEligibility(rows){
         updatePortalIdentity();
 
         APP_STATE.availableTerms = await fetchStudentAvailableTerms(forceRefresh);
+        try{
+  APP_STATE.gpaxPercentile =
+    await fetchStudentGpaxPercentile(
+      CURRENT_ACADEMIC_YEAR
+    );
+}catch(error){
+  console.error(
+    'LOAD GPAX PERCENTILE ERROR =',
+    error
+  );
+
+  APP_STATE.gpaxPercentile = null;
+}
 
         try{
   APP_STATE.remedialRequests =
@@ -4938,6 +5073,111 @@ function renderTermGpaBarChart(rows){
   });
 }
 
+function renderStudentGpaxPercentile(){
+  const data = APP_STATE.gpaxPercentile;
+
+  const topValue = $('overviewPercentile');
+  const topNote = $('overviewPercentileNote');
+
+  const summaryValue =
+    $('overviewSummaryPercentile');
+
+  const summaryNote =
+    $('overviewSummaryPercentileNote');
+
+  const hasPercentile =
+    data &&
+    data.percentile_rank !== null &&
+    data.percentile_rank !== undefined &&
+    data.percentile_rank !== '';
+
+  if(!hasPercentile){
+    if(topValue){
+      topValue.textContent = '-';
+    }
+
+    if(topNote){
+      topNote.textContent =
+        'ยังไม่มีข้อมูลสำหรับคำนวณ';
+    }
+
+    if(summaryValue){
+      summaryValue.textContent = '-';
+    }
+
+    if(summaryNote){
+      summaryNote.textContent =
+        'ยังไม่มีข้อมูลสำหรับคำนวณ';
+    }
+
+    return;
+  }
+
+  const percentileNumber =
+    Number(data.percentile_rank);
+
+  const percentileDisplay =
+    safeText(
+      data.percentile_display,
+      Number.isFinite(percentileNumber)
+        ? `P${percentileNumber.toFixed(2)}`
+        : '-'
+    );
+
+  const classLevel =
+    safeNumber(data.current_class_level, 0);
+
+  const cohortSize =
+    safeNumber(data.cohort_size, 0);
+
+  const completedTerms =
+    safeNumber(data.completed_terms, 0);
+
+  const gpaxRank =
+    safeNumber(data.gpax_rank, 0);
+
+  const comparisonText = [
+    classLevel
+      ? `เทียบกับนักเรียน ม.${classLevel}`
+      : 'เทียบกับนักเรียนกลุ่มเดียวกัน',
+
+    cohortSize
+      ? `จำนวน ${cohortSize} คน`
+      : '',
+
+    completedTerms
+      ? `${completedTerms} ภาคเรียน`
+      : ''
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const rankText =
+    gpaxRank && cohortSize
+      ? `อันดับ GPAX ${gpaxRank} จาก ${cohortSize} คน`
+      : comparisonText;
+
+  if(topValue){
+    topValue.textContent =
+      percentileDisplay;
+  }
+
+  if(topNote){
+    topNote.textContent =
+      comparisonText || 'มีข้อมูลเปอร์เซ็นไทล์แล้ว';
+  }
+
+  if(summaryValue){
+    summaryValue.textContent =
+      percentileDisplay;
+  }
+
+  if(summaryNote){
+    summaryNote.textContent =
+      rankText || comparisonText;
+  }
+}
+
 function renderGradeOverview(rows){
   const profile = APP_STATE.studentProfile;
   const summary = buildSummaryFromRows(rows);
@@ -4973,6 +5213,7 @@ function renderGradeOverview(rows){
 
   renderTermGpaBarChart(rows);
   renderOverviewLearningAreaRadar(rows);
+  renderStudentGpaxPercentile();
 }
 
         function renderGradeTable(rows){
@@ -6055,6 +6296,7 @@ function renderRemedialStatus(){
         APP_STATE.selectedYearTerm = null;
         APP_STATE.remedialRequests = [];
         APP_STATE.remedialStatusFilter = 'all';
+        APP_STATE.gpaxPercentile = null;
 
         setPortalVisible(true);
         setActiveMenu('home');
@@ -6085,6 +6327,7 @@ APP_STATE.allGradeRows = [];
 APP_STATE.latestGradeRows = [];
       APP_STATE.remedialRequests = [];
       APP_STATE.remedialStatusFilter = 'all';
+      APP_STATE.gpaxPercentile = null;
 
       APP_STATE.remedialFilters = {
   year: '',
