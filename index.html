@@ -3046,6 +3046,53 @@ body.portal-mode .app{
 
 }
 
+    /* สรุปผลการเรียน 6 ช่องในแถวเดียว */
+.student-meta.overview-meta{
+  grid-template-columns:
+    minmax(135px, .9fr)
+    minmax(250px, 1.7fr)
+    repeat(4, minmax(125px, .85fr))
+    !important;
+
+  gap:12px !important;
+}
+
+.percentile-value{
+  color:#2563eb !important;
+  font-family:'Sarabun', sans-serif;
+  font-size:20px !important;
+  font-weight:800 !important;
+}
+
+
+/* ซ่อนการ์ดเปอร์เซ็นไทล์ขนาดใหญ่เดิม
+   เผื่อยังลบ HTML ไม่หมด */
+.gpax-insight-card{
+  display:none !important;
+}
+
+
+@media (max-width:1200px){
+
+  .student-meta.overview-meta{
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr))
+      !important;
+  }
+
+}
+
+
+@media (max-width:700px){
+
+  .student-meta.overview-meta{
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr))
+      !important;
+  }
+
+}
+
   </style>
 </head>
 <body>
@@ -3259,93 +3306,18 @@ body.portal-mode .app{
         <div class="meta-label">GPAX</div>
         <div class="meta-value" id="overviewGpa">0.00</div>
       </div>
+      <div class="meta-item">
+  <div class="meta-label">PR</div>
 
-    </div>
-      <div class="gpax-insight-card">
-
-  <div class="gpax-insight-primary">
-
-    <div class="gpax-insight-kicker">
-      ตำแหน่งผลการเรียนสะสม
-    </div>
-
-    <div
-      class="gpax-insight-value"
-      id="overviewPercentile"
-    >
-      -
-    </div>
-
-    <div
-      class="gpax-insight-note"
-      id="overviewPercentileNote"
-    >
-      กำลังรอข้อมูล
-    </div>
-
+  <div
+    class="meta-value percentile-value"
+    id="overviewPercentile"
+  >
+    -
   </div>
-
-
-  <div class="gpax-insight-details">
-
-    <div class="gpax-insight-item">
-      <div class="gpax-insight-label">
-        อันดับ GPAX
-      </div>
-
-      <div
-        class="gpax-insight-detail-value"
-        id="overviewPercentileRank"
-      >
-        -
-      </div>
-    </div>
-
-
-    <div class="gpax-insight-item">
-      <div class="gpax-insight-label">
-        รุ่นนักเรียน
-      </div>
-
-      <div
-        class="gpax-insight-detail-value"
-        id="overviewPercentileCohort"
-      >
-        -
-      </div>
-    </div>
-
-
-    <div class="gpax-insight-item">
-      <div class="gpax-insight-label">
-        จำนวนนักเรียนในรุ่น
-      </div>
-
-      <div
-        class="gpax-insight-detail-value"
-        id="overviewPercentilePopulation"
-      >
-        -
-      </div>
-    </div>
-
-
-    <div class="gpax-insight-item">
-      <div class="gpax-insight-label">
-        ข้อมูลที่ใช้เปรียบเทียบ
-      </div>
-
-      <div
-        class="gpax-insight-detail-value"
-        id="overviewPercentileCompared"
-      >
-        -
-      </div>
-    </div>
-
-  </div>
-
 </div>
+
+    </div>
   </div>
 
   <div class="panel-grid" style="margin-top:16px;">
@@ -5353,269 +5325,61 @@ function renderTermGpaBarChart(rows){
 
 function renderStudentGpaxPercentile(){
   const data = APP_STATE.gpaxPercentile || null;
+  const valueNode = $('overviewPercentile');
 
-  const setText = (id, value) => {
-    const node = $(id);
-
-    if(node){
-      node.textContent = String(
-        value ?? ''
-      );
-    }
-  };
-
-
-  const toCount = value => {
-    const number = Number(value);
-
-    return Number.isFinite(number)
-      ? Math.max(0, Math.trunc(number))
-      : 0;
-  };
-
-
-  /*
-   * กรณีไม่พบข้อมูล
-   */
-  if(!data){
-
-    setText(
-      'overviewPercentile',
-      '-'
-    );
-
-    setText(
-      'overviewPercentileNote',
-      'ยังไม่พบข้อมูล GPAX สะสม'
-    );
-
-    setText(
-      'overviewPercentileRank',
-      '-'
-    );
-
-    setText(
-      'overviewPercentileCohort',
-      '-'
-    );
-
-    setText(
-      'overviewPercentilePopulation',
-      '-'
-    );
-
-    setText(
-      'overviewPercentileCompared',
-      '-'
-    );
-
-    setText(
-      'overviewSummaryPercentile',
-      '-'
-    );
-
-    setText(
-      'overviewSummaryPercentileNote',
-      'ยังไม่พบข้อมูลสำหรับคำนวณ'
-    );
-
+  if(!valueNode){
     return;
   }
 
-
-  const percentileNumber =
-    Number(data.percentile_rank);
+  const percentile = Number(
+    data?.percentile_rank
+  );
 
   const hasPercentile =
-    data.percentile_rank !== null &&
-    data.percentile_rank !== undefined &&
-    data.percentile_rank !== '' &&
-    Number.isFinite(percentileNumber);
+    data?.percentile_rank !== null &&
+    data?.percentile_rank !== undefined &&
+    data?.percentile_rank !== '' &&
+    Number.isFinite(percentile);
 
-
-  const percentileDisplay =
+  valueNode.textContent =
     hasPercentile
       ? safeText(
           data.percentile_display,
-          `P${percentileNumber.toFixed(2)}`
+          `P${percentile.toFixed(2)}`
         )
       : '-';
 
 
-  const gpaxRank =
-    toCount(data.gpax_rank);
-
-  const rankedSize =
-    toCount(
-      data.ranked_size ??
-      data.cohort_size
-    );
-
-  const originalSize =
-    toCount(
-      data.cohort_original_size
-    );
-
-  const currentSize =
-    toCount(
-      data.cohort_current_size
-    );
-
-  const completedTerms =
-    toCount(
-      data.completed_terms
-    );
-
-  const expectedTerms =
-    toCount(
-      data.expected_terms
-    );
-
-  const entryYear =
-    toCount(
-      data.cohort_entry_academic_year
-    );
-
-  const entryLevel =
-    toCount(
-      data.cohort_entry_level
-    );
-
-
   /*
-   * ชื่อรุ่น
+   * แสดงรายละเอียดเมื่อเอาเมาส์ชี้
+   * โดยไม่เพิ่มข้อความบนหน้าจอ
    */
-  let cohortName =
-    safeText(
-      data.cohort_name,
-      ''
+  if(hasPercentile){
+
+    const rank = Number(
+      data?.gpax_rank || 0
     );
 
-  if(!cohortName && entryYear){
-
-    cohortName =
-      entryLevel === 1
-        ? `รุ่นมัธยมต้น ${entryYear}`
-        : entryLevel === 4
-          ? `รุ่นมัธยมปลาย ${entryYear}`
-          : `รุ่น ${entryYear}`;
-
-  }
-
-
-  /*
-   * ข้อความอันดับ
-   */
-  const rankText =
-    hasPercentile &&
-    gpaxRank > 0 &&
-    rankedSize > 0
-
-      ? `อันดับ ${gpaxRank} จาก ${rankedSize} คน`
-
-      : safeText(
-          data.percentile_status_text,
-          'ยังไม่มีข้อมูลเพียงพอสำหรับจัดอันดับ'
-        );
-
-
-  /*
-   * จำนวนประชากรในรุ่น
-   */
-  const populationParts = [];
-
-  if(currentSize > 0){
-    populationParts.push(
-      `ปัจจุบัน ${currentSize} คน`
+    const total = Number(
+      data?.ranked_size ||
+      data?.cohort_size ||
+      0
     );
-  }
 
-  if(originalSize > 0){
-    populationParts.push(
-      `เดิม ${originalSize} คน`
-    );
-  }
+    valueNode.title =
+      rank > 0 && total > 0
+        ? `อันดับ GPAX ${rank} จาก ${total} คน`
+        : 'เปอร์เซ็นไทล์ GPAX';
 
-  const populationText =
-    populationParts.join(' · ')
-    || '-';
+  }else{
 
-
-  /*
-   * ข้อมูลที่ใช้จัดอันดับ
-   */
-  const comparedParts = [];
-
-  if(rankedSize > 0){
-    comparedParts.push(
-      `พร้อมจัดอันดับ ${rankedSize} คน`
-    );
-  }
-
-  if(completedTerms > 0){
-
-    if(expectedTerms > 0){
-      comparedParts.push(
-        `สะสม ${completedTerms}/${expectedTerms} เทอม`
+    valueNode.title =
+      safeText(
+        data?.percentile_status_text,
+        'ยังไม่มีข้อมูลเปอร์เซ็นไทล์'
       );
 
-    }else{
-      comparedParts.push(
-        `สะสม ${completedTerms} เทอม`
-      );
-    }
-
   }
-
-
-  setText(
-    'overviewPercentile',
-    percentileDisplay
-  );
-
-  setText(
-    'overviewPercentileNote',
-    hasPercentile
-      ? 'ตำแหน่ง GPAX เมื่อเทียบกับนักเรียนในระดับชั้นเดียวกัน'
-      : safeText(
-          data.percentile_status_text,
-          'ยังไม่มีข้อมูลเพียงพอสำหรับจัดอันดับ'
-        )
-  );
-
-  setText(
-    'overviewPercentileRank',
-    rankText
-  );
-
-  setText(
-    'overviewPercentileCohort',
-    cohortName || '-'
-  );
-
-  setText(
-    'overviewPercentilePopulation',
-    populationText
-  );
-
-  setText(
-    'overviewPercentileCompared',
-    comparedParts.join(' · ') || '-'
-  );
-
-
-  /*
-   * ข้อมูลสำรองในตารางด้านล่าง
-   */
-  setText(
-    'overviewSummaryPercentile',
-    percentileDisplay
-  );
-
-  setText(
-    'overviewSummaryPercentileNote',
-    rankText
-  );
 }
 
 function renderGradeOverview(rows){
