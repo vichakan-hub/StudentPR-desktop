@@ -2837,6 +2837,215 @@ body.portal-mode .app{
   }
 }
 
+  /* =====================================================
+   StudentPR : GPAX Percentile Highlight Card
+   ===================================================== */
+
+.student-head{
+  padding:22px !important;
+  background:rgba(248,250,252,.92) !important;
+}
+
+.student-meta{
+  grid-template-columns:
+    minmax(150px, .85fr)
+    minmax(260px, 1.65fr)
+    minmax(145px, .75fr)
+    minmax(145px, .75fr)
+    minmax(145px, .75fr) !important;
+
+  gap:12px !important;
+}
+
+.meta-item{
+  min-height:88px !important;
+  padding:15px 16px !important;
+  background:#ffffff !important;
+  border:1px solid #dce7f2 !important;
+  border-radius:18px !important;
+  box-shadow:0 6px 16px rgba(15,23,42,.04);
+}
+
+.meta-label{
+  margin-bottom:7px !important;
+  color:#728197 !important;
+  font-size:12.5px !important;
+  font-weight:500 !important;
+}
+
+.meta-value{
+  color:#17324a !important;
+  font-size:18px !important;
+  font-weight:800 !important;
+}
+
+
+.gpax-insight-card{
+  display:grid;
+  grid-template-columns:280px minmax(0, 1fr);
+  margin-top:14px;
+  overflow:hidden;
+  border:1px solid #d6e4f3;
+  border-radius:22px;
+  background:#ffffff;
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+}
+
+
+.gpax-insight-primary{
+  min-height:152px;
+  padding:22px 24px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:linear-gradient(
+    135deg,
+    #2563eb 0%,
+    #3189e9 58%,
+    #39b8df 100%
+  );
+  color:#ffffff;
+}
+
+
+.gpax-insight-kicker{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.35px;
+  opacity:.88;
+}
+
+
+.gpax-insight-value{
+  margin-top:5px;
+  font-family:'Sarabun',sans-serif;
+  font-size:42px;
+  line-height:1;
+  font-weight:800;
+  letter-spacing:-1px;
+}
+
+
+.gpax-insight-note{
+  margin-top:10px;
+  font-size:13px;
+  line-height:1.5;
+  font-weight:600;
+  color:rgba(255,255,255,.92);
+}
+
+
+.gpax-insight-details{
+  min-width:0;
+  padding:16px;
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:10px;
+  align-items:stretch;
+}
+
+
+.gpax-insight-item{
+  min-width:0;
+  padding:15px 16px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  border:1px solid #e0e9f2;
+  border-radius:17px;
+  background:linear-gradient(
+    180deg,
+    #ffffff,
+    #f7faff
+  );
+}
+
+
+.gpax-insight-label{
+  margin-bottom:7px;
+  color:#75859a;
+  font-size:12px;
+  font-weight:600;
+}
+
+
+.gpax-insight-detail-value{
+  color:#19324a;
+  font-size:15px;
+  line-height:1.5;
+  font-weight:800;
+  word-break:break-word;
+}
+
+
+@media (max-width:1200px){
+
+  .student-meta{
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .gpax-insight-card{
+    grid-template-columns:240px minmax(0, 1fr);
+  }
+
+  .gpax-insight-details{
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width:760px){
+
+  .student-meta{
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .student-meta .meta-item:nth-child(2){
+    grid-column:1 / -1;
+    grid-row:1;
+  }
+
+  .gpax-insight-card{
+    grid-template-columns:1fr;
+  }
+
+  .gpax-insight-primary{
+    min-height:132px;
+  }
+
+  .gpax-insight-details{
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width:520px){
+
+  .student-meta{
+    grid-template-columns:1fr !important;
+  }
+
+  .student-meta .meta-item:nth-child(2){
+    grid-column:auto;
+    grid-row:auto;
+  }
+
+  .gpax-insight-details{
+    grid-template-columns:1fr;
+  }
+
+  .gpax-insight-value{
+    font-size:36px;
+  }
+
+}
+
   </style>
 </head>
 <body>
@@ -3050,24 +3259,93 @@ body.portal-mode .app{
         <div class="meta-label">GPAX</div>
         <div class="meta-value" id="overviewGpa">0.00</div>
       </div>
-      <div class="meta-item">
-  <div class="meta-label">เปอร์เซ็นไทล์ GPAX</div>
 
-  <div
-    class="meta-value percentile-value"
-    id="overviewPercentile"
-  >
-    -
-  </div>
-
-  <div
-    class="percentile-note"
-    id="overviewPercentileNote"
-  >
-    กำลังรอข้อมูล
-  </div>
-</div>
     </div>
+      <div class="gpax-insight-card">
+
+  <div class="gpax-insight-primary">
+
+    <div class="gpax-insight-kicker">
+      ตำแหน่งผลการเรียนสะสม
+    </div>
+
+    <div
+      class="gpax-insight-value"
+      id="overviewPercentile"
+    >
+      -
+    </div>
+
+    <div
+      class="gpax-insight-note"
+      id="overviewPercentileNote"
+    >
+      กำลังรอข้อมูล
+    </div>
+
+  </div>
+
+
+  <div class="gpax-insight-details">
+
+    <div class="gpax-insight-item">
+      <div class="gpax-insight-label">
+        อันดับ GPAX
+      </div>
+
+      <div
+        class="gpax-insight-detail-value"
+        id="overviewPercentileRank"
+      >
+        -
+      </div>
+    </div>
+
+
+    <div class="gpax-insight-item">
+      <div class="gpax-insight-label">
+        รุ่นนักเรียน
+      </div>
+
+      <div
+        class="gpax-insight-detail-value"
+        id="overviewPercentileCohort"
+      >
+        -
+      </div>
+    </div>
+
+
+    <div class="gpax-insight-item">
+      <div class="gpax-insight-label">
+        จำนวนนักเรียนในรุ่น
+      </div>
+
+      <div
+        class="gpax-insight-detail-value"
+        id="overviewPercentilePopulation"
+      >
+        -
+      </div>
+    </div>
+
+
+    <div class="gpax-insight-item">
+      <div class="gpax-insight-label">
+        ข้อมูลที่ใช้เปรียบเทียบ
+      </div>
+
+      <div
+        class="gpax-insight-detail-value"
+        id="overviewPercentileCompared"
+      >
+        -
+      </div>
+    </div>
+
+  </div>
+
+</div>
   </div>
 
   <div class="panel-grid" style="margin-top:16px;">
@@ -5076,20 +5354,9 @@ function renderTermGpaBarChart(rows){
 function renderStudentGpaxPercentile(){
   const data = APP_STATE.gpaxPercentile || null;
 
-  const topValue = $('overviewPercentile');
-  const topNote = $('overviewPercentileNote');
+  const setText = (id, value) => {
+    const node = $(id);
 
-  const summaryValue =
-    $('overviewSummaryPercentile');
-
-  const summaryNote =
-    $('overviewSummaryPercentileNote');
-
-
-  /*
-   * ใส่ข้อความให้ Element อย่างปลอดภัย
-   */
-  const setText = (node, value) => {
     if(node){
       node.textContent = String(
         value ?? ''
@@ -5098,50 +5365,81 @@ function renderStudentGpaxPercentile(){
   };
 
 
-  /*
-   * แปลงค่าเป็นจำนวนเต็ม
-   */
   const toCount = value => {
     const number = Number(value);
 
-    if(!Number.isFinite(number)){
-      return 0;
-    }
-
-    return Math.max(
-      0,
-      Math.trunc(number)
-    );
+    return Number.isFinite(number)
+      ? Math.max(0, Math.trunc(number))
+      : 0;
   };
 
 
   /*
-   * กรณี RPC ไม่พบข้อมูล
+   * กรณีไม่พบข้อมูล
    */
   if(!data){
-    setText(topValue, '-');
+
     setText(
-      topNote,
+      'overviewPercentile',
+      '-'
+    );
+
+    setText(
+      'overviewPercentileNote',
       'ยังไม่พบข้อมูล GPAX สะสม'
     );
 
-    setText(summaryValue, '-');
     setText(
-      summaryNote,
-      'ยังไม่พบข้อมูลสำหรับคำนวณเปอร์เซ็นไทล์'
+      'overviewPercentileRank',
+      '-'
+    );
+
+    setText(
+      'overviewPercentileCohort',
+      '-'
+    );
+
+    setText(
+      'overviewPercentilePopulation',
+      '-'
+    );
+
+    setText(
+      'overviewPercentileCompared',
+      '-'
+    );
+
+    setText(
+      'overviewSummaryPercentile',
+      '-'
+    );
+
+    setText(
+      'overviewSummaryPercentileNote',
+      'ยังไม่พบข้อมูลสำหรับคำนวณ'
     );
 
     return;
   }
 
 
-  const percentileRank =
+  const percentileNumber =
     Number(data.percentile_rank);
 
   const hasPercentile =
     data.percentile_rank !== null &&
     data.percentile_rank !== undefined &&
-    Number.isFinite(percentileRank);
+    data.percentile_rank !== '' &&
+    Number.isFinite(percentileNumber);
+
+
+  const percentileDisplay =
+    hasPercentile
+      ? safeText(
+          data.percentile_display,
+          `P${percentileNumber.toFixed(2)}`
+        )
+      : '-';
 
 
   const gpaxRank =
@@ -5163,11 +5461,6 @@ function renderStudentGpaxPercentile(){
       data.cohort_current_size
     );
 
-  const leftSize =
-    toCount(
-      data.cohort_left_size
-    );
-
   const completedTerms =
     toCount(
       data.completed_terms
@@ -5178,7 +5471,7 @@ function renderStudentGpaxPercentile(){
       data.expected_terms
     );
 
-  const entryAcademicYear =
+  const entryYear =
     toCount(
       data.cohort_entry_academic_year
     );
@@ -5198,190 +5491,130 @@ function renderStudentGpaxPercentile(){
       ''
     );
 
-  if(!cohortName && entryAcademicYear){
+  if(!cohortName && entryYear){
 
-    if(entryLevel === 1){
-      cohortName =
-        `รุ่นมัธยมต้น ${entryAcademicYear}`;
-
-    }else if(entryLevel === 4){
-      cohortName =
-        `รุ่นมัธยมปลาย ${entryAcademicYear}`;
-
-    }else{
-      cohortName =
-        `รุ่น ${entryAcademicYear}`;
-    }
+    cohortName =
+      entryLevel === 1
+        ? `รุ่นมัธยมต้น ${entryYear}`
+        : entryLevel === 4
+          ? `รุ่นมัธยมปลาย ${entryYear}`
+          : `รุ่น ${entryYear}`;
 
   }
 
 
   /*
-   * ค่าเปอร์เซ็นไทล์
+   * ข้อความอันดับ
    */
-  const percentileDisplay =
-    hasPercentile
-      ? safeText(
-          data.percentile_display,
-          `P${percentileRank.toFixed(2)}`
-        )
-      : '-';
+  const rankText =
+    hasPercentile &&
+    gpaxRank > 0 &&
+    rankedSize > 0
+
+      ? `อันดับ ${gpaxRank} จาก ${rankedSize} คน`
+
+      : safeText(
+          data.percentile_status_text,
+          'ยังไม่มีข้อมูลเพียงพอสำหรับจัดอันดับ'
+        );
 
 
   /*
-   * ข้อความเกี่ยวกับจำนวนของรุ่น
+   * จำนวนประชากรในรุ่น
    */
-  const cohortParts = [];
-
-  if(cohortName){
-    cohortParts.push(cohortName);
-  }
-
-  if(originalSize > 0){
-    cohortParts.push(
-      `เดิม ${originalSize} คน`
-    );
-  }
+  const populationParts = [];
 
   if(currentSize > 0){
-    cohortParts.push(
+    populationParts.push(
       `ปัจจุบัน ${currentSize} คน`
     );
   }
 
-  if(leftSize > 0){
-    cohortParts.push(
-      `ออกจากรุ่น ${leftSize} คน`
+  if(originalSize > 0){
+    populationParts.push(
+      `เดิม ${originalSize} คน`
     );
   }
 
-  const cohortText =
-    cohortParts.join(' · ');
+  const populationText =
+    populationParts.join(' · ')
+    || '-';
 
 
   /*
-   * กรณีพร้อมแสดงเปอร์เซ็นไทล์
+   * ข้อมูลที่ใช้จัดอันดับ
    */
-  if(hasPercentile){
+  const comparedParts = [];
 
-    const rankText =
-      gpaxRank > 0 &&
-      rankedSize > 0
-        ? `อันดับ GPAX ${gpaxRank} จากผู้มีข้อมูลพร้อมจัดอันดับ ${rankedSize} คน`
-        : 'พร้อมแสดงเปอร์เซ็นไทล์ GPAX';
+  if(rankedSize > 0){
+    comparedParts.push(
+      `พร้อมจัดอันดับ ${rankedSize} คน`
+    );
+  }
 
-    const summaryParts = [];
+  if(completedTerms > 0){
 
-    if(cohortText){
-      summaryParts.push(cohortText);
-    }
-
-    if(rankedSize > 0){
-      summaryParts.push(
-        `พร้อมจัดอันดับ ${rankedSize} คน`
+    if(expectedTerms > 0){
+      comparedParts.push(
+        `สะสม ${completedTerms}/${expectedTerms} เทอม`
       );
-    }
 
-    if(
-      completedTerms > 0 &&
-      expectedTerms > 0
-    ){
-      summaryParts.push(
+    }else{
+      comparedParts.push(
         `สะสม ${completedTerms} เทอม`
       );
     }
 
-    setText(
-      topValue,
-      percentileDisplay
-    );
-
-    setText(
-      topNote,
-      rankText
-    );
-
-    setText(
-      summaryValue,
-      percentileDisplay
-    );
-
-    setText(
-      summaryNote,
-      summaryParts.join(' · ')
-      || rankText
-    );
-
-    return;
   }
+
+
+  setText(
+    'overviewPercentile',
+    percentileDisplay
+  );
+
+  setText(
+    'overviewPercentileNote',
+    hasPercentile
+      ? 'ตำแหน่ง GPAX เมื่อเทียบกับนักเรียนในระดับชั้นเดียวกัน'
+      : safeText(
+          data.percentile_status_text,
+          'ยังไม่มีข้อมูลเพียงพอสำหรับจัดอันดับ'
+        )
+  );
+
+  setText(
+    'overviewPercentileRank',
+    rankText
+  );
+
+  setText(
+    'overviewPercentileCohort',
+    cohortName || '-'
+  );
+
+  setText(
+    'overviewPercentilePopulation',
+    populationText
+  );
+
+  setText(
+    'overviewPercentileCompared',
+    comparedParts.join(' · ') || '-'
+  );
 
 
   /*
-   * กรณียังไม่พร้อมจัดอันดับ
+   * ข้อมูลสำรองในตารางด้านล่าง
    */
-  let statusText =
-    safeText(
-      data.percentile_status_text,
-      ''
-    );
-
-  if(!statusText){
-
-    if(
-      data.gpax === null ||
-      data.gpax === undefined
-    ){
-      statusText =
-        'ยังไม่มีผลการเรียนสะสมสำหรับคำนวณ GPAX';
-
-    }else if(
-      expectedTerms > 0 &&
-      completedTerms !== expectedTerms
-    ){
-      statusText =
-        `ข้อมูลผลการเรียนมี ${completedTerms} เทอม จากที่ควรมี ${expectedTerms} เทอม`;
-
-    }else if(rankedSize === 0){
-      statusText =
-        'ข้อมูลของระดับชั้นยังไม่เพียงพอสำหรับจัดอันดับ';
-
-    }else{
-      statusText =
-        'ยังไม่สามารถจัดอันดับเปอร์เซ็นไทล์ได้';
-    }
-
-  }
-
-
-  const pendingParts = [];
-
-  if(cohortText){
-    pendingParts.push(cohortText);
-  }
-
-  if(
-    completedTerms > 0 ||
-    expectedTerms > 0
-  ){
-    const expectedText =
-      expectedTerms > 0
-        ? `/${expectedTerms}`
-        : '';
-
-    pendingParts.push(
-      `ข้อมูล ${completedTerms}${expectedText} เทอม`
-    );
-  }
-
-  setText(topValue, '-');
-  setText(topNote, statusText);
-
-  setText(summaryValue, '-');
+  setText(
+    'overviewSummaryPercentile',
+    percentileDisplay
+  );
 
   setText(
-    summaryNote,
-    pendingParts.join(' · ')
-    || statusText
+    'overviewSummaryPercentileNote',
+    rankText
   );
 }
 
