@@ -4498,9 +4498,50 @@ function renderTermSelector(rowsOrTerms){
 }
 
 function updateSidebarTermActive(){
-  document.querySelectorAll('.grade-term-btn[data-term-key]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.termKey === APP_STATE.selectedYearTerm);
-  });
+
+  /*
+   * ไฮไลท์ปุ่มรายเทอมเฉพาะเมื่อ
+   * กำลังอยู่หน้าผลการเรียนรายภาคเรียนเท่านั้น
+   */
+  const gradesPage =
+    $('pageGrades');
+
+  const isGradesPageActive =
+    gradesPage &&
+    !gradesPage.classList.contains('hidden');
+
+
+  document
+    .querySelectorAll(
+      '.grade-term-btn[data-term-key]'
+    )
+    .forEach(btn => {
+
+      const isSelectedTerm =
+        btn.dataset.termKey ===
+        APP_STATE.selectedYearTerm;
+
+      const shouldBeActive =
+        isGradesPageActive &&
+        isSelectedTerm;
+
+      btn.classList.toggle(
+        'active',
+        shouldBeActive
+      );
+
+      if(shouldBeActive){
+        btn.setAttribute(
+          'aria-current',
+          'page'
+        );
+      }else{
+        btn.removeAttribute(
+          'aria-current'
+        );
+      }
+
+    });
 }
 
 function getRowsBySelectedClassTerm(rows){
