@@ -3502,6 +3502,357 @@ body.portal-mode .app{
   }
 }
 
+/* =====================================================
+   StudentPR : Home Academic Trend
+   ===================================================== */
+
+.home-trend-body{
+  padding:20px 22px 22px;
+}
+
+.home-trend-summary{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.home-trend-summary-item{
+  padding:15px 17px;
+  border-radius:18px;
+  background:#f8fbff;
+  border:1px solid #dce8f3;
+}
+
+.home-trend-summary-label{
+  font-size:12.5px;
+  font-weight:700;
+  color:#718195;
+}
+
+.home-trend-summary-value{
+  margin-top:4px;
+  font-family:'Sarabun', sans-serif;
+  font-size:25px;
+  font-weight:800;
+  line-height:1.2;
+  color:#17324a;
+}
+
+.home-trend-change.up{
+  color:#15803d;
+}
+
+.home-trend-change.down{
+  color:#b91c1c;
+}
+
+.home-trend-change.equal{
+  color:#64748b;
+}
+
+.home-trend-chart-wrap{
+  position:relative;
+  width:100%;
+  height:330px;
+  padding:12px 10px 4px;
+  border-radius:20px;
+  background:#ffffff;
+  border:1px solid #dce8f3;
+}
+
+.home-trend-empty{
+  min-height:220px;
+  display:grid;
+  place-items:center;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+  color:#718195;
+  background:#f8fbff;
+  border:1px dashed #cbd9e7;
+}
+
+.home-trend-message{
+  margin-top:14px;
+  padding:13px 15px;
+  border-radius:15px;
+  color:#39516a;
+  background:#f4f8fc;
+  border:1px solid #dce8f3;
+  font-size:13.5px;
+  line-height:1.65;
+}
+
+.home-trend-message.up{
+  color:#166534;
+  background:#f0fdf4;
+  border-color:#bbf7d0;
+}
+
+.home-trend-message.down{
+  color:#9f3535;
+  background:#fff5f5;
+  border-color:#fecaca;
+}
+
+.home-trend-message.equal{
+  color:#475569;
+  background:#f8fafc;
+  border-color:#dbe3ec;
+}
+
+@media (max-width:720px){
+  .home-trend-summary{
+    grid-template-columns:1fr;
+  }
+
+  .home-trend-chart-wrap{
+    height:300px;
+    overflow-x:auto;
+  }
+}
+
+@media (max-width:520px){
+  .home-trend-body{
+    padding:16px;
+  }
+
+  .home-trend-chart-wrap{
+    height:280px;
+  }
+
+  .home-trend-summary-value{
+    font-size:22px;
+  }
+}
+
+/* =====================================================
+   StudentPR : Home Action Items
+   ===================================================== */
+
+.home-action-list-section{
+  margin:0 22px 22px;
+  overflow:hidden;
+  border-radius:20px;
+  border:1px solid #dce8f3;
+  background:#ffffff;
+}
+
+.home-action-list-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:15px 17px;
+  border-bottom:1px solid #e2eaf2;
+  background:#f8fbff;
+}
+
+.home-action-list-title{
+  font-size:15px;
+  font-weight:800;
+  color:#17324a;
+}
+
+.home-action-list-subtitle{
+  margin-top:3px;
+  font-size:12px;
+  line-height:1.5;
+  color:#718195;
+}
+
+.home-action-list-count{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  min-height:34px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  color:#1d4ed8;
+  background:#eef5ff;
+  border:1px solid #cfe0ff;
+}
+
+.home-action-list{
+  display:grid;
+}
+
+.home-action-item{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) auto;
+  gap:10px 16px;
+  padding:16px 17px;
+  border-bottom:1px solid #e7edf4;
+}
+
+.home-action-item:last-child{
+  border-bottom:none;
+}
+
+.home-action-item:hover{
+  background:#fbfdff;
+}
+
+.home-action-subject{
+  min-width:0;
+}
+
+.home-action-subject-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.home-action-subject-code{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding:0 9px;
+  border-radius:9px;
+  font-family:'Sarabun', sans-serif;
+  font-size:12px;
+  font-weight:800;
+  color:#1d4ed8;
+  background:#edf5ff;
+  border:1px solid #cfe0ff;
+}
+
+.home-action-subject-name{
+  font-size:14px;
+  font-weight:800;
+  color:#203a54;
+}
+
+.home-action-meta{
+  margin-top:6px;
+  font-size:12px;
+  line-height:1.55;
+  color:#718195;
+}
+
+.home-action-side{
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-end;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+.home-action-grade{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:30px;
+  padding:0 10px;
+  border-radius:10px;
+  font-family:'Sarabun', sans-serif;
+  font-size:12px;
+  font-weight:800;
+  color:#b91c1c;
+  background:#fff2f2;
+  border:1px solid #fecaca;
+}
+
+.home-action-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:30px;
+  padding:0 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.home-action-status.unresolved{
+  color:#b91c1c;
+  background:#fff2f2;
+  border:1px solid #fecaca;
+}
+
+.home-action-status.pending{
+  color:#a85708;
+  background:#fff7e8;
+  border:1px solid #fed7aa;
+}
+
+.home-action-instruction{
+  grid-column:1 / -1;
+  display:flex;
+  align-items:flex-start;
+  gap:7px;
+  padding:9px 11px;
+  border-radius:12px;
+  font-size:12.5px;
+  line-height:1.55;
+}
+
+.home-action-item.unresolved .home-action-instruction{
+  color:#9f3535;
+  background:#fff6f6;
+}
+
+.home-action-item.pending .home-action-instruction{
+  color:#92520d;
+  background:#fff9ed;
+}
+
+.home-action-empty{
+  display:grid;
+  place-items:center;
+  min-height:120px;
+  padding:24px;
+  text-align:center;
+  font-size:13px;
+  line-height:1.65;
+  color:#718195;
+}
+
+.home-action-empty.success{
+  color:#166534;
+  background:#f3fcf5;
+}
+
+.home-action-more{
+  display:flex;
+  justify-content:center;
+  padding:12px 16px;
+  border-top:1px solid #e7edf4;
+  background:#f8fbff;
+  font-size:12px;
+  color:#64748b;
+}
+
+@media (max-width:650px){
+  .home-action-list-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .home-action-item{
+    grid-template-columns:1fr;
+  }
+
+  .home-action-side{
+    justify-content:flex-start;
+  }
+
+  .home-action-instruction{
+    grid-column:1;
+  }
+}
+
+@media (max-width:520px){
+  .home-action-list-section{
+    margin:0 16px 16px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -3738,7 +4089,97 @@ body.portal-mode .app{
 
     </div>
 
+    <!-- กราฟพัฒนาการผลการเรียน -->
+<div class="home-section-card home-trend-section">
 
+  <div class="home-section-head">
+
+    <div>
+      <h3>พัฒนาการผลการเรียน</h3>
+      <p>
+        เปรียบเทียบ GPA รายภาคเรียนและ GPAX สะสม
+      </p>
+    </div>
+
+    <button
+      id="homeOpenOverviewBtn"
+      class="btn btn-outline"
+      type="button"
+    >
+      ดูภาพรวมทั้งหมด
+    </button>
+
+  </div>
+
+  <div class="home-trend-body">
+
+    <div class="home-trend-summary">
+
+      <div class="home-trend-summary-item">
+        <div class="home-trend-summary-label">
+          GPA ล่าสุด
+        </div>
+
+        <div
+          id="homeTrendLatestGpa"
+          class="home-trend-summary-value"
+        >
+          -
+        </div>
+      </div>
+
+      <div class="home-trend-summary-item">
+        <div class="home-trend-summary-label">
+          GPAX ปัจจุบัน
+        </div>
+
+        <div
+          id="homeTrendCurrentGpax"
+          class="home-trend-summary-value"
+        >
+          -
+        </div>
+      </div>
+
+      <div class="home-trend-summary-item">
+        <div class="home-trend-summary-label">
+          เทียบกับเทอมก่อน
+        </div>
+
+        <div
+          id="homeTrendChange"
+          class="home-trend-summary-value home-trend-change"
+        >
+          -
+        </div>
+      </div>
+
+    </div>
+
+    <div
+      id="homeTrendChartWrap"
+      class="home-trend-chart-wrap"
+    >
+      <canvas id="homeAcademicTrendChart"></canvas>
+    </div>
+
+    <div
+      id="homeTrendEmpty"
+      class="home-trend-empty hidden"
+    >
+      ยังมีข้อมูลไม่เพียงพอสำหรับสร้างกราฟพัฒนาการ
+    </div>
+
+    <div
+      id="homeTrendMessage"
+      class="home-trend-message"
+    >
+      กำลังวิเคราะห์แนวโน้มผลการเรียน
+    </div>
+
+  </div>
+
+</div>
     <!-- สถานะการสอบแก้ตัว -->
     <div class="home-section-card">
 
@@ -3798,6 +4239,38 @@ body.portal-mode .app{
       <div id="homeAdviceBox" class="home-advice-box">
         กำลังตรวจสอบข้อมูลผลการเรียน
       </div>
+
+      <div class="home-action-list-section">
+
+  <div class="home-action-list-head">
+    <div>
+      <div class="home-action-list-title">
+        รายวิชาที่ควรตรวจสอบ
+      </div>
+
+      <div class="home-action-list-subtitle">
+        แสดงรายการที่ยังไม่แก้และรายการที่กำลังรออนุมัติ
+      </div>
+    </div>
+
+    <div
+      id="homeActionListCount"
+      class="home-action-list-count"
+    >
+      0 รายการ
+    </div>
+  </div>
+
+  <div
+    id="homeActionList"
+    class="home-action-list"
+  >
+    <div class="home-action-empty">
+      กำลังตรวจสอบข้อมูล
+    </div>
+  </div>
+
+</div>
 
     </div>
 
@@ -5591,6 +6064,8 @@ function applyRemedialEligibility(rows){
   return fallback;
 }
 
+
+
 function formatDashboardDecimal(value, digits = 2){
   const numberValue = Number(value);
 
@@ -5599,6 +6074,540 @@ function formatDashboardDecimal(value, digits = 2){
   }
 
   return numberValue.toFixed(digits);
+}
+
+function getHomeTrendClassLevel(row){
+  return safeText(
+    row?.subject_offerings?.[FIELD_MAP.offering.classLevel] ||
+    row?.[FIELD_MAP.grades.classLevel],
+    ''
+  );
+}
+
+function buildHomeAcademicTrendData(rows){
+  const sourceRows = Array.isArray(rows) ? rows : [];
+  const termMap = new Map();
+
+  sourceRows.forEach(row => {
+    const academicYear = safeNumber(
+      row?.[FIELD_MAP.grades.academicYear],
+      0
+    );
+
+    const term = safeNumber(
+      row?.[FIELD_MAP.grades.term],
+      0
+    );
+
+    if(!academicYear || !term){
+      return;
+    }
+
+    const classLevel = getHomeTrendClassLevel(row);
+    const key = `${academicYear}_${term}`;
+
+    if(!termMap.has(key)){
+      termMap.set(key, {
+        key,
+        academicYear,
+        term,
+        classLevel,
+        rows: []
+      });
+    }
+
+    termMap.get(key).rows.push(row);
+  });
+
+  const classOrder = {
+    'ม.1':1,
+    'ม.2':2,
+    'ม.3':3,
+    'ม.4':4,
+    'ม.5':5,
+    'ม.6':6
+  };
+
+  const terms = Array.from(termMap.values())
+    .sort((a, b) => {
+      if(a.academicYear !== b.academicYear){
+        return a.academicYear - b.academicYear;
+      }
+
+      if(a.term !== b.term){
+        return a.term - b.term;
+      }
+
+      return (
+        (classOrder[a.classLevel] || 99) -
+        (classOrder[b.classLevel] || 99)
+      );
+    });
+
+  const cumulativeRows = [];
+
+  return terms.map(item => {
+    cumulativeRows.push(...item.rows);
+
+    const termSummary = buildSummaryFromRows(item.rows);
+    const cumulativeSummary =
+      buildSummaryFromRows(cumulativeRows);
+
+    const classText = item.classLevel
+      ? `${item.classLevel} `
+      : '';
+
+    return {
+      key: item.key,
+      label:
+        `${classText}${item.academicYear}/${item.term}`,
+      academicYear: item.academicYear,
+      term: item.term,
+      classLevel: item.classLevel,
+      gpa: Number(termSummary.gpa || 0),
+      gpax: Number(cumulativeSummary.gpa || 0)
+    };
+  });
+}
+
+function destroyHomeAcademicTrendChart(){
+  const chartKey = 'homeAcademicTrendChart';
+
+  if(CHART_INSTANCES[chartKey]){
+    CHART_INSTANCES[chartKey].destroy();
+    delete CHART_INSTANCES[chartKey];
+  }
+}
+
+function updateHomeTrendSummary(trendData){
+  const data = Array.isArray(trendData)
+    ? trendData
+    : [];
+
+  const latest = data[data.length - 1] || null;
+  const previous = data[data.length - 2] || null;
+
+  if($('homeTrendLatestGpa')){
+    $('homeTrendLatestGpa').textContent =
+      latest
+        ? latest.gpa.toFixed(2)
+        : '-';
+  }
+
+  if($('homeTrendCurrentGpax')){
+    $('homeTrendCurrentGpax').textContent =
+      latest
+        ? latest.gpax.toFixed(2)
+        : '-';
+  }
+
+  const changeNode = $('homeTrendChange');
+  const messageNode = $('homeTrendMessage');
+
+  if(!changeNode || !messageNode){
+    return;
+  }
+
+  changeNode.className =
+    'home-trend-summary-value home-trend-change';
+
+  messageNode.className =
+    'home-trend-message';
+
+  if(!latest){
+    changeNode.textContent = '-';
+    messageNode.textContent =
+      'ยังไม่มีข้อมูลผลการเรียนสำหรับวิเคราะห์แนวโน้ม';
+    return;
+  }
+
+  if(!previous){
+    changeNode.textContent = '-';
+    messageNode.textContent =
+      'ขณะนี้มีข้อมูลผลการเรียนเพียงหนึ่งภาคเรียน จึงยังเปรียบเทียบแนวโน้มไม่ได้';
+    return;
+  }
+
+  const change = Number(
+    (latest.gpa - previous.gpa).toFixed(2)
+  );
+
+  if(change > 0){
+    changeNode.textContent = `▲ ${change.toFixed(2)}`;
+    changeNode.classList.add('up');
+
+    messageNode.classList.add('up');
+    messageNode.textContent =
+      `GPA ภาคเรียนล่าสุดเพิ่มขึ้น ${change.toFixed(2)} จากภาคเรียนก่อนหน้า`;
+    return;
+  }
+
+  if(change < 0){
+    changeNode.textContent =
+      `▼ ${Math.abs(change).toFixed(2)}`;
+
+    changeNode.classList.add('down');
+
+    messageNode.classList.add('down');
+    messageNode.textContent =
+      `GPA ภาคเรียนล่าสุดลดลง ${Math.abs(change).toFixed(2)} จากภาคเรียนก่อนหน้า ควรตรวจสอบรายวิชาที่ควรพัฒนา`;
+    return;
+  }
+
+  changeNode.textContent = 'คงที่';
+  changeNode.classList.add('equal');
+
+  messageNode.classList.add('equal');
+  messageNode.textContent =
+    'GPA ภาคเรียนล่าสุดเท่ากับภาคเรียนก่อนหน้า';
+}
+
+function renderHomeAcademicTrendChart(rows){
+  const canvas = $('homeAcademicTrendChart');
+  const chartWrap = $('homeTrendChartWrap');
+  const emptyBox = $('homeTrendEmpty');
+
+  if(!canvas || !chartWrap || !emptyBox){
+    return;
+  }
+
+  const trendData =
+    buildHomeAcademicTrendData(rows);
+
+  updateHomeTrendSummary(trendData);
+  destroyHomeAcademicTrendChart();
+
+  if(!trendData.length){
+    chartWrap.classList.add('hidden');
+    emptyBox.classList.remove('hidden');
+    return;
+  }
+
+  chartWrap.classList.remove('hidden');
+  emptyBox.classList.add('hidden');
+
+  const chartKey = 'homeAcademicTrendChart';
+
+  CHART_INSTANCES[chartKey] = new Chart(canvas, {
+    type: 'line',
+
+    data: {
+      labels: trendData.map(item => item.label),
+
+      datasets: [
+        {
+          label: 'GPA รายภาคเรียน',
+          data: trendData.map(
+            item => Number(item.gpa.toFixed(2))
+          ),
+          borderColor:'#2563eb',
+          backgroundColor:'rgba(37,99,235,.12)',
+          pointBackgroundColor:'#2563eb',
+          pointBorderColor:'#ffffff',
+          pointBorderWidth:3,
+          pointRadius:5,
+          pointHoverRadius:7,
+          borderWidth:3,
+          tension:.3,
+          fill:true
+        },
+        {
+          label: 'GPAX สะสม',
+          data: trendData.map(
+            item => Number(item.gpax.toFixed(2))
+          ),
+          borderColor:'#7c3aed',
+          backgroundColor:'rgba(124,58,237,.08)',
+          pointBackgroundColor:'#7c3aed',
+          pointBorderColor:'#ffffff',
+          pointBorderWidth:3,
+          pointRadius:5,
+          pointHoverRadius:7,
+          borderWidth:3,
+          borderDash:[7, 5],
+          tension:.3,
+          fill:false
+        }
+      ]
+    },
+
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+
+      interaction:{
+        mode:'index',
+        intersect:false
+      },
+
+      plugins:{
+        legend:{
+          position:'bottom',
+
+          labels:{
+            usePointStyle:true,
+            pointStyle:'circle',
+            padding:18,
+
+            font:{
+              family:'Kanit',
+              size:12,
+              weight:'700'
+            }
+          }
+        },
+
+        tooltip:{
+          backgroundColor:'rgba(15,23,42,.92)',
+          padding:12,
+          titleFont:{
+            family:'Kanit',
+            size:13,
+            weight:'700'
+          },
+          bodyFont:{
+            family:'Sarabun',
+            size:13,
+            weight:'700'
+          },
+
+          callbacks:{
+            label(context){
+              const value =
+                Number(context.raw || 0).toFixed(2);
+
+              return `${context.dataset.label}: ${value}`;
+            }
+          }
+        }
+      },
+
+      scales:{
+        y:{
+          beginAtZero:true,
+          min:0,
+          max:4,
+
+          ticks:{
+            stepSize:.5,
+
+            font:{
+              family:'Sarabun',
+              size:11,
+              weight:'600'
+            },
+
+            callback(value){
+              return Number(value).toFixed(1);
+            }
+          },
+
+          grid:{
+            color:'rgba(148,163,184,.20)'
+          },
+
+          title:{
+            display:true,
+            text:'ระดับผลการเรียน',
+
+            font:{
+              family:'Kanit',
+              size:12,
+              weight:'700'
+            }
+          }
+        },
+
+        x:{
+          ticks:{
+            autoSkip:false,
+            maxRotation:0,
+            minRotation:0,
+
+            font:{
+              family:'Kanit',
+              size:11,
+              weight:'700'
+            }
+          },
+
+          grid:{
+            display:false
+          }
+        }
+      }
+    }
+  });
+}
+
+function getHomeActionInstruction(statusKey, teacherName){
+  const teacherText = teacherName
+    ? `ครูผู้สอน ${teacherName}`
+    : 'ครูผู้สอน';
+
+  if(statusKey === 'pending'){
+    return {
+      icon:'⏳',
+      text:'ส่งผลสอบแก้ตัวแล้ว ขณะนี้กำลังรอฝ่ายวิชาการตรวจสอบและอนุมัติ'
+    };
+  }
+
+  return {
+    icon:'📌',
+    text:`ยังไม่พบผลสอบแก้ตัว ควรติดต่อ${teacherText}เพื่อสอบถามแนวทางดำเนินการ`
+  };
+}
+
+function renderHomeActionItems(remedialItems){
+  const listNode = $('homeActionList');
+  const countNode = $('homeActionListCount');
+
+  if(!listNode){
+    return;
+  }
+
+  const normalizedItems =
+    normalizeRemedialTrackingItems(
+      Array.isArray(remedialItems)
+        ? remedialItems
+        : []
+    );
+
+  /*
+   * หน้า Dashboard แสดงเฉพาะรายการที่นักเรียน
+   * ยังต้องติดตาม ได้แก่ ยังไม่แก้และรออนุมัติ
+   */
+  const actionableItems =
+    sortRemedialTrackingItems(
+      normalizedItems.filter(item => {
+        const statusKey =
+          getRemedialStatusKey(item);
+
+        return (
+          statusKey === 'unresolved' ||
+          statusKey === 'pending'
+        );
+      })
+    );
+
+  if(countNode){
+    countNode.textContent =
+      `${actionableItems.length} รายการ`;
+  }
+
+  if(!actionableItems.length){
+    listNode.innerHTML = `
+      <div class="home-action-empty success">
+        ✅ ขณะนี้ไม่พบรายวิชาที่ยังต้องดำเนินการ
+      </div>
+    `;
+
+    return;
+  }
+
+  const maximumVisible = 5;
+
+  const visibleItems =
+    actionableItems.slice(0, maximumVisible);
+
+  const itemHtml = visibleItems.map(item => {
+    const statusKey =
+      getRemedialStatusKey(item);
+
+    const subjectCode =
+      getRemedialSubjectCode(item) || '-';
+
+    const subjectName =
+      getRemedialSubjectName(item) || '-';
+
+    const academicYear =
+      getRemedialAcademicYear(item) || '-';
+
+    const term =
+      getRemedialTerm(item) || '-';
+
+    const teacherName =
+      getRemedialTeacherName(item) || '';
+
+    const originalGrade =
+      getRemedialOriginalGrade(item) || '-';
+
+    const instruction =
+      getHomeActionInstruction(
+        statusKey,
+        teacherName
+      );
+
+    const statusText =
+      statusKey === 'pending'
+        ? 'รออนุมัติ'
+        : 'ยังไม่แก้';
+
+    const teacherText =
+      teacherName
+        ? `ครู ${teacherName}`
+        : 'ไม่พบข้อมูลครูผู้สอน';
+
+    return `
+      <div class="home-action-item ${escapeHtml(statusKey)}">
+
+        <div class="home-action-subject">
+
+          <div class="home-action-subject-line">
+
+            <span class="home-action-subject-code">
+              ${escapeHtml(subjectCode)}
+            </span>
+
+            <span class="home-action-subject-name">
+              ${escapeHtml(subjectName)}
+            </span>
+
+          </div>
+
+          <div class="home-action-meta">
+            ปีการศึกษา ${escapeHtml(academicYear)}
+            ภาคเรียนที่ ${escapeHtml(term)}
+            • ${escapeHtml(teacherText)}
+          </div>
+
+        </div>
+
+        <div class="home-action-side">
+
+          <span class="home-action-grade">
+            เกรดเดิม ${escapeHtml(originalGrade)}
+          </span>
+
+          <span class="home-action-status ${escapeHtml(statusKey)}">
+            ${escapeHtml(statusText)}
+          </span>
+
+        </div>
+
+        <div class="home-action-instruction">
+          <span>${instruction.icon}</span>
+          <span>${escapeHtml(instruction.text)}</span>
+        </div>
+
+      </div>
+    `;
+  }).join('');
+
+  const remainingCount =
+    actionableItems.length - visibleItems.length;
+
+  const moreHtml = remainingCount > 0
+    ? `
+      <div class="home-action-more">
+        ยังมีอีก ${remainingCount} รายการ
+        กด “ดูรายละเอียด” เพื่อดูทั้งหมด
+      </div>
+    `
+    : '';
+
+  listNode.innerHTML =
+    itemHtml + moreHtml;
 }
 
 function renderHomeDashboard(){
@@ -5617,19 +6626,34 @@ function renderHomeDashboard(){
 
   const latestSummary = buildSummaryFromRows(latestRows);
 
-  const remedialItems = buildRemedialStatusItems();
+const remedialItems =
+  normalizeRemedialTrackingItems(
+    buildRemedialStatusItems()
+  );
 
-  const unresolvedCount = remedialItems.filter(
-    item => item.status === 'unresolved'
-  ).length;
+const unresolvedCount =
+  remedialItems.filter(item => {
+    return (
+      getRemedialStatusKey(item) ===
+      'unresolved'
+    );
+  }).length;
 
-  const pendingCount = remedialItems.filter(
-    item => item.status === 'pending'
-  ).length;
+const pendingCount =
+  remedialItems.filter(item => {
+    return (
+      getRemedialStatusKey(item) ===
+      'pending'
+    );
+  }).length;
 
-  const approvedCount = remedialItems.filter(
-    item => item.status === 'approved'
-  ).length;
+const approvedCount =
+  remedialItems.filter(item => {
+    return (
+      getRemedialStatusKey(item) ===
+      'approved'
+    );
+  }).length;
 
   const studentName = safeText(
     profile?.[FIELD_MAP.students.fullName],
@@ -5775,6 +6799,8 @@ function renderHomeDashboard(){
         'ยังไม่มีข้อมูลผลการเรียนสำหรับแสดงในระบบ';
     }
   }
+  renderHomeAcademicTrendChart(allRows);
+  renderHomeActionItems(remedialItems);
 }
 
     async function loadPortalData(forceRefresh = false){
@@ -7515,6 +8541,10 @@ $('homeOpenGradeBtn')?.addEventListener('click', () => {
 
 $('homeOpenRemedialBtn')?.addEventListener('click', () => {
   $('menuRemedialStatusBtn')?.click();
+});
+
+$('homeOpenOverviewBtn')?.addEventListener('click', () => {
+  $('menuGradeOverviewBtn')?.click();
 });
 
 $('menuGradesBtn')?.addEventListener(
