@@ -5074,7 +5074,7 @@ function renderTermGpaBarChart(rows){
 }
 
 function renderStudentGpaxPercentile(){
-  const data = APP_STATE.gpaxPercentile;
+  const data = APP_STATE.gpaxPercentile || null;
 
   const topValue = $('overviewPercentile');
   const topNote = $('overviewPercentileNote');
@@ -5085,97 +5085,304 @@ function renderStudentGpaxPercentile(){
   const summaryNote =
     $('overviewSummaryPercentileNote');
 
-  const hasPercentile =
-    data &&
-    data.percentile_rank !== null &&
-    data.percentile_rank !== undefined &&
-    data.percentile_rank !== '';
 
-  if(!hasPercentile){
-    if(topValue){
-      topValue.textContent = '-';
+  /*
+   * ใส่ข้อความให้ Element อย่างปลอดภัย
+   */
+  const setText = (node, value) => {
+    if(node){
+      node.textContent = String(
+        value ?? ''
+      );
+    }
+  };
+
+
+  /*
+   * แปลงค่าเป็นจำนวนเต็ม
+   */
+  const toCount = value => {
+    const number = Number(value);
+
+    if(!Number.isFinite(number)){
+      return 0;
     }
 
-    if(topNote){
-      topNote.textContent =
-        'ยังไม่มีข้อมูลสำหรับคำนวณ';
-    }
+    return Math.max(
+      0,
+      Math.trunc(number)
+    );
+  };
 
-    if(summaryValue){
-      summaryValue.textContent = '-';
-    }
 
-    if(summaryNote){
-      summaryNote.textContent =
-        'ยังไม่มีข้อมูลสำหรับคำนวณ';
-    }
+  /*
+   * กรณี RPC ไม่พบข้อมูล
+   */
+  if(!data){
+    setText(topValue, '-');
+    setText(
+      topNote,
+      'ยังไม่พบข้อมูล GPAX สะสม'
+    );
+
+    setText(summaryValue, '-');
+    setText(
+      summaryNote,
+      'ยังไม่พบข้อมูลสำหรับคำนวณเปอร์เซ็นไทล์'
+    );
 
     return;
   }
 
-  const percentileNumber =
+
+  const percentileRank =
     Number(data.percentile_rank);
 
-  const percentileDisplay =
-    safeText(
-      data.percentile_display,
-      Number.isFinite(percentileNumber)
-        ? `P${percentileNumber.toFixed(2)}`
-        : '-'
-    );
+  const hasPercentile =
+    data.percentile_rank !== null &&
+    data.percentile_rank !== undefined &&
+    Number.isFinite(percentileRank);
 
-  const classLevel =
-    safeNumber(data.current_class_level, 0);
-
-  const cohortSize =
-    safeNumber(data.cohort_size, 0);
-
-  const completedTerms =
-    safeNumber(data.completed_terms, 0);
 
   const gpaxRank =
-    safeNumber(data.gpax_rank, 0);
+    toCount(data.gpax_rank);
 
-  const comparisonText = [
-    classLevel
-      ? `เทียบกับนักเรียน ม.${classLevel}`
-      : 'เทียบกับนักเรียนกลุ่มเดียวกัน',
+  const rankedSize =
+    toCount(
+      data.ranked_size ??
+      data.cohort_size
+    );
 
-    cohortSize
-      ? `จำนวน ${cohortSize} คน`
-      : '',
+  const originalSize =
+    toCount(
+      data.cohort_original_size
+    );
 
-    completedTerms
-      ? `${completedTerms} ภาคเรียน`
-      : ''
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  const currentSize =
+    toCount(
+      data.cohort_current_size
+    );
 
-  const rankText =
-    gpaxRank && cohortSize
-      ? `อันดับ GPAX ${gpaxRank} จาก ${cohortSize} คน`
-      : comparisonText;
+  const leftSize =
+    toCount(
+      data.cohort_left_size
+    );
 
-  if(topValue){
-    topValue.textContent =
-      percentileDisplay;
+  const completedTerms =
+    toCount(
+      data.completed_terms
+    );
+
+  const expectedTerms =
+    toCount(
+      data.expected_terms
+    );
+
+  const entryAcademicYear =
+    toCount(
+      data.cohort_entry_academic_year
+    );
+
+  const entryLevel =
+    toCount(
+      data.cohort_entry_level
+    );
+
+
+  /*
+   * ชื่อรุ่น
+   */
+  let cohortName =
+    safeText(
+      data.cohort_name,
+      ''
+    );
+
+  if(!cohortName && entryAcademicYear){
+
+    if(entryLevel === 1){
+      cohortName =
+        `รุ่นมัธยมต้น ${entryAcademicYear}`;
+
+    }else if(entryLevel === 4){
+      cohortName =
+        `รุ่นมัธยมปลาย ${entryAcademicYear}`;
+
+    }else{
+      cohortName =
+        `รุ่น ${entryAcademicYear}`;
+    }
+
   }
 
-  if(topNote){
-    topNote.textContent =
-      comparisonText || 'มีข้อมูลเปอร์เซ็นไทล์แล้ว';
+
+  /*
+   * ค่าเปอร์เซ็นไทล์
+   */
+  const percentileDisplay =
+    hasPercentile
+      ? safeText(
+          data.percentile_display,
+          `P${percentileRank.toFixed(2)}`
+        )
+      : '-';
+
+
+  /*
+   * ข้อความเกี่ยวกับจำนวนของรุ่น
+   */
+  const cohortParts = [];
+
+  if(cohortName){
+    cohortParts.push(cohortName);
   }
 
-  if(summaryValue){
-    summaryValue.textContent =
-      percentileDisplay;
+  if(originalSize > 0){
+    cohortParts.push(
+      `เดิม ${originalSize} คน`
+    );
   }
 
-  if(summaryNote){
-    summaryNote.textContent =
-      rankText || comparisonText;
+  if(currentSize > 0){
+    cohortParts.push(
+      `ปัจจุบัน ${currentSize} คน`
+    );
   }
+
+  if(leftSize > 0){
+    cohortParts.push(
+      `ออกจากรุ่น ${leftSize} คน`
+    );
+  }
+
+  const cohortText =
+    cohortParts.join(' · ');
+
+
+  /*
+   * กรณีพร้อมแสดงเปอร์เซ็นไทล์
+   */
+  if(hasPercentile){
+
+    const rankText =
+      gpaxRank > 0 &&
+      rankedSize > 0
+        ? `อันดับ GPAX ${gpaxRank} จากผู้มีข้อมูลพร้อมจัดอันดับ ${rankedSize} คน`
+        : 'พร้อมแสดงเปอร์เซ็นไทล์ GPAX';
+
+    const summaryParts = [];
+
+    if(cohortText){
+      summaryParts.push(cohortText);
+    }
+
+    if(rankedSize > 0){
+      summaryParts.push(
+        `พร้อมจัดอันดับ ${rankedSize} คน`
+      );
+    }
+
+    if(
+      completedTerms > 0 &&
+      expectedTerms > 0
+    ){
+      summaryParts.push(
+        `สะสม ${completedTerms} เทอม`
+      );
+    }
+
+    setText(
+      topValue,
+      percentileDisplay
+    );
+
+    setText(
+      topNote,
+      rankText
+    );
+
+    setText(
+      summaryValue,
+      percentileDisplay
+    );
+
+    setText(
+      summaryNote,
+      summaryParts.join(' · ')
+      || rankText
+    );
+
+    return;
+  }
+
+
+  /*
+   * กรณียังไม่พร้อมจัดอันดับ
+   */
+  let statusText =
+    safeText(
+      data.percentile_status_text,
+      ''
+    );
+
+  if(!statusText){
+
+    if(
+      data.gpax === null ||
+      data.gpax === undefined
+    ){
+      statusText =
+        'ยังไม่มีผลการเรียนสะสมสำหรับคำนวณ GPAX';
+
+    }else if(
+      expectedTerms > 0 &&
+      completedTerms !== expectedTerms
+    ){
+      statusText =
+        `ข้อมูลผลการเรียนมี ${completedTerms} เทอม จากที่ควรมี ${expectedTerms} เทอม`;
+
+    }else if(rankedSize === 0){
+      statusText =
+        'ข้อมูลของระดับชั้นยังไม่เพียงพอสำหรับจัดอันดับ';
+
+    }else{
+      statusText =
+        'ยังไม่สามารถจัดอันดับเปอร์เซ็นไทล์ได้';
+    }
+
+  }
+
+
+  const pendingParts = [];
+
+  if(cohortText){
+    pendingParts.push(cohortText);
+  }
+
+  if(
+    completedTerms > 0 ||
+    expectedTerms > 0
+  ){
+    const expectedText =
+      expectedTerms > 0
+        ? `/${expectedTerms}`
+        : '';
+
+    pendingParts.push(
+      `ข้อมูล ${completedTerms}${expectedText} เทอม`
+    );
+  }
+
+  setText(topValue, '-');
+  setText(topNote, statusText);
+
+  setText(summaryValue, '-');
+
+  setText(
+    summaryNote,
+    pendingParts.join(' · ')
+    || statusText
+  );
 }
 
 function renderGradeOverview(rows){
