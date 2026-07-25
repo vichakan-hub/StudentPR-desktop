@@ -5067,7 +5067,8 @@ body.portal-mode .app{
     let termGpaBarChart = null;
 
     const CHART_INSTANCES = {};
-    const STUDENT_CACHE_VERSION = 'v3_home_dashboard_20260726';
+    const STUDENT_CACHE_VERSION =
+  'v3_home_dashboard_fix';
     const CURRENT_ACADEMIC_YEAR = 2569;
 
 const APP_STATE = {
@@ -5719,15 +5720,58 @@ function formatNumberFloor(value, digits = 2){
     }
 
 function updatePortalIdentity(){
-  const profile = APP_STATE.studentProfile;
-  const sid = safeText(profile?.[FIELD_MAP.students.sid]);
-  const fullName = safeText(profile?.[FIELD_MAP.students.fullName]);
+  const profile =
+    APP_STATE.studentProfile || {};
 
-  $('topStudentIdentity').textContent = ` ${sid} ${fullName}`;
-  $('welcomeStudentName').textContent = `${fullName}`;
-  $('metaStudentCode').textContent = sid;
-  $('metaStudentName').textContent = fullName;
-  $('metaRoomNo').textContent = getStudentDisplayRoomNo(profile);
+  const sid = safeText(
+    profile?.[FIELD_MAP.students.sid],
+    '-'
+  );
+
+  const fullName = safeText(
+    profile?.[FIELD_MAP.students.fullName],
+    'นักเรียน'
+  );
+
+  const room = safeText(
+    profile?.[FIELD_MAP.students.room],
+    '-'
+  );
+
+  const studentNo = safeText(
+    profile?.[FIELD_MAP.students.no],
+    '-'
+  );
+
+  if($('topStudentIdentity')){
+    $('topStudentIdentity').textContent =
+      `${sid} ${fullName}`;
+  }
+
+  if($('homeStudentName')){
+    $('homeStudentName').textContent =
+      fullName;
+  }
+
+  if($('homeStudentMeta')){
+    $('homeStudentMeta').textContent =
+      `ห้อง ${room} • เลขที่ ${studentNo}`;
+  }
+
+  if($('metaStudentCode')){
+    $('metaStudentCode').textContent =
+      sid;
+  }
+
+  if($('metaStudentName')){
+    $('metaStudentName').textContent =
+      fullName;
+  }
+
+  if($('metaRoomNo')){
+    $('metaRoomNo').textContent =
+      studentNo;
+  }
 
   updateSidebarStudentName();
 }
@@ -8906,7 +8950,15 @@ APP_STATE.latestGradeRows = [];
       $('password').value = '';
       $('loginStatus').textContent = '';
       $('topStudentIdentity').textContent = 'รหัสนักเรียน -';
-      $('welcomeStudentName').textContent = 'คุณ -';
+      if($('homeStudentName')){
+  $('homeStudentName').textContent =
+    'นักเรียน';
+}
+
+if($('homeStudentMeta')){
+  $('homeStudentMeta').textContent =
+    'กำลังโหลดข้อมูลนักเรียน';
+}
 
 renderGradeTable([]);
 renderSummary([]);
