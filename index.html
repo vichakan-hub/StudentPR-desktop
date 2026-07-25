@@ -5067,7 +5067,7 @@ body.portal-mode .app{
     let termGpaBarChart = null;
 
     const CHART_INSTANCES = {};
-    const STUDENT_CACHE_VERSION = 'v2_auto_refresh';
+    const STUDENT_CACHE_VERSION = 'v3_home_dashboard_20260726';
     const CURRENT_ACADEMIC_YEAR = 2569;
 
 const APP_STATE = {
@@ -6845,49 +6845,87 @@ function openHomeRemedialFilter(
 }
 
 function renderHomeDashboard(){
-  const profile = APP_STATE.studentProfile || {};
-  const percentileData = APP_STATE.gpaxPercentile || {};
+  const profile =
+    APP_STATE.studentProfile || {};
+
+  const percentileData =
+    APP_STATE.gpaxPercentile || {};
 
   const allRows =
     Array.isArray(APP_STATE.allGradeRows)
       ? APP_STATE.allGradeRows
       : [];
 
+  /*
+   * หาภาคเรียนล่าสุดจากข้อมูลทั้งหมดจริง
+   * ไม่ยึดเฉพาะเทอมที่เคยถูกเลือกไว้
+   */
   const latestRows =
-    Array.isArray(APP_STATE.latestGradeRows)
-      ? APP_STATE.latestGradeRows
-      : [];
+    allRows.length
+      ? getLatestTermRows(allRows)
+      : (
+          Array.isArray(APP_STATE.latestGradeRows)
+            ? APP_STATE.latestGradeRows
+            : []
+        );
 
-  const latestSummary = buildSummaryFromRows(latestRows);
+  const cumulativeSummary =
+    buildSummaryFromRows(allRows);
 
-const remedialItems =
-  normalizeRemedialTrackingItems(
-    buildRemedialStatusItems()
-  );
+  const latestSummary =
+    buildSummaryFromRows(latestRows);
 
-const unresolvedCount =
-  remedialItems.filter(item => {
-    return (
-      getRemedialStatusKey(item) ===
-      'unresolved'
+  /*
+   * ค่า Cache จาก RPC
+   */
+  const cachedGpax =
+    toDashboardNumber(
+      percentileData.gpax
     );
-  }).length;
 
-const pendingCount =
-  remedialItems.filter(item => {
-    return (
-      getRemedialStatusKey(item) ===
-      'pending'
+  const cachedTotalCredit =
+    toDashboardNumber(
+      percentileData.total_credit ??
+      percentileData.totalCredit
     );
-  }).length;
 
-const approvedCount =
-  remedialItems.filter(item => {
-    return (
-      getRemedialStatusKey(item) ===
-      'approved'
+  const percentileRank =
+    toDashboardNumber(
+      percentileData.percentile_rank ??
+      percentileData.percentileRank
     );
-  }).length;
+
+  const cohortSize =
+    toDashboardNumber(
+      percentileData.cohort_size ??
+      percentileData.cohortSize
+    );
+
+  /*
+   * ถ้าไม่มี Cache ให้คำนวณจากผลการเรียนจริง
+   */
+  const dashboardGpax =
+    cachedGpax !== null
+      ? cachedGpax
+      : (
+          allRows.length
+            ? cumulativeSummary.gpa
+            : null
+        );
+
+  const dashboardTotalCredit =
+    cachedTotalCredit !== null
+      ? cachedTotalCredit
+      : (
+          allRows.length
+            ? cumulativeSummary.totalLearned
+            : null
+        );
+
+  const latestGpa =
+    latestRows.length
+      ? latestSummary.gpa
+      : null;
 
   const studentName = safeText(
     profile?.[FIELD_MAP.students.fullName],
@@ -6904,31 +6942,8 @@ const approvedCount =
     '-'
   );
 
-  const gpax = getDashboardValue(
-    percentileData,
-    ['gpax'],
-    null
-  );
-
-  const percentileRank = getDashboardValue(
-    percentileData,
-    ['percentile_rank', 'percentileRank'],
-    null
-  );
-
-  const totalCredit = getDashboardValue(
-    percentileData,
-    ['total_credit', 'totalCredit'],
-    null
-  );
-
-  const cohortSize = getDashboardValue(
-    percentileData,
-    ['cohort_size', 'cohortSize'],
-    null
-  );
-
-  const latestRow = latestRows[0] || null;
+  const latestRow =
+    latestRows[0] || null;
 
   const latestYear = safeNumber(
     latestRow?.[FIELD_MAP.grades.academicYear],
@@ -6940,8 +6955,31 @@ const approvedCount =
     0
   );
 
+  /*
+   * ตรวจสอบว่า HTML ที่เพิ่มไว้มี ID ครบหรือไม่
+   */
+  const requiredHomeIds = [
+    'homeStudentName',
+    'homeStudentMeta',
+    'homeGpaxValue',
+    'homePercentileValue',
+    'homeCreditValue',
+    'homeLatestGpaValue'
+  ];
+
+  const missingHomeIds =
+    requiredHomeIds.filter(id => !$(id));
+
+  if(missingHomeIds.length){
+    console.error(
+      'HOME DASHBOARD MISSING ELEMENTS =',
+      missingHomeIds
+    );
+  }
+
   if($('homeStudentName')){
-    $('homeStudentName').textContent = studentName;
+    $('homeStudentName').textContent =
+      studentName;
   }
 
   if($('homeStudentMeta')){
@@ -6951,34 +6989,54 @@ const approvedCount =
 
   if($('homeGpaxValue')){
     $('homeGpaxValue').textContent =
-      formatDashboardDecimal(gpax, 2);
+      dashboardGpax !== null
+        ? formatDashboardDecimal(
+            dashboardGpax,
+            2
+          )
+        : '-';
   }
 
   if($('homePercentileValue')){
     $('homePercentileValue').textContent =
-      Number.isFinite(Number(percentileRank))
-        ? `PR ${Math.round(Number(percentileRank))}`
+      percentileRank !== null
+        ? `PR ${percentileRank.toFixed(2)}`
         : '-';
   }
 
   if($('homePercentileNote')){
-    $('homePercentileNote').textContent =
-      Number.isFinite(Number(cohortSize))
-        ? `เปรียบเทียบกับนักเรียน ${Number(cohortSize)} คน`
-        : 'เปรียบเทียบระดับชั้นเดียวกัน';
+    if(
+      percentileRank !== null &&
+      cohortSize !== null
+    ){
+      $('homePercentileNote').textContent =
+        `เปรียบเทียบกับนักเรียน ${cohortSize} คน`;
+    }else if(percentileRank !== null){
+      $('homePercentileNote').textContent =
+        'เปรียบเทียบนักเรียนระดับชั้นเดียวกัน';
+    }else{
+      $('homePercentileNote').textContent =
+        'ยังไม่มีข้อมูลเปอร์เซ็นไทล์ของปีนี้';
+    }
   }
 
   if($('homeCreditValue')){
     $('homeCreditValue').textContent =
-      Number.isFinite(Number(totalCredit))
-        ? formatDashboardDecimal(totalCredit, 1)
+      dashboardTotalCredit !== null
+        ? formatDashboardDecimal(
+            dashboardTotalCredit,
+            1
+          )
         : '-';
   }
 
   if($('homeLatestGpaValue')){
     $('homeLatestGpaValue').textContent =
-      latestRows.length
-        ? formatDashboardDecimal(latestSummary.gpa, 2)
+      latestGpa !== null
+        ? formatDashboardDecimal(
+            latestGpa,
+            2
+          )
         : '-';
   }
 
@@ -6988,6 +7046,40 @@ const approvedCount =
         ? `ปีการศึกษา ${latestYear} ภาคเรียนที่ ${latestTerm}`
         : 'ยังไม่มีข้อมูลภาคเรียน';
   }
+
+
+  /* =====================================================
+     สถานะสอบแก้ตัว
+     ===================================================== */
+
+  const remedialItems =
+    normalizeRemedialTrackingItems(
+      buildRemedialStatusItems()
+    );
+
+  const unresolvedCount =
+    remedialItems.filter(item => {
+      return (
+        getRemedialStatusKey(item) ===
+        'unresolved'
+      );
+    }).length;
+
+  const pendingCount =
+    remedialItems.filter(item => {
+      return (
+        getRemedialStatusKey(item) ===
+        'pending'
+      );
+    }).length;
+
+  const approvedCount =
+    remedialItems.filter(item => {
+      return (
+        getRemedialStatusKey(item) ===
+        'approved'
+      );
+    }).length;
 
   if($('homeUnresolvedCount')){
     $('homeUnresolvedCount').textContent =
@@ -7005,55 +7097,57 @@ const approvedCount =
   }
 
   const homeStatusCardData = [
-  {
-    id:'homeUnresolvedCard',
-    count:unresolvedCount
-  },
-  {
-    id:'homePendingCard',
-    count:pendingCount
-  },
-  {
-    id:'homeApprovedCard',
-    count:approvedCount
-  }
-];
+    {
+      id:'homeUnresolvedCard',
+      count:unresolvedCount
+    },
+    {
+      id:'homePendingCard',
+      count:pendingCount
+    },
+    {
+      id:'homeApprovedCard',
+      count:approvedCount
+    }
+  ];
 
-homeStatusCardData.forEach(item => {
-  const card = $(item.id);
+  homeStatusCardData.forEach(item => {
+    const card = $(item.id);
 
-  if(!card){
-    return;
-  }
+    if(!card){
+      return;
+    }
 
-  /*
-   * อนุมัติแล้วเปิดดูประวัติได้เสมอ
-   * แม้จำนวนปัจจุบันเป็น 0
-   */
-  const allowEmpty =
-    item.id === 'homeApprovedCard';
+    const allowEmpty =
+      item.id === 'homeApprovedCard';
 
-  card.classList.toggle(
-    'is-empty',
-    item.count <= 0 && !allowEmpty
-  );
+    card.classList.toggle(
+      'is-empty',
+      item.count <= 0 && !allowEmpty
+    );
 
-  card.setAttribute(
-    'aria-disabled',
-    item.count <= 0 && !allowEmpty
-      ? 'true'
-      : 'false'
-  );
+    card.setAttribute(
+      'aria-disabled',
+      item.count <= 0 && !allowEmpty
+        ? 'true'
+        : 'false'
+    );
 
-  card.title =
-    item.count > 0
-      ? `เปิดดู ${item.count} รายการ`
-      : allowEmpty
-        ? 'เปิดดูประวัติรายการอนุมัติ'
-        : 'ไม่มีรายการในสถานะนี้';
-});
+    card.title =
+      item.count > 0
+        ? `เปิดดู ${item.count} รายการ`
+        : allowEmpty
+          ? 'เปิดดูประวัติรายการอนุมัติ'
+          : 'ไม่มีรายการในสถานะนี้';
+  });
 
-  const adviceBox = $('homeAdviceBox');
+
+  /* =====================================================
+     ข้อความคำแนะนำ
+     ===================================================== */
+
+  const adviceBox =
+    $('homeAdviceBox');
 
   if(adviceBox){
     if(unresolvedCount > 0){
@@ -7082,8 +7176,88 @@ homeStatusCardData.forEach(item => {
         'ยังไม่มีข้อมูลผลการเรียนสำหรับแสดงในระบบ';
     }
   }
+
+
+  /*
+   * วาดกราฟและรายการรายวิชา
+   */
   renderHomeAcademicTrendChart(allRows);
   renderHomeActionItems(remedialItems);
+
+  /*
+   * ใช้ตรวจสอบจาก Console
+   */
+  console.log(
+    'STUDENT DASHBOARD DATA =',
+    {
+      profile,
+      availableTerms:
+        APP_STATE.availableTerms,
+      allRowsCount:
+        allRows.length,
+      latestRowsCount:
+        latestRows.length,
+      percentileData,
+      dashboardGpax,
+      dashboardTotalCredit,
+      latestGpa,
+      remedialCount:
+        remedialItems.length
+    }
+  );
+}
+
+function toDashboardNumber(value){
+  if(
+    value === null ||
+    value === undefined ||
+    value === ''
+  ){
+    return null;
+  }
+
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue)
+    ? numberValue
+    : null;
+}
+
+function getDashboardAcademicYear(){
+  const years = [];
+
+  /*
+   * อ่านจากรายการภาคเรียนที่ RPC ส่งกลับมา
+   */
+  (APP_STATE.availableTerms || []).forEach(item => {
+    const year = safeNumber(
+      item?.academic_year ??
+      item?.academicYear,
+      0
+    );
+
+    if(year){
+      years.push(year);
+    }
+  });
+
+  /*
+   * อ่านสำรองจากแถวผลการเรียน
+   */
+  (APP_STATE.allGradeRows || []).forEach(row => {
+    const year = safeNumber(
+      row?.[FIELD_MAP.grades.academicYear],
+      0
+    );
+
+    if(year){
+      years.push(year);
+    }
+  });
+
+  return years.length
+    ? Math.max(...years)
+    : CURRENT_ACADEMIC_YEAR;
 }
 
     async function loadPortalData(forceRefresh = false){
@@ -7100,11 +7274,16 @@ homeStatusCardData.forEach(item => {
 
         updatePortalIdentity();
 
-        APP_STATE.availableTerms = await fetchStudentAvailableTerms(forceRefresh);
-        try{
+       APP_STATE.availableTerms =
+  await fetchStudentAvailableTerms(forceRefresh);
+
+const dashboardAcademicYear =
+  getDashboardAcademicYear();
+
+try{
   APP_STATE.gpaxPercentile =
     await fetchStudentGpaxPercentile(
-      CURRENT_ACADEMIC_YEAR
+      dashboardAcademicYear
     );
 }catch(error){
   console.error(
@@ -7112,6 +7291,11 @@ homeStatusCardData.forEach(item => {
     error
   );
 
+  /*
+   * ไม่ให้ Dashboard พัง
+   * เพราะด้านล่างจะคำนวณ GPAX
+   * จากผลการเรียนจริงเป็นข้อมูลสำรอง
+   */
   APP_STATE.gpaxPercentile = null;
 }
 
