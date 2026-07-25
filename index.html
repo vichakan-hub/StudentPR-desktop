@@ -3273,7 +3273,10 @@ body.portal-mode .app{
       🏠 หน้าแรก
     </button>
 
-<div class="student-sidebar-group">
+<div
+  class="student-sidebar-group collapsed"
+  id="gradesSidebarGroup"
+>
   <button class="btn student-side-btn menu-btn grade-main-btn" id="menuGradesBtn" type="button">
     <span>📚 ผลการเรียน</span>
     <span id="gradeSubmenuChevron" class="submenu-chevron">▾</span>
@@ -4199,12 +4202,42 @@ function setActiveMenu(pageKey){
   $('menuGradesBtn')?.classList.add('active');
 }
 
+/*
+ * เปิดชั้น/เทอมเฉพาะหน้าผลการเรียน
+ *
+ * gradeOverview = ภาพรวมผลการเรียน
+ * grades        = ผลการเรียนรายเทอม
+ *
+ * หน้าอื่นให้ซ่อน
+ */
+const isGradeSection =
+  pageKey === 'gradeOverview' ||
+  pageKey === 'grades';
+
+setGradeSubmenuVisible(
+  isGradeSection
+);
+
+
+/*
+ * ไฮไลท์ชั้น/เทอมเฉพาะเมื่อ
+ * กำลังดูหน้ารายภาคเรียน
+ */
 if(pageKey === 'grades'){
+
   updateSidebarTermActive();
+
 }else{
-  document.querySelectorAll('.grade-term-btn[data-term-key]').forEach(btn => {
-    btn.classList.remove('active');
-  });
+
+  document
+    .querySelectorAll(
+      '.grade-term-btn[data-term-key]'
+    )
+    .forEach(btn => {
+      btn.classList.remove('active');
+      btn.removeAttribute('aria-current');
+    });
+
 }
 
   const titleMap = {
@@ -6777,41 +6810,80 @@ function updateSidebarStudentName(){
   }
 }
 
-      function toggleGradeSubmenu(){
-  const group = $('menuGradesBtn')?.closest('.student-sidebar-group');
-  if(!group) return;
+function setGradeSubmenuVisible(visible){
+  const group =
+    $('gradesSidebarGroup') ||
+    $('menuGradesBtn')
+      ?.closest('.student-sidebar-group');
 
-  group.classList.toggle('collapsed');
+  if(!group){
+    return;
+  }
+
+  /*
+   * visible = true  แสดงชั้น/เทอม
+   * visible = false ซ่อนชั้น/เทอม
+   */
+  group.classList.toggle(
+    'collapsed',
+    !visible
+  );
+
+  $('menuGradesBtn')?.setAttribute(
+    'aria-expanded',
+    visible ? 'true' : 'false'
+  );
 }
 
 function openGradeSubmenu(){
-  const group = $('menuGradesBtn')?.closest('.student-sidebar-group');
-  if(!group) return;
+  setGradeSubmenuVisible(true);
+}
 
-  group.classList.remove('collapsed');
+function closeGradeSubmenu(){
+  setGradeSubmenuVisible(false);
 }
 
 function initMenuEvents(){
   $('menuHomeBtn')?.addEventListener('click', () => setActiveMenu('home'));
 
-  $('menuGradesBtn')?.addEventListener('click', async () => {
-    const group = $('menuGradesBtn')?.closest('.student-sidebar-group');
-    const shouldCollapse = group && !group.classList.contains('collapsed');
+$('menuGradesBtn')?.addEventListener(
+  'click',
+  async () => {
 
     try{
-      await ensureOverviewRows(false);
-      setActiveMenu('gradeOverview');
 
-      // ให้ปุ่ม "ดูผลการเรียน" เป็นปุ่มยุบ/ขยายเมนูย่อยได้จริง
-      // ถ้าเมนูย่อยเปิดอยู่ ให้ยุบ / ถ้ายุบอยู่ ให้เปิด
-      if(group){
-        group.classList.toggle('collapsed', shouldCollapse);
-      }
+      /*
+       * ทุกครั้งที่คลิกผลการเรียน
+       * ให้เปิดหน้าภาพรวมเสมอ
+       */
+      await ensureOverviewRows(false);
+
+      setActiveMenu(
+        'gradeOverview'
+      );
+
+      /*
+       * แสดงชั้น/เทอมเสมอ
+       * ไม่ใช้ toggle
+       */
+      openGradeSubmenu();
+
     }catch(error){
-      console.error('LOAD OVERVIEW ERROR =', error);
-      alert(error?.message || 'โหลดภาพรวมผลการเรียนไม่สำเร็จ');
+
+      console.error(
+        'LOAD OVERVIEW ERROR =',
+        error
+      );
+
+      alert(
+        error?.message ||
+        'โหลดภาพรวมผลการเรียนไม่สำเร็จ'
+      );
+
     }
-  });
+
+  }
+);
 
   $('menuGradesTermBtn')?.addEventListener('click', async () => {
     try{
