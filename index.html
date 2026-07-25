@@ -3385,6 +3385,74 @@ body.portal-mode .app{
   border:1px solid;
 }
 
+.home-status-card{
+  position:relative;
+  width:100%;
+  appearance:none;
+  font-family:'Kanit', sans-serif;
+  text-align:left;
+  cursor:pointer;
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease;
+}
+
+.home-status-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 24px rgba(15,23,42,.09);
+}
+
+.home-status-card:active{
+  transform:translateY(0);
+}
+
+.home-status-card:focus-visible{
+  outline:3px solid rgba(37,99,235,.20);
+  outline-offset:3px;
+}
+
+.home-status-open-label{
+  margin-top:5px;
+  font-size:11px;
+  font-weight:700;
+  opacity:.72;
+}
+
+.home-status-arrow{
+  position:absolute;
+  top:50%;
+  right:16px;
+  transform:translateY(-50%);
+  font-family:'Sarabun', sans-serif;
+  font-size:30px;
+  font-weight:700;
+  line-height:1;
+  opacity:.45;
+  transition:.18s ease;
+}
+
+.home-status-card:hover .home-status-arrow{
+  right:12px;
+  opacity:.85;
+}
+
+.home-status-card.is-empty{
+  cursor:default;
+  opacity:.72;
+}
+
+.home-status-card.is-empty:hover{
+  transform:none;
+  box-shadow:none;
+}
+
+@media (max-width:520px){
+  .home-status-card{
+    padding-right:44px;
+  }
+}
+
 .home-status-icon{
   width:48px;
   height:48px;
@@ -3853,6 +3921,20 @@ body.portal-mode .app{
   }
 }
 
+.home-action-item[role="button"]{
+  cursor:pointer;
+  transition:.16s ease;
+}
+
+.home-action-item[role="button"]:hover{
+  background:#f4f9ff;
+}
+
+.home-action-item[role="button"]:focus-visible{
+  outline:3px solid rgba(37,99,235,.16);
+  outline-offset:-3px;
+}
+
   </style>
 </head>
 <body>
@@ -4202,39 +4284,101 @@ body.portal-mode .app{
 
       </div>
 
-      <div class="home-status-grid">
+<div class="home-status-grid">
 
-        <div class="home-status-card home-status-unresolved">
-          <div class="home-status-icon">⚠️</div>
-          <div>
-            <div class="home-status-label">ยังไม่แก้</div>
-            <div id="homeUnresolvedCount" class="home-status-value">
-              0
-            </div>
-          </div>
-        </div>
+  <button
+    id="homeUnresolvedCard"
+    class="home-status-card home-status-unresolved"
+    type="button"
+    data-home-remedial-filter="unresolved"
+  >
+    <div class="home-status-icon">⚠️</div>
 
-        <div class="home-status-card home-status-pending">
-          <div class="home-status-icon">⏳</div>
-          <div>
-            <div class="home-status-label">รออนุมัติ</div>
-            <div id="homePendingCount" class="home-status-value">
-              0
-            </div>
-          </div>
-        </div>
-
-        <div class="home-status-card home-status-approved">
-          <div class="home-status-icon">✅</div>
-          <div>
-            <div class="home-status-label">อนุมัติแล้ว</div>
-            <div id="homeApprovedCount" class="home-status-value">
-              0
-            </div>
-          </div>
-        </div>
-
+    <div>
+      <div class="home-status-label">
+        ยังไม่แก้
       </div>
+
+      <div
+        id="homeUnresolvedCount"
+        class="home-status-value"
+      >
+        0
+      </div>
+
+      <div class="home-status-open-label">
+        กดเพื่อดูรายการ
+      </div>
+    </div>
+
+    <div class="home-status-arrow">
+      ›
+    </div>
+  </button>
+
+
+  <button
+    id="homePendingCard"
+    class="home-status-card home-status-pending"
+    type="button"
+    data-home-remedial-filter="pending"
+  >
+    <div class="home-status-icon">⏳</div>
+
+    <div>
+      <div class="home-status-label">
+        รออนุมัติ
+      </div>
+
+      <div
+        id="homePendingCount"
+        class="home-status-value"
+      >
+        0
+      </div>
+
+      <div class="home-status-open-label">
+        กดเพื่อดูรายการ
+      </div>
+    </div>
+
+    <div class="home-status-arrow">
+      ›
+    </div>
+  </button>
+
+
+  <button
+    id="homeApprovedCard"
+    class="home-status-card home-status-approved"
+    type="button"
+    data-home-remedial-filter="approved"
+  >
+    <div class="home-status-icon">✅</div>
+
+    <div>
+      <div class="home-status-label">
+        อนุมัติแล้ว
+      </div>
+
+      <div
+        id="homeApprovedCount"
+        class="home-status-value"
+      >
+        0
+      </div>
+
+      <div class="home-status-open-label">
+        กดเพื่อดูรายการ
+      </div>
+    </div>
+
+    <div class="home-status-arrow">
+      ›
+    </div>
+  </button>
+
+</div>
 
       <div id="homeAdviceBox" class="home-advice-box">
         กำลังตรวจสอบข้อมูลผลการเรียน
@@ -6549,7 +6693,13 @@ function renderHomeActionItems(remedialItems){
         : 'ไม่พบข้อมูลครูผู้สอน';
 
     return `
-      <div class="home-action-item ${escapeHtml(statusKey)}">
+      <div
+  class="home-action-item ${escapeHtml(statusKey)}"
+  role="button"
+  tabindex="0"
+  data-home-action-status="${escapeHtml(statusKey)}"
+  data-home-action-subject="${escapeHtml(subjectCode)}"
+>
 
         <div class="home-action-subject">
 
@@ -6608,6 +6758,90 @@ function renderHomeActionItems(remedialItems){
 
   listNode.innerHTML =
     itemHtml + moreHtml;
+}
+
+function resetRemedialDropdownFilters(){
+  APP_STATE.remedialFilters = {
+    year:'',
+    term:'',
+    learningArea:'',
+    teacher:'',
+    keyword:''
+  };
+
+  if($('remedialSearchInput')){
+    $('remedialSearchInput').value = '';
+  }
+
+  if($('remedialYearFilter')){
+    $('remedialYearFilter').value = '';
+  }
+
+  if($('remedialTermFilter')){
+    $('remedialTermFilter').value = '';
+  }
+
+  if($('remedialAreaFilter')){
+    $('remedialAreaFilter').value = '';
+  }
+
+  if($('remedialTeacherFilter')){
+    $('remedialTeacherFilter').value = '';
+  }
+}
+
+function openHomeRemedialFilter(
+  statusKey = 'all',
+  subjectKeyword = ''
+){
+  const allowedStatus = new Set([
+    'all',
+    'unresolved',
+    'pending',
+    'approved'
+  ]);
+
+  const normalizedStatus =
+    allowedStatus.has(statusKey)
+      ? statusKey
+      : 'all';
+
+  resetRemedialDropdownFilters();
+
+  APP_STATE.remedialStatusFilter =
+    normalizedStatus;
+
+  APP_STATE.remedialFilters.keyword =
+    safeText(subjectKeyword, '') === '-'
+      ? ''
+      : safeText(subjectKeyword, '');
+
+  if($('remedialSearchInput')){
+    $('remedialSearchInput').value =
+      APP_STATE.remedialFilters.keyword;
+  }
+
+  const remedialItems =
+    normalizeRemedialTrackingItems(
+      buildRemedialStatusItems()
+    );
+
+  populateRemedialFilterOptions(
+    remedialItems
+  );
+
+  updateRemedialKpiActive();
+  renderRemedialStatus();
+
+  setActiveMenu('remedial');
+  closeStudentSidebar();
+
+  requestAnimationFrame(() => {
+    window.scrollTo({
+      top:0,
+      behavior:'smooth'
+    });
+  });
 }
 
 function renderHomeDashboard(){
@@ -6769,6 +7003,55 @@ const approvedCount =
     $('homeApprovedCount').textContent =
       String(approvedCount);
   }
+
+  const homeStatusCardData = [
+  {
+    id:'homeUnresolvedCard',
+    count:unresolvedCount
+  },
+  {
+    id:'homePendingCard',
+    count:pendingCount
+  },
+  {
+    id:'homeApprovedCard',
+    count:approvedCount
+  }
+];
+
+homeStatusCardData.forEach(item => {
+  const card = $(item.id);
+
+  if(!card){
+    return;
+  }
+
+  /*
+   * อนุมัติแล้วเปิดดูประวัติได้เสมอ
+   * แม้จำนวนปัจจุบันเป็น 0
+   */
+  const allowEmpty =
+    item.id === 'homeApprovedCard';
+
+  card.classList.toggle(
+    'is-empty',
+    item.count <= 0 && !allowEmpty
+  );
+
+  card.setAttribute(
+    'aria-disabled',
+    item.count <= 0 && !allowEmpty
+      ? 'true'
+      : 'false'
+  );
+
+  card.title =
+    item.count > 0
+      ? `เปิดดู ${item.count} รายการ`
+      : allowEmpty
+        ? 'เปิดดูประวัติรายการอนุมัติ'
+        : 'ไม่มีรายการในสถานะนี้';
+});
 
   const adviceBox = $('homeAdviceBox');
 
@@ -8540,12 +8823,100 @@ $('homeOpenGradeBtn')?.addEventListener('click', () => {
 });
 
 $('homeOpenRemedialBtn')?.addEventListener('click', () => {
-  $('menuRemedialStatusBtn')?.click();
+  openHomeRemedialFilter('all');
 });
 
 $('homeOpenOverviewBtn')?.addEventListener('click', () => {
   $('menuGradeOverviewBtn')?.click();
 });
+
+document
+  .querySelectorAll(
+    '[data-home-remedial-filter]'
+  )
+  .forEach(button => {
+
+    button.addEventListener('click', () => {
+      const countNode =
+        button.querySelector(
+          '.home-status-value'
+        );
+
+      const count =
+        Number(
+          countNode?.textContent || 0
+        );
+
+      /*
+       * อนุญาตให้กดรายการอนุมัติแล้วแม้มี 0
+       * เพราะอาจต้องการเปิดดูหน้าประวัติทั้งหมด
+       */
+      if(
+        count <= 0 &&
+        button.dataset.homeRemedialFilter !==
+          'approved'
+      ){
+        return;
+      }
+
+      openHomeRemedialFilter(
+        button.dataset.homeRemedialFilter ||
+        'all'
+      );
+    });
+
+  });
+
+  $('homeActionList')?.addEventListener(
+  'click',
+  event => {
+    const item =
+      event.target.closest(
+        '[data-home-action-subject]'
+      );
+
+    if(!item){
+      return;
+    }
+
+    openHomeRemedialFilter(
+      item.dataset.homeActionStatus ||
+      'all',
+      item.dataset.homeActionSubject ||
+      ''
+    );
+  }
+);
+
+$('homeActionList')?.addEventListener(
+  'keydown',
+  event => {
+    if(
+      event.key !== 'Enter' &&
+      event.key !== ' '
+    ){
+      return;
+    }
+
+    const item =
+      event.target.closest(
+        '[data-home-action-subject]'
+      );
+
+    if(!item){
+      return;
+    }
+
+    event.preventDefault();
+
+    openHomeRemedialFilter(
+      item.dataset.homeActionStatus ||
+      'all',
+      item.dataset.homeActionSubject ||
+      ''
+    );
+  }
+);
 
 $('menuGradesBtn')?.addEventListener(
   'click',
