@@ -3093,6 +3093,83 @@ body.portal-mode .app{
 
 }
 
+    /* =====================================================
+   FINAL FIX : GPAX และ PR อยู่แถวเดียวกัน
+   ===================================================== */
+
+.student-meta.overview-meta{
+  display:grid !important;
+
+  grid-template-columns:
+    minmax(140px, .9fr)
+    minmax(245px, 1.65fr)
+    repeat(4, minmax(125px, .8fr))
+    !important;
+
+  gap:12px !important;
+  align-items:stretch !important;
+}
+
+.student-meta.overview-meta .meta-item{
+  min-width:0 !important;
+  min-height:88px !important;
+}
+
+.student-meta.overview-meta .percentile-value{
+  color:#2563eb !important;
+  font-family:'Sarabun', sans-serif !important;
+  font-size:20px !important;
+  font-weight:900 !important;
+}
+
+
+/* ซ่อนการ์ด PR ขนาดใหญ่เดิม
+   เผื่อยังมี HTML ตกค้าง */
+.gpax-insight-card{
+  display:none !important;
+}
+
+
+@media (max-width:1250px){
+
+  .student-meta.overview-meta{
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr))
+      !important;
+  }
+
+}
+
+
+@media (max-width:760px){
+
+  .student-meta.overview-meta{
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr))
+      !important;
+  }
+
+  .student-meta.overview-meta
+  .meta-item:nth-child(2){
+    grid-column:1 / -1;
+  }
+
+}
+
+
+@media (max-width:520px){
+
+  .student-meta.overview-meta{
+    grid-template-columns:1fr !important;
+  }
+
+  .student-meta.overview-meta
+  .meta-item:nth-child(2){
+    grid-column:auto;
+  }
+
+}
+
   </style>
 </head>
 <body>
@@ -3273,52 +3350,119 @@ body.portal-mode .app{
       </section>
 
   <section id="pageGradeOverview" class="hidden">
-  <div class="student-head card">
-    <div class="student-top">
-      <div>
-        <div class="student-meta overview-meta">
-        <p class="student-subtitle">สรุปผลการเรียนรวมตั้งแต่ภาคเรียนแรกจนถึงปัจจุบัน</p>
+ <div class="student-head card">
+
+  <div class="student-top">
+
+    <div>
+      <p class="student-subtitle">
+        สรุปผลการเรียนรวมตั้งแต่ภาคเรียนแรกจนถึงปัจจุบัน
+      </p>
+    </div>
+
+    <div
+      class="hero-chip"
+      style="
+        margin:0;
+        background:#eef5ff;
+        border-color:#d7e7ff;
+        color:#1746a2;
+      "
+    >
+      Overall Academic Report
+    </div>
+
+  </div>
+
+
+  <div class="student-meta overview-meta">
+
+    <div class="meta-item">
+      <div class="meta-label">
+        เลขประจำตัวนักเรียน
       </div>
 
-      <div class="hero-chip" style="margin:0;background:#eef5ff;border-color:#d7e7ff;color:#1746a2;">
-        Overall Academic Report
+      <div
+        class="meta-value"
+        id="overviewStudentCode"
+      >
+        -
       </div>
     </div>
 
-    <div class="student-meta">
-      <div class="meta-item">
-        <div class="meta-label">เลขประจำตัวนักเรียน</div>
-        <div class="meta-value" id="overviewStudentCode">-</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">ชื่อ - สกุล</div>
-        <div class="meta-value" id="overviewStudentName">-</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">จำนวนภาคเรียน</div>
-        <div class="meta-value" id="overviewTermCount">0</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">หน่วยกิตรวม</div>
-        <div class="meta-value" id="overviewTotalCredit">0.0</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">GPAX</div>
-        <div class="meta-value" id="overviewGpa">0.00</div>
-      </div>
-      <div class="meta-item">
-  <div class="meta-label">PR</div>
 
-  <div
-    class="meta-value percentile-value"
-    id="overviewPercentile"
-  >
-    -
+    <div class="meta-item">
+      <div class="meta-label">
+        ชื่อ - สกุล
+      </div>
+
+      <div
+        class="meta-value"
+        id="overviewStudentName"
+      >
+        -
+      </div>
+    </div>
+
+
+    <div class="meta-item">
+      <div class="meta-label">
+        จำนวนภาคเรียน
+      </div>
+
+      <div
+        class="meta-value"
+        id="overviewTermCount"
+      >
+        0
+      </div>
+    </div>
+
+
+    <div class="meta-item">
+      <div class="meta-label">
+        หน่วยกิตรวม
+      </div>
+
+      <div
+        class="meta-value"
+        id="overviewTotalCredit"
+      >
+        0.0
+      </div>
+    </div>
+
+
+    <div class="meta-item">
+      <div class="meta-label">
+        GPAX
+      </div>
+
+      <div
+        class="meta-value"
+        id="overviewGpa"
+      >
+        0.00
+      </div>
+    </div>
+
+
+    <div class="meta-item">
+      <div class="meta-label">
+        PR
+      </div>
+
+      <div
+        class="meta-value percentile-value"
+        id="overviewPercentile"
+      >
+        -
+      </div>
+    </div>
+
   </div>
+
 </div>
-
-    </div>
-  </div>
 
   <div class="panel-grid" style="margin-top:16px;">
     <div class="summary-card card">
@@ -3362,25 +3506,7 @@ body.portal-mode .app{
                 <td class="label-cell">ระดับผลการเรียนเฉลี่ย (GPAX)</td>
                 <td class="value-cell" colspan="2" id="overviewSummaryGpa">0.00</td>
               </tr>
-              <tr>
-  <td class="label-cell">เปอร์เซ็นไทล์ของ GPAX</td>
 
-  <td class="value-cell" colspan="2">
-    <div
-      class="summary-percentile-value"
-      id="overviewSummaryPercentile"
-    >
-      -
-    </div>
-
-    <div
-      class="summary-percentile-note"
-      id="overviewSummaryPercentileNote"
-    >
-      กำลังรอข้อมูล
-    </div>
-  </td>
-</tr>
             </tbody>
           </table>
         </div>
@@ -5324,16 +5450,19 @@ function renderTermGpaBarChart(rows){
 }
 
 function renderStudentGpaxPercentile(){
-  const data = APP_STATE.gpaxPercentile || null;
-  const valueNode = $('overviewPercentile');
+  const data =
+    APP_STATE.gpaxPercentile || null;
+
+  const valueNode =
+    $('overviewPercentile');
 
   if(!valueNode){
     return;
   }
 
-  const percentile = Number(
-    data?.percentile_rank
-  );
+
+  const percentile =
+    Number(data?.percentile_rank);
 
   const hasPercentile =
     data?.percentile_rank !== null &&
@@ -5341,30 +5470,31 @@ function renderStudentGpaxPercentile(){
     data?.percentile_rank !== '' &&
     Number.isFinite(percentile);
 
+
   valueNode.textContent =
     hasPercentile
       ? safeText(
-          data.percentile_display,
+          data?.percentile_display,
           `P${percentile.toFixed(2)}`
         )
       : '-';
 
 
   /*
-   * แสดงรายละเอียดเมื่อเอาเมาส์ชี้
-   * โดยไม่เพิ่มข้อความบนหน้าจอ
+   * รายละเอียดเก็บไว้ใน Tooltip
+   * ไม่แสดงข้อความเพิ่มบนหน้าจอ
    */
   if(hasPercentile){
 
-    const rank = Number(
-      data?.gpax_rank || 0
-    );
+    const rank =
+      Number(data?.gpax_rank || 0);
 
-    const total = Number(
-      data?.ranked_size ||
-      data?.cohort_size ||
-      0
-    );
+    const total =
+      Number(
+        data?.ranked_size ||
+        data?.cohort_size ||
+        0
+      );
 
     valueNode.title =
       rank > 0 && total > 0
