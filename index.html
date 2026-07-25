@@ -3170,6 +3170,338 @@ body.portal-mode .app{
 
 }
 
+/* =====================================================
+   StudentPR : Home Dashboard
+   ===================================================== */
+
+.home-dashboard{
+  display:grid;
+  gap:18px;
+}
+
+.home-welcome-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:24px;
+  border-radius:26px;
+  color:#ffffff;
+  background:
+    linear-gradient(
+      135deg,
+      #2f6de0 0%,
+      #4c83e9 48%,
+      #43b7e8 100%
+    );
+  box-shadow:0 16px 34px rgba(47,109,224,.22);
+}
+
+.home-welcome-main{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  min-width:0;
+}
+
+.home-welcome-icon{
+  width:68px;
+  height:68px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  border-radius:22px;
+  font-size:34px;
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.20);
+}
+
+.home-welcome-text{
+  min-width:0;
+}
+
+.home-welcome-mini{
+  margin-bottom:3px;
+  font-size:13px;
+  font-weight:700;
+  opacity:.88;
+}
+
+.home-welcome-text h2{
+  margin:0;
+  font-size:25px;
+  font-weight:800;
+  line-height:1.35;
+}
+
+.home-student-meta{
+  margin-top:5px;
+  font-size:14px;
+  font-weight:600;
+  opacity:.92;
+}
+
+.home-primary-btn{
+  flex:0 0 auto;
+  color:#1d4ed8;
+  background:#ffffff;
+  box-shadow:0 10px 22px rgba(15,23,42,.12);
+}
+
+.home-kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:14px;
+}
+
+.home-kpi-card{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-height:132px;
+  padding:20px;
+  overflow:hidden;
+  border-radius:22px;
+  background:#ffffff;
+  border:1px solid #dce7f2;
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+}
+
+.home-kpi-card::after{
+  content:'';
+  position:absolute;
+  width:90px;
+  height:90px;
+  right:-30px;
+  bottom:-36px;
+  border-radius:50%;
+  background:currentColor;
+  opacity:.07;
+}
+
+.home-kpi-icon{
+  width:52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  border-radius:17px;
+  font-size:25px;
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(255,255,255,.80);
+}
+
+.home-kpi-content{
+  min-width:0;
+}
+
+.home-kpi-label{
+  font-size:13px;
+  font-weight:700;
+  color:#617287;
+}
+
+.home-kpi-value{
+  margin-top:3px;
+  font-family:'Sarabun', sans-serif;
+  font-size:31px;
+  font-weight:800;
+  line-height:1.1;
+  color:#17324a;
+}
+
+.home-kpi-note{
+  margin-top:5px;
+  font-size:11.5px;
+  line-height:1.4;
+  color:#78889a;
+}
+
+.home-kpi-blue{
+  color:#2563eb;
+  background:linear-gradient(145deg, #ffffff, #edf5ff);
+}
+
+.home-kpi-purple{
+  color:#7c3aed;
+  background:linear-gradient(145deg, #ffffff, #f3edff);
+}
+
+.home-kpi-green{
+  color:#15803d;
+  background:linear-gradient(145deg, #ffffff, #edfcef);
+}
+
+.home-kpi-orange{
+  color:#c06012;
+  background:linear-gradient(145deg, #ffffff, #fff4e7);
+}
+
+.home-section-card{
+  overflow:hidden;
+  border-radius:26px;
+  background:rgba(255,255,255,.86);
+  border:1px solid rgba(255,255,255,.58);
+  box-shadow:0 14px 30px rgba(15,23,42,.08);
+}
+
+.home-section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:20px 22px;
+  border-bottom:1px solid #e0e8f1;
+  background:#f4f7fb;
+}
+
+.home-section-head h3{
+  margin:0;
+  font-size:20px;
+  color:#17324a;
+}
+
+.home-section-head p{
+  margin:4px 0 0;
+  font-size:13px;
+  color:#718195;
+}
+
+.home-status-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:14px;
+  padding:20px 22px;
+}
+
+.home-status-card{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-height:100px;
+  padding:17px 18px;
+  border-radius:20px;
+  border:1px solid;
+}
+
+.home-status-icon{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  border-radius:16px;
+  font-size:23px;
+  background:rgba(255,255,255,.78);
+}
+
+.home-status-label{
+  font-size:14px;
+  font-weight:700;
+}
+
+.home-status-value{
+  margin-top:3px;
+  font-family:'Sarabun', sans-serif;
+  font-size:29px;
+  font-weight:800;
+  line-height:1;
+}
+
+.home-status-unresolved{
+  color:#b91c1c;
+  border-color:#fecaca;
+  background:#fff4f4;
+}
+
+.home-status-pending{
+  color:#b45309;
+  border-color:#fed7aa;
+  background:#fff8ed;
+}
+
+.home-status-approved{
+  color:#15803d;
+  border-color:#bbf7d0;
+  background:#f1fcf4;
+}
+
+.home-advice-box{
+  margin:0 22px 22px;
+  padding:14px 16px;
+  border-radius:16px;
+  color:#39516a;
+  background:#f4f8fc;
+  border:1px solid #dce8f3;
+  font-size:14px;
+  line-height:1.65;
+}
+
+.home-advice-box.warning{
+  color:#9a5800;
+  background:#fff8e8;
+  border-color:#f7dba8;
+}
+
+.home-advice-box.success{
+  color:#166534;
+  background:#f0fdf4;
+  border-color:#bbf7d0;
+}
+
+@media (max-width:1100px){
+  .home-kpi-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:720px){
+  .home-welcome-card{
+    align-items:flex-start;
+    flex-direction:column;
+    padding:20px;
+  }
+
+  .home-primary-btn{
+    width:100%;
+  }
+
+  .home-status-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:520px){
+  .home-kpi-grid{
+    grid-template-columns:1fr;
+  }
+
+  .home-kpi-card{
+    min-height:108px;
+  }
+
+  .home-welcome-icon{
+    width:56px;
+    height:56px;
+    border-radius:18px;
+    font-size:28px;
+  }
+
+  .home-welcome-text h2{
+    font-size:20px;
+  }
+
+  .home-section-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .home-section-head .btn{
+    width:100%;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -3321,36 +3653,157 @@ body.portal-mode .app{
     <div class="user-code-pill" id="topStudentIdentity">รหัสนักเรียน -</div>
   </div>
 
-      <section id="pageHome">
-        <div class="page-grid">
-          <div class="welcome-panel card">
-            <div class="welcome-icon">✓</div>
-            <div class="welcome-mini">WELCOME</div>
-            <h3 class="welcome-heading">ยินดีต้อนรับ<br>เข้าสู่ระบบสารสนเทศผลการเรียน</h3>
-            <div class="welcome-name" id="welcomeStudentName">คุณ -</div>
-            <p class="welcome-desc">คุณมีสิทธิ์ใช้งานเมนูตรวจสอบผลการเรียน ข่าวประชาสัมพันธ์ และสถานะการสอบแก้ตัว</p>
+<section id="pageHome">
+
+  <div class="home-dashboard">
+
+    <!-- ส่วนต้อนรับ -->
+    <div class="home-welcome-card">
+
+      <div class="home-welcome-main">
+
+        <div class="home-welcome-icon">
+          👨‍🎓
+        </div>
+
+        <div class="home-welcome-text">
+          <div class="home-welcome-mini">
+            ภาพรวมของฉัน
           </div>
 
-          <div class="news-panel card">
-            <div class="box-head">
-              <div class="box-head-icon">📣</div>
-              <div>
-                <div class="mini-label">INFORMATION</div>
-                <h3 class="box-title">แจ้งข่าวประชาสัมพันธ์</h3>
-              </div>
-            </div>
+          <h2 id="homeStudentName">
+            นักเรียน
+          </h2>
 
-            <div class="box-body">
-              <div class="news-body-card">
-                <h4 class="news-title">🔔 ระบบสารสนเทศผลการเรียน</h4>
-                <p>เมนู <strong>ผลการเรียน</strong> ใช้สำหรับแสดงรายวิชา เกรด หน่วยกิต และสรุปผลการประเมิน</p>
-                <p>เมนู <strong>ติดตามสถานะการสอบแก้ตัว</strong> ใช้สำหรับติดตามการสอบแก้ตัวของนักเรียน</p>
-                <p>หากภายหลังมีการเชื่อมต่อฐานข้อมูลคำร้อง เมนูนี้จะสามารถแสดงสถานะจริงได้ทันที</p>
-              </div>
+          <div id="homeStudentMeta" class="home-student-meta">
+            กำลังโหลดข้อมูลนักเรียน
+          </div>
+        </div>
+
+      </div>
+
+      <button
+        id="homeOpenGradeBtn"
+        class="btn home-primary-btn"
+        type="button"
+      >
+        📘 ดูผลการเรียน
+      </button>
+
+    </div>
+
+
+    <!-- KPI -->
+    <div class="home-kpi-grid">
+
+      <div class="home-kpi-card home-kpi-blue">
+        <div class="home-kpi-icon">🎓</div>
+        <div class="home-kpi-content">
+          <div class="home-kpi-label">GPAX ปัจจุบัน</div>
+          <div id="homeGpaxValue" class="home-kpi-value">-</div>
+          <div class="home-kpi-note">ผลการเรียนสะสม</div>
+        </div>
+      </div>
+
+      <div class="home-kpi-card home-kpi-purple">
+        <div class="home-kpi-icon">📊</div>
+        <div class="home-kpi-content">
+          <div class="home-kpi-label">เปอร์เซ็นไทล์</div>
+          <div id="homePercentileValue" class="home-kpi-value">-</div>
+          <div id="homePercentileNote" class="home-kpi-note">
+            เปรียบเทียบระดับชั้นเดียวกัน
+          </div>
+        </div>
+      </div>
+
+      <div class="home-kpi-card home-kpi-green">
+        <div class="home-kpi-icon">📚</div>
+        <div class="home-kpi-content">
+          <div class="home-kpi-label">หน่วยกิตสะสม</div>
+          <div id="homeCreditValue" class="home-kpi-value">-</div>
+          <div class="home-kpi-note">หน่วยกิตที่นำมาคำนวณ</div>
+        </div>
+      </div>
+
+      <div class="home-kpi-card home-kpi-orange">
+        <div class="home-kpi-icon">⭐</div>
+        <div class="home-kpi-content">
+          <div class="home-kpi-label">GPA ภาคเรียนล่าสุด</div>
+          <div id="homeLatestGpaValue" class="home-kpi-value">-</div>
+          <div id="homeLatestTermLabel" class="home-kpi-note">
+            ยังไม่มีข้อมูล
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- สถานะการสอบแก้ตัว -->
+    <div class="home-section-card">
+
+      <div class="home-section-head">
+
+        <div>
+          <h3>รายการที่ต้องดำเนินการ</h3>
+          <p>
+            สรุปสถานะผลการเรียน 0, ร, มส และ มผ
+          </p>
+        </div>
+
+        <button
+          id="homeOpenRemedialBtn"
+          class="btn btn-outline"
+          type="button"
+        >
+          ดูรายละเอียด
+        </button>
+
+      </div>
+
+      <div class="home-status-grid">
+
+        <div class="home-status-card home-status-unresolved">
+          <div class="home-status-icon">⚠️</div>
+          <div>
+            <div class="home-status-label">ยังไม่แก้</div>
+            <div id="homeUnresolvedCount" class="home-status-value">
+              0
             </div>
           </div>
         </div>
-      </section>
+
+        <div class="home-status-card home-status-pending">
+          <div class="home-status-icon">⏳</div>
+          <div>
+            <div class="home-status-label">รออนุมัติ</div>
+            <div id="homePendingCount" class="home-status-value">
+              0
+            </div>
+          </div>
+        </div>
+
+        <div class="home-status-card home-status-approved">
+          <div class="home-status-icon">✅</div>
+          <div>
+            <div class="home-status-label">อนุมัติแล้ว</div>
+            <div id="homeApprovedCount" class="home-status-value">
+              0
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="homeAdviceBox" class="home-advice-box">
+        กำลังตรวจสอบข้อมูลผลการเรียน
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
   <section id="pageGradeOverview" class="hidden">
  <div class="student-head card">
@@ -4241,14 +4694,14 @@ if(pageKey === 'grades'){
 }
 
   const titleMap = {
-  home: 'หน้าแรก',
+  home: 'ภาพรวมของฉัน',
   gradeOverview: 'ผลการเรียน',
   grades: 'ผลการเรียนรายภาคเรียน',
   remedial: 'ติดตามสถานะการสอบแก้ตัว'
 };
 
 const subMap = {
-  home: 'ระบบสารสนเทศผลการเรียน',
+  home: 'สรุปผลการเรียนและรายการที่ต้องดำเนินการ',
   gradeOverview: 'ภาพรวมผลการเรียนทั้งหมด',
   grades: 'เลือกดูผลการเรียนย้อนหลังตามชั้น/ภาคเรียน',
   remedial: 'ติดตามสถานะคำร้องสอบแก้ตัว'
@@ -5122,6 +5575,208 @@ function applyRemedialEligibility(rows){
   }
 }
 
+      function getDashboardValue(source, keys, fallback = null){
+  for(const key of keys){
+    const value = source?.[key];
+
+    if(
+      value !== undefined &&
+      value !== null &&
+      value !== ''
+    ){
+      return value;
+    }
+  }
+
+  return fallback;
+}
+
+function formatDashboardDecimal(value, digits = 2){
+  const numberValue = Number(value);
+
+  if(!Number.isFinite(numberValue)){
+    return '-';
+  }
+
+  return numberValue.toFixed(digits);
+}
+
+function renderHomeDashboard(){
+  const profile = APP_STATE.studentProfile || {};
+  const percentileData = APP_STATE.gpaxPercentile || {};
+
+  const allRows =
+    Array.isArray(APP_STATE.allGradeRows)
+      ? APP_STATE.allGradeRows
+      : [];
+
+  const latestRows =
+    Array.isArray(APP_STATE.latestGradeRows)
+      ? APP_STATE.latestGradeRows
+      : [];
+
+  const latestSummary = buildSummaryFromRows(latestRows);
+
+  const remedialItems = buildRemedialStatusItems();
+
+  const unresolvedCount = remedialItems.filter(
+    item => item.status === 'unresolved'
+  ).length;
+
+  const pendingCount = remedialItems.filter(
+    item => item.status === 'pending'
+  ).length;
+
+  const approvedCount = remedialItems.filter(
+    item => item.status === 'approved'
+  ).length;
+
+  const studentName = safeText(
+    profile?.[FIELD_MAP.students.fullName],
+    'นักเรียน'
+  );
+
+  const room = safeText(
+    profile?.[FIELD_MAP.students.room],
+    '-'
+  );
+
+  const studentNo = safeText(
+    profile?.[FIELD_MAP.students.no],
+    '-'
+  );
+
+  const gpax = getDashboardValue(
+    percentileData,
+    ['gpax'],
+    null
+  );
+
+  const percentileRank = getDashboardValue(
+    percentileData,
+    ['percentile_rank', 'percentileRank'],
+    null
+  );
+
+  const totalCredit = getDashboardValue(
+    percentileData,
+    ['total_credit', 'totalCredit'],
+    null
+  );
+
+  const cohortSize = getDashboardValue(
+    percentileData,
+    ['cohort_size', 'cohortSize'],
+    null
+  );
+
+  const latestRow = latestRows[0] || null;
+
+  const latestYear = safeNumber(
+    latestRow?.[FIELD_MAP.grades.academicYear],
+    0
+  );
+
+  const latestTerm = safeNumber(
+    latestRow?.[FIELD_MAP.grades.term],
+    0
+  );
+
+  if($('homeStudentName')){
+    $('homeStudentName').textContent = studentName;
+  }
+
+  if($('homeStudentMeta')){
+    $('homeStudentMeta').textContent =
+      `ห้อง ${room} • เลขที่ ${studentNo}`;
+  }
+
+  if($('homeGpaxValue')){
+    $('homeGpaxValue').textContent =
+      formatDashboardDecimal(gpax, 2);
+  }
+
+  if($('homePercentileValue')){
+    $('homePercentileValue').textContent =
+      Number.isFinite(Number(percentileRank))
+        ? `PR ${Math.round(Number(percentileRank))}`
+        : '-';
+  }
+
+  if($('homePercentileNote')){
+    $('homePercentileNote').textContent =
+      Number.isFinite(Number(cohortSize))
+        ? `เปรียบเทียบกับนักเรียน ${Number(cohortSize)} คน`
+        : 'เปรียบเทียบระดับชั้นเดียวกัน';
+  }
+
+  if($('homeCreditValue')){
+    $('homeCreditValue').textContent =
+      Number.isFinite(Number(totalCredit))
+        ? formatDashboardDecimal(totalCredit, 1)
+        : '-';
+  }
+
+  if($('homeLatestGpaValue')){
+    $('homeLatestGpaValue').textContent =
+      latestRows.length
+        ? formatDashboardDecimal(latestSummary.gpa, 2)
+        : '-';
+  }
+
+  if($('homeLatestTermLabel')){
+    $('homeLatestTermLabel').textContent =
+      latestYear && latestTerm
+        ? `ปีการศึกษา ${latestYear} ภาคเรียนที่ ${latestTerm}`
+        : 'ยังไม่มีข้อมูลภาคเรียน';
+  }
+
+  if($('homeUnresolvedCount')){
+    $('homeUnresolvedCount').textContent =
+      String(unresolvedCount);
+  }
+
+  if($('homePendingCount')){
+    $('homePendingCount').textContent =
+      String(pendingCount);
+  }
+
+  if($('homeApprovedCount')){
+    $('homeApprovedCount').textContent =
+      String(approvedCount);
+  }
+
+  const adviceBox = $('homeAdviceBox');
+
+  if(adviceBox){
+    if(unresolvedCount > 0){
+      adviceBox.className =
+        'home-advice-box warning';
+
+      adviceBox.textContent =
+        `คุณมีรายวิชาที่ยังไม่ดำเนินการ ${unresolvedCount} รายวิชา ควรตรวจสอบและติดต่อครูผู้สอน`;
+    }else if(pendingCount > 0){
+      adviceBox.className =
+        'home-advice-box warning';
+
+      adviceBox.textContent =
+        `คุณมีผลการสอบแก้ตัวที่กำลังรออนุมัติ ${pendingCount} รายการ`;
+    }else if(allRows.length){
+      adviceBox.className =
+        'home-advice-box success';
+
+      adviceBox.textContent =
+        'ขณะนี้ไม่พบรายวิชาที่ยังต้องดำเนินการ';
+    }else{
+      adviceBox.className =
+        'home-advice-box';
+
+      adviceBox.textContent =
+        'ยังไม่มีข้อมูลผลการเรียนสำหรับแสดงในระบบ';
+    }
+  }
+}
+
     async function loadPortalData(forceRefresh = false){
       if(!APP_STATE.currentUser?.id){
         throw new Error('ไม่พบข้อมูลผู้ใช้งาน');
@@ -5171,6 +5826,11 @@ function applyRemedialEligibility(rows){
         renderSidebarTermButtons(APP_STATE.availableTerms);
 
         await applySelectedTerm();
+
+        await ensureOverviewRows(forceRefresh);
+        renderHomeDashboard();
+
+        
         renderGradeOverview(APP_STATE.allGradeRows.length ? APP_STATE.allGradeRows : APP_STATE.latestGradeRows);
 
         saveSession();
@@ -6844,7 +7504,18 @@ function closeGradeSubmenu(){
 }
 
 function initMenuEvents(){
-  $('menuHomeBtn')?.addEventListener('click', () => setActiveMenu('home'));
+  $('menuHomeBtn')?.addEventListener('click', () => {
+  renderHomeDashboard();
+  setActiveMenu('home');
+});
+
+$('homeOpenGradeBtn')?.addEventListener('click', () => {
+  $('menuGradesBtn')?.click();
+});
+
+$('homeOpenRemedialBtn')?.addEventListener('click', () => {
+  $('menuRemedialStatusBtn')?.click();
+});
 
 $('menuGradesBtn')?.addEventListener(
   'click',
