@@ -4793,6 +4793,38 @@ body.portal-mode .app{
   border-color:rgba(255,255,255,.45);
 }
 
+  /* =====================================================
+   StudentPR : Sidebar Remedial Badge
+   ===================================================== */
+
+.student-remedial-menu-btn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:8px;
+}
+
+.student-remedial-menu-text{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+  line-height:1.35;
+  text-align:left;
+}
+
+.remedial-sidebar-count-badge{
+  color:#ffffff;
+  background:#f59e0b;
+  box-shadow:0 6px 13px rgba(245,158,11,.28);
+}
+
+.student-side-btn.active
+.remedial-sidebar-count-badge{
+  color:#b45309;
+  background:#ffffff;
+}
+
   </style>
 </head>
 <body>
@@ -4944,9 +4976,24 @@ body.portal-mode .app{
     0
   </span>
 </button>
-    <button class="btn student-side-btn menu-btn" id="menuRemedialStatusBtn" type="button">
-      📝 ติดตามสถานะการสอบแก้ตัว
-    </button>
+<button
+  class="btn student-side-btn menu-btn student-remedial-menu-btn"
+  id="menuRemedialStatusBtn"
+  type="button"
+>
+  <span class="student-remedial-menu-text">
+    <span>📝</span>
+    <span>ติดตามสถานะการสอบแก้ตัว</span>
+  </span>
+
+  <span
+    id="remedialSidebarBadge"
+    class="student-sidebar-count-badge remedial-sidebar-count-badge hidden"
+    aria-label="จำนวนรายการสอบแก้ตัวที่ต้องติดตาม"
+  >
+    0
+  </span>
+</button>
 
 
   </nav>
@@ -8983,6 +9030,7 @@ function renderHomeDashboard(){
     $('homeApprovedCount').textContent =
       String(approvedCount);
   }
+  renderRemedialSidebarBadge();
 
   const homeStatusCardData = [
     {
@@ -11223,6 +11271,91 @@ function getRemedialStatusDisplay(status){
   };
 }
 
+function getRemedialSidebarCounts(){
+  const items =
+    normalizeRemedialTrackingItems(
+      buildRemedialStatusItems()
+    );
+
+  return items.reduce(
+    (counts, item) => {
+      const status =
+        getRemedialStatusKey(item);
+
+      if(status === 'unresolved'){
+        counts.unresolved += 1;
+      }
+
+      if(status === 'pending'){
+        counts.pending += 1;
+      }
+
+      counts.actionable =
+        counts.unresolved +
+        counts.pending;
+
+      return counts;
+    },
+    {
+      unresolved:0,
+      pending:0,
+      actionable:0
+    }
+  );
+}
+
+function renderRemedialSidebarBadge(){
+  const badge =
+    $('remedialSidebarBadge');
+
+  const menuButton =
+    $('menuRemedialStatusBtn');
+
+  if(!badge){
+    return;
+  }
+
+  const counts =
+    getRemedialSidebarCounts();
+
+  badge.textContent =
+    counts.actionable > 99
+      ? '99+'
+      : String(counts.actionable);
+
+  badge.classList.toggle(
+    'hidden',
+    counts.actionable <= 0
+  );
+
+  if(!menuButton){
+    return;
+  }
+
+  if(counts.actionable > 0){
+    menuButton.title =
+      `ยังไม่แก้ ${counts.unresolved} รายการ ` +
+      `• รออนุมัติ ${counts.pending} รายการ`;
+
+    menuButton.setAttribute(
+      'aria-label',
+      `ติดตามสถานะการสอบแก้ตัว ` +
+      `มีรายการที่ต้องติดตาม ` +
+      `${counts.actionable} รายการ`
+    );
+
+    return;
+  }
+
+  menuButton.title =
+    'ไม่มีรายการสอบแก้ตัวที่ต้องติดตาม';
+
+  menuButton.setAttribute(
+    'aria-label',
+    'ติดตามสถานะการสอบแก้ตัว'
+  );
+}
+
 function renderRemedialStatus(){
   const tbody = $('remedialTableBody');
   const summaryBox = $('remedialResultSummary');
@@ -11238,6 +11371,8 @@ function renderRemedialStatus(){
   const allItems = normalizeRemedialTrackingItems(
     rawItems
   );
+
+  renderRemedialSidebarBadge();
 
   /*
    * กรองตามปี / เทอม / กลุ่มสาระ /
@@ -11441,6 +11576,24 @@ APP_STATE.allGradeRows = [];
 APP_STATE.latestGradeRows = [];
       APP_STATE.remedialRequests = [];
       APP_STATE.remedialStatusFilter = 'all';
+      if($('remedialSidebarBadge')){
+  $('remedialSidebarBadge').textContent =
+    '0';
+
+  $('remedialSidebarBadge').classList.add(
+    'hidden'
+  );
+}
+
+if($('menuRemedialStatusBtn')){
+  $('menuRemedialStatusBtn').title =
+    'ติดตามสถานะการสอบแก้ตัว';
+
+  $('menuRemedialStatusBtn').setAttribute(
+    'aria-label',
+    'ติดตามสถานะการสอบแก้ตัว'
+  );
+}
       APP_STATE.gpaxPercentile = null;
 
       APP_STATE.remedialFilters = {
