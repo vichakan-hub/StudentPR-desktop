@@ -4353,6 +4353,69 @@ body.portal-mode .app{
   border-radius:19px;
 }
 
+.home-risk-summary-card{
+  position:relative;
+  width:100%;
+  appearance:none;
+  font-family:'Kanit', sans-serif;
+  text-align:left;
+  cursor:pointer;
+  transition:
+    transform .16s ease,
+    box-shadow .16s ease,
+    border-color .16s ease;
+}
+
+.home-risk-summary-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 24px rgba(15,23,42,.09);
+}
+
+.home-risk-summary-card:active{
+  transform:translateY(0);
+}
+
+.home-risk-summary-card:focus-visible{
+  outline:3px solid rgba(37,99,235,.20);
+  outline-offset:3px;
+}
+
+.home-risk-summary-open{
+  margin-top:5px;
+  font-size:11px;
+  font-weight:800;
+  opacity:.70;
+}
+
+.home-risk-summary-arrow{
+  position:absolute;
+  top:50%;
+  right:16px;
+  transform:translateY(-50%);
+  font-family:'Sarabun', sans-serif;
+  font-size:28px;
+  line-height:1;
+  font-weight:900;
+  opacity:.40;
+  transition:.16s ease;
+}
+
+.home-risk-summary-card:hover
+.home-risk-summary-arrow{
+  right:12px;
+  opacity:.85;
+}
+
+.home-risk-summary-card.is-empty{
+  opacity:.65;
+  cursor:default;
+}
+
+.home-risk-summary-card.is-empty:hover{
+  transform:none;
+  box-shadow:none;
+}
+
 .home-risk-summary-icon{
   width:48px;
   height:48px;
@@ -4874,68 +4937,104 @@ body.portal-mode .app{
 
   <div class="home-risk-summary-body">
 
-    <div class="home-risk-summary-grid">
+<div class="home-risk-summary-grid">
 
-      <div class="home-risk-summary-card all">
-        <div class="home-risk-summary-icon">
-          📚
-        </div>
-
-        <div>
-          <div class="home-risk-summary-label">
-            วิชาที่รายงาน
-          </div>
-
-          <div
-            id="homeRiskAllCount"
-            class="home-risk-summary-value"
-          >
-            0
-          </div>
-        </div>
-      </div>
-
-
-      <div class="home-risk-summary-card score">
-        <div class="home-risk-summary-icon">
-          📉
-        </div>
-
-        <div>
-          <div class="home-risk-summary-label">
-            เสี่ยงด้านคะแนน
-          </div>
-
-          <div
-            id="homeRiskScoreCount"
-            class="home-risk-summary-value"
-          >
-            0
-          </div>
-        </div>
-      </div>
-
-
-      <div class="home-risk-summary-card attendance">
-        <div class="home-risk-summary-icon">
-          🕒
-        </div>
-
-        <div>
-          <div class="home-risk-summary-label">
-            เสี่ยงด้านเวลาเรียน
-          </div>
-
-          <div
-            id="homeRiskAttendanceCount"
-            class="home-risk-summary-value"
-          >
-            0
-          </div>
-        </div>
-      </div>
-
+  <button
+    class="home-risk-summary-card all"
+    type="button"
+    data-home-risk-filter="all"
+  >
+    <div class="home-risk-summary-icon">
+      📚
     </div>
+
+    <div>
+      <div class="home-risk-summary-label">
+        วิชาที่รายงาน
+      </div>
+
+      <div
+        id="homeRiskAllCount"
+        class="home-risk-summary-value"
+      >
+        0
+      </div>
+
+      <div class="home-risk-summary-open">
+        กดเพื่อดูรายการ
+      </div>
+    </div>
+
+    <span class="home-risk-summary-arrow">
+      ›
+    </span>
+  </button>
+
+
+  <button
+    class="home-risk-summary-card score"
+    type="button"
+    data-home-risk-filter="score"
+  >
+    <div class="home-risk-summary-icon">
+      📉
+    </div>
+
+    <div>
+      <div class="home-risk-summary-label">
+        เสี่ยงด้านคะแนน
+      </div>
+
+      <div
+        id="homeRiskScoreCount"
+        class="home-risk-summary-value"
+      >
+        0
+      </div>
+
+      <div class="home-risk-summary-open">
+        กดเพื่อดูรายการ
+      </div>
+    </div>
+
+    <span class="home-risk-summary-arrow">
+      ›
+    </span>
+  </button>
+
+
+  <button
+    class="home-risk-summary-card attendance"
+    type="button"
+    data-home-risk-filter="attendance"
+  >
+    <div class="home-risk-summary-icon">
+      🕒
+    </div>
+
+    <div>
+      <div class="home-risk-summary-label">
+        เสี่ยงด้านเวลาเรียน
+      </div>
+
+      <div
+        id="homeRiskAttendanceCount"
+        class="home-risk-summary-value"
+      >
+        0
+      </div>
+
+      <div class="home-risk-summary-open">
+        กดเพื่อดูรายการ
+      </div>
+    </div>
+
+    <span class="home-risk-summary-arrow">
+      ›
+    </span>
+  </button>
+
+</div>
 
 
     <div
@@ -8060,6 +8159,61 @@ function renderHomeRiskSummary(){
       String(attendanceRiskCount);
   }
 
+  const homeRiskCards = [
+  {
+    selector:
+      '[data-home-risk-filter="all"]',
+    count:calculatedRows.length,
+    allowEmpty:true
+  },
+  {
+    selector:
+      '[data-home-risk-filter="score"]',
+    count:scoreRiskCount,
+    allowEmpty:false
+  },
+  {
+    selector:
+      '[data-home-risk-filter="attendance"]',
+    count:attendanceRiskCount,
+    allowEmpty:false
+  }
+];
+
+homeRiskCards.forEach(item => {
+  const card =
+    document.querySelector(
+      item.selector
+    );
+
+  if(!card){
+    return;
+  }
+
+  const isEmpty =
+    item.count <= 0 &&
+    !item.allowEmpty;
+
+  card.classList.toggle(
+    'is-empty',
+    isEmpty
+  );
+
+  card.setAttribute(
+    'aria-disabled',
+    isEmpty
+      ? 'true'
+      : 'false'
+  );
+
+  card.title =
+    item.count > 0
+      ? `เปิดดู ${item.count} รายวิชา`
+      : item.allowEmpty
+        ? 'เปิดหน้าความเสี่ยงของฉัน'
+        : 'ไม่มีรายการในสถานะนี้';
+});
+
   if($('homeRiskPeriodLabel')){
     $('homeRiskPeriodLabel').textContent =
       periodData.academicYear &&
@@ -8214,13 +8368,24 @@ function renderHomeRiskSummary(){
           `
           : '';
 
-      return `
-        <div
-          class="home-risk-item"
-          role="button"
-          tabindex="0"
-          data-home-risk-item="true"
-        >
+const preferredRiskFilter =
+  status.scoreRisk
+    ? 'score'
+    : 'attendance';
+
+return `
+  <div
+    class="home-risk-item"
+    role="button"
+    tabindex="0"
+    data-home-risk-item="true"
+    data-home-risk-status="${escapeHtml(
+      preferredRiskFilter
+    )}"
+    data-home-risk-subject="${escapeHtml(
+      subjectCode
+    )}"
+  >
 
           <div>
 
@@ -11102,8 +11267,58 @@ function closeGradeSubmenu(){
   setGradeSubmenuVisible(false);
 }
 
-function openStudentRiskPage(){
+function openStudentRiskPage(options = {}){
+  const latestPeriod =
+    getLatestStudentRiskPeriod();
+
+  const allowedStatus = new Set([
+    'all',
+    'normal',
+    'score',
+    'attendance'
+  ]);
+
+  const requestedStatus =
+    allowedStatus.has(options.status)
+      ? options.status
+      : 'all';
+
+  const requestedKeyword =
+    String(options.keyword ?? '').trim();
+
+  /*
+   * ให้หน้ารายละเอียดเปิดปีและเทอมเดียวกับ
+   * ข้อมูลล่าสุดที่แสดงบนหน้า Dashboard
+   */
+  APP_STATE.riskFilters = {
+    ...APP_STATE.riskFilters,
+
+    year:
+      latestPeriod.academicYear
+        ? String(latestPeriod.academicYear)
+        : String(
+            APP_STATE.riskFilters.year || ''
+          ),
+
+    term:
+      latestPeriod.term
+        ? String(latestPeriod.term)
+        : String(
+            APP_STATE.riskFilters.term || ''
+          ),
+
+    status:requestedStatus,
+    keyword:requestedKeyword
+  };
+
   populateStudentRiskFilters();
+
+  if($('riskSearchInput')){
+    $('riskSearchInput').value =
+      requestedKeyword;
+  }
+
+  updateStudentRiskKpiActive();
   renderStudentRiskPage();
 
   setActiveMenu('risk');
@@ -11419,11 +11634,74 @@ $('menuRemedialStatusBtn')?.addEventListener(
   }
 );
 
-  $('homeOpenRiskBtn')
+$('homeOpenRiskBtn')
   ?.addEventListener(
     'click',
-    openStudentRiskPage
+    () => {
+      openStudentRiskPage({
+        status:'all'
+      });
+    }
   );
+
+  document
+  .querySelectorAll(
+    '[data-home-risk-filter]'
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      'click',
+      () => {
+        const status =
+          button.dataset.homeRiskFilter ||
+          'all';
+
+        const countNode =
+          button.querySelector(
+            '.home-risk-summary-value'
+          );
+
+        const count =
+          Number(
+            countNode?.textContent || 0
+          );
+
+        /*
+         * รายการทั้งหมดเปิดได้เสมอ
+         * ส่วนสถานะเสี่ยงที่เป็น 0 ไม่ต้องเปิด
+         */
+        if(
+          status !== 'all' &&
+          count <= 0
+        ){
+          return;
+        }
+
+        openStudentRiskPage({
+          status
+        });
+      }
+    );
+
+  });
+
+function openRiskItemFromHome(item){
+  if(!item){
+    return;
+  }
+
+  openStudentRiskPage({
+    status:
+      item.dataset.homeRiskStatus ||
+      'all',
+
+    keyword:
+      item.dataset.homeRiskSubject ||
+      ''
+  });
+}
+
 
 $('homeRiskList')
   ?.addEventListener(
@@ -11434,13 +11712,10 @@ $('homeRiskList')
           '[data-home-risk-item]'
         );
 
-      if(!item){
-        return;
-      }
-
-      openStudentRiskPage();
+      openRiskItemFromHome(item);
     }
   );
+
 
 $('homeRiskList')
   ?.addEventListener(
@@ -11463,7 +11738,7 @@ $('homeRiskList')
       }
 
       event.preventDefault();
-      openStudentRiskPage();
+      openRiskItemFromHome(item);
     }
   );
 
