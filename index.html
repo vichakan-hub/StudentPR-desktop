@@ -4265,6 +4265,270 @@ body.portal-mode .app{
   }
 }
 
+/* =====================================================
+   StudentPR : Home Risk Summary
+   ===================================================== */
+
+.home-risk-summary-body{
+  padding:20px 22px 22px;
+}
+
+.home-risk-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:13px;
+}
+
+.home-risk-summary-card{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  min-height:102px;
+  padding:16px 18px;
+  border:1px solid;
+  border-radius:19px;
+}
+
+.home-risk-summary-icon{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  border-radius:16px;
+  background:rgba(255,255,255,.78);
+  font-size:23px;
+}
+
+.home-risk-summary-label{
+  font-size:13px;
+  font-weight:800;
+}
+
+.home-risk-summary-value{
+  margin-top:5px;
+  font-family:'Sarabun', sans-serif;
+  font-size:29px;
+  line-height:1;
+  font-weight:900;
+}
+
+.home-risk-summary-card.all{
+  color:#1d4ed8;
+  border-color:#bfdbfe;
+  background:#eff6ff;
+}
+
+.home-risk-summary-card.score{
+  color:#b91c1c;
+  border-color:#fecaca;
+  background:#fff4f4;
+}
+
+.home-risk-summary-card.attendance{
+  color:#b45309;
+  border-color:#fed7aa;
+  background:#fff8ed;
+}
+
+.home-risk-advice{
+  margin-top:14px;
+  padding:13px 15px;
+  border:1px solid #dce8f3;
+  border-radius:15px;
+  color:#39516a;
+  background:#f8fbff;
+  font-size:13.5px;
+  line-height:1.65;
+}
+
+.home-risk-advice.success{
+  color:#166534;
+  border-color:#bbf7d0;
+  background:#f0fdf4;
+}
+
+.home-risk-advice.warning{
+  color:#9a5800;
+  border-color:#fed7aa;
+  background:#fff8ed;
+}
+
+.home-risk-list{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+
+.home-risk-item{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) auto;
+  gap:10px 14px;
+  padding:14px 16px;
+  border:1px solid #dce7f2;
+  border-radius:17px;
+  background:#ffffff;
+  cursor:pointer;
+  transition:.16s ease;
+}
+
+.home-risk-item:hover{
+  border-color:#a8c9f7;
+  background:#f8fbff;
+  transform:translateY(-1px);
+}
+
+.home-risk-subject-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.home-risk-subject-code{
+  display:inline-flex;
+  align-items:center;
+  min-height:27px;
+  padding:0 9px;
+  border-radius:9px;
+  color:#1d4ed8;
+  background:#edf5ff;
+  border:1px solid #cfe0ff;
+  font-family:'Sarabun', sans-serif;
+  font-size:12px;
+  font-weight:900;
+}
+
+.home-risk-subject-name{
+  color:#17324a;
+  font-size:14px;
+  font-weight:900;
+}
+
+.home-risk-teacher{
+  margin-top:5px;
+  color:#718195;
+  font-size:12px;
+}
+
+.home-risk-values{
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-end;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+.home-risk-value-pill{
+  display:inline-flex;
+  align-items:center;
+  min-height:30px;
+  padding:0 9px;
+  border-radius:10px;
+  font-family:'Sarabun', sans-serif;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.home-risk-value-pill.score{
+  color:#b91c1c;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+}
+
+.home-risk-value-pill.attendance{
+  color:#b45309;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+}
+
+.home-risk-status-line{
+  grid-column:1 / -1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding-top:9px;
+  border-top:1px solid #edf2f7;
+}
+
+.home-risk-status-text{
+  font-size:12px;
+  font-weight:800;
+}
+
+.home-risk-status-text.score{
+  color:#b91c1c;
+}
+
+.home-risk-status-text.attendance{
+  color:#b45309;
+}
+
+.home-risk-status-text.both{
+  color:#991b1b;
+}
+
+.home-risk-open-text{
+  color:#2563eb;
+  font-size:11.5px;
+  font-weight:800;
+}
+
+.home-risk-empty{
+  display:grid;
+  place-items:center;
+  min-height:95px;
+  padding:22px;
+  text-align:center;
+  color:#718195;
+  background:#f8fbff;
+  border:1px dashed #cbd9e7;
+  border-radius:17px;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.home-risk-empty.success{
+  color:#166534;
+  background:#f3fcf5;
+  border-color:#bbf7d0;
+}
+
+.home-risk-more{
+  display:flex;
+  justify-content:center;
+  padding:10px;
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+}
+
+@media (max-width:800px){
+  .home-risk-summary-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:620px){
+  .home-risk-summary-body{
+    padding:16px;
+  }
+
+  .home-risk-item{
+    grid-template-columns:1fr;
+  }
+
+  .home-risk-values{
+    justify-content:flex-start;
+  }
+
+  .home-risk-status-line{
+    grid-column:1;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -4506,6 +4770,117 @@ body.portal-mode .app{
       </div>
 
     </div>
+
+    <!-- สรุปความเสี่ยงทางการเรียน -->
+<div class="home-section-card home-risk-summary-section">
+
+  <div class="home-section-head">
+
+    <div>
+      <h3>ความเสี่ยงของฉัน</h3>
+
+      <p id="homeRiskPeriodLabel">
+        ตรวจสอบจากข้อมูลรายงานกลางภาคล่าสุด
+      </p>
+    </div>
+
+    <button
+      id="homeOpenRiskBtn"
+      class="btn btn-outline"
+      type="button"
+    >
+      ดูรายละเอียด
+    </button>
+
+  </div>
+
+
+  <div class="home-risk-summary-body">
+
+    <div class="home-risk-summary-grid">
+
+      <div class="home-risk-summary-card all">
+        <div class="home-risk-summary-icon">
+          📚
+        </div>
+
+        <div>
+          <div class="home-risk-summary-label">
+            วิชาที่รายงาน
+          </div>
+
+          <div
+            id="homeRiskAllCount"
+            class="home-risk-summary-value"
+          >
+            0
+          </div>
+        </div>
+      </div>
+
+
+      <div class="home-risk-summary-card score">
+        <div class="home-risk-summary-icon">
+          📉
+        </div>
+
+        <div>
+          <div class="home-risk-summary-label">
+            เสี่ยงด้านคะแนน
+          </div>
+
+          <div
+            id="homeRiskScoreCount"
+            class="home-risk-summary-value"
+          >
+            0
+          </div>
+        </div>
+      </div>
+
+
+      <div class="home-risk-summary-card attendance">
+        <div class="home-risk-summary-icon">
+          🕒
+        </div>
+
+        <div>
+          <div class="home-risk-summary-label">
+            เสี่ยงด้านเวลาเรียน
+          </div>
+
+          <div
+            id="homeRiskAttendanceCount"
+            class="home-risk-summary-value"
+          >
+            0
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div
+      id="homeRiskAdvice"
+      class="home-risk-advice"
+    >
+      กำลังตรวจสอบข้อมูลความเสี่ยง
+    </div>
+
+
+    <div
+      id="homeRiskList"
+      class="home-risk-list"
+    >
+      <div class="home-risk-empty">
+        กำลังโหลดข้อมูล
+      </div>
+    </div>
+
+  </div>
+
+</div>
 
     <!-- กราฟพัฒนาการผลการเรียน -->
 <div class="home-section-card home-trend-section">
@@ -7389,6 +7764,393 @@ function openHomeRemedialFilter(
   });
 }
 
+function getRiskUpdatedTimestamp(row){
+  const value = Date.parse(
+    row?.updated_at || ''
+  );
+
+  return Number.isFinite(value)
+    ? value
+    : 0;
+}
+
+function getLatestStudentRiskPeriod(){
+  const sourceRows =
+    Array.isArray(APP_STATE.midtermRiskRows)
+      ? APP_STATE.midtermRiskRows
+      : [];
+
+  if(!sourceRows.length){
+    return {
+      academicYear:'',
+      term:'',
+      rows:[]
+    };
+  }
+
+  /*
+   * เรียงรายการใหม่สุดก่อน
+   */
+  const sortedRows =
+    [...sourceRows].sort((a, b) => {
+      const yearDiff =
+        safeNumber(b?.academic_year, 0) -
+        safeNumber(a?.academic_year, 0);
+
+      if(yearDiff){
+        return yearDiff;
+      }
+
+      const termDiff =
+        safeNumber(b?.term, 0) -
+        safeNumber(a?.term, 0);
+
+      if(termDiff){
+        return termDiff;
+      }
+
+      return (
+        getRiskUpdatedTimestamp(b) -
+        getRiskUpdatedTimestamp(a)
+      );
+    });
+
+  /*
+   * ป้องกันรายวิชาเดียวกันซ้ำหลายครั้ง
+   * โดยใช้ข้อมูลที่อัปเดตล่าสุด
+   */
+  const uniqueMap = new Map();
+
+  sortedRows.forEach(row => {
+    const academicYear =
+      safeNumber(row?.academic_year, 0);
+
+    const term =
+      safeNumber(row?.term, 0);
+
+    const subjectCode =
+      safeText(row?.subject_code, '');
+
+    const key =
+      `${academicYear}|${term}|${subjectCode}`;
+
+    if(!uniqueMap.has(key)){
+      uniqueMap.set(key, row);
+    }
+  });
+
+  const uniqueRows =
+    Array.from(uniqueMap.values());
+
+  const latestRow =
+    uniqueRows[0] || null;
+
+  if(!latestRow){
+    return {
+      academicYear:'',
+      term:'',
+      rows:[]
+    };
+  }
+
+  const latestAcademicYear =
+    safeNumber(
+      latestRow.academic_year,
+      0
+    );
+
+  const latestTerm =
+    safeNumber(
+      latestRow.term,
+      0
+    );
+
+  return {
+    academicYear:latestAcademicYear,
+    term:latestTerm,
+
+    rows:uniqueRows.filter(row => {
+      return (
+        safeNumber(row?.academic_year, 0) ===
+          latestAcademicYear &&
+        safeNumber(row?.term, 0) ===
+          latestTerm
+      );
+    })
+  };
+}
+
+function renderHomeRiskSummary(){
+  const periodData =
+    getLatestStudentRiskPeriod();
+
+  const rows =
+    periodData.rows || [];
+
+  const calculatedRows =
+    rows.map(row => ({
+      ...row,
+      riskStatus:
+        getStudentRiskStatus(row)
+    }));
+
+  const riskRows =
+    calculatedRows.filter(row => {
+      return (
+        row.riskStatus.key !==
+        'normal'
+      );
+    });
+
+  const scoreRiskCount =
+    calculatedRows.filter(row => {
+      return row.riskStatus.scoreRisk;
+    }).length;
+
+  const attendanceRiskCount =
+    calculatedRows.filter(row => {
+      return row.riskStatus.attendanceRisk;
+    }).length;
+
+  if($('homeRiskAllCount')){
+    $('homeRiskAllCount').textContent =
+      String(calculatedRows.length);
+  }
+
+  if($('homeRiskScoreCount')){
+    $('homeRiskScoreCount').textContent =
+      String(scoreRiskCount);
+  }
+
+  if($('homeRiskAttendanceCount')){
+    $('homeRiskAttendanceCount').textContent =
+      String(attendanceRiskCount);
+  }
+
+  if($('homeRiskPeriodLabel')){
+    $('homeRiskPeriodLabel').textContent =
+      periodData.academicYear &&
+      periodData.term
+        ? `ข้อมูลปีการศึกษา ${periodData.academicYear} ภาคเรียนที่ ${periodData.term}`
+        : 'ยังไม่มีข้อมูลรายงานกลางภาค';
+  }
+
+
+  const adviceNode =
+    $('homeRiskAdvice');
+
+  if(adviceNode){
+    if(!calculatedRows.length){
+      adviceNode.className =
+        'home-risk-advice';
+
+      adviceNode.textContent =
+        'ยังไม่มีข้อมูลรายงานกลางภาคสำหรับนักเรียน';
+    }else if(riskRows.length){
+      adviceNode.className =
+        'home-risk-advice warning';
+
+      adviceNode.textContent =
+        `พบรายวิชาที่ควรติดตาม ${riskRows.length} รายวิชา ควรตรวจสอบคะแนนและเวลาเรียน`;
+    }else{
+      adviceNode.className =
+        'home-risk-advice success';
+
+      adviceNode.textContent =
+        'ข้อมูลล่าสุดยังไม่พบรายวิชาที่มีความเสี่ยง';
+    }
+  }
+
+
+  const listNode =
+    $('homeRiskList');
+
+  if(!listNode){
+    return;
+  }
+
+  if(!calculatedRows.length){
+    listNode.innerHTML = `
+      <div class="home-risk-empty">
+        ยังไม่มีข้อมูลรายงานกลางภาค
+      </div>
+    `;
+
+    return;
+  }
+
+  if(!riskRows.length){
+    listNode.innerHTML = `
+      <div class="home-risk-empty success">
+        ✅ ขณะนี้ไม่พบรายวิชาที่มีความเสี่ยง
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const severityOrder = {
+    both:1,
+    score:2,
+    attendance:3,
+    normal:4
+  };
+
+  const sortedRiskRows =
+    [...riskRows].sort((a, b) => {
+      const severityDiff =
+        (severityOrder[a.riskStatus.key] || 99) -
+        (severityOrder[b.riskStatus.key] || 99);
+
+      if(severityDiff){
+        return severityDiff;
+      }
+
+      return safeText(
+        a.subject_code,
+        ''
+      ).localeCompare(
+        safeText(
+          b.subject_code,
+          ''
+        ),
+        'th',
+        { numeric:true }
+      );
+    });
+
+  const maximumVisible = 3;
+
+  const visibleRows =
+    sortedRiskRows.slice(
+      0,
+      maximumVisible
+    );
+
+  const itemHtml =
+    visibleRows.map(row => {
+      const status =
+        row.riskStatus;
+
+      const scorePercent =
+        safeNumber(
+          row.score_percent,
+          0
+        );
+
+      const attendancePercent =
+        safeNumber(
+          row.attendance_percent,
+          0
+        );
+
+      const subjectCode =
+        safeText(
+          row.subject_code,
+          '-'
+        );
+
+      const subjectName =
+        safeText(
+          row.subject_name,
+          '-'
+        );
+
+      const teacherName =
+        safeText(
+          row.teacher_name,
+          '-'
+        );
+
+      const scoreHtml =
+        status.scoreRisk
+          ? `
+            <span class="home-risk-value-pill score">
+              คะแนน ${scorePercent.toFixed(1)}%
+            </span>
+          `
+          : '';
+
+      const attendanceHtml =
+        status.attendanceRisk
+          ? `
+            <span class="home-risk-value-pill attendance">
+              เวลาเรียน ${attendancePercent.toFixed(1)}%
+            </span>
+          `
+          : '';
+
+      return `
+        <div
+          class="home-risk-item"
+          role="button"
+          tabindex="0"
+          data-home-risk-item="true"
+        >
+
+          <div>
+
+            <div class="home-risk-subject-line">
+
+              <span class="home-risk-subject-code">
+                ${escapeHtml(subjectCode)}
+              </span>
+
+              <span class="home-risk-subject-name">
+                ${escapeHtml(subjectName)}
+              </span>
+
+            </div>
+
+            <div class="home-risk-teacher">
+              ครูผู้สอน ${escapeHtml(teacherName)}
+            </div>
+
+          </div>
+
+
+          <div class="home-risk-values">
+            ${scoreHtml}
+            ${attendanceHtml}
+          </div>
+
+
+          <div class="home-risk-status-line">
+
+            <span
+              class="home-risk-status-text ${escapeHtml(status.key)}"
+            >
+              ${escapeHtml(status.text)}
+            </span>
+
+            <span class="home-risk-open-text">
+              ดูรายละเอียด ›
+            </span>
+
+          </div>
+
+        </div>
+      `;
+    }).join('');
+
+  const remainingCount =
+    sortedRiskRows.length -
+    visibleRows.length;
+
+  const moreHtml =
+    remainingCount > 0
+      ? `
+        <div class="home-risk-more">
+          ยังมีอีก ${remainingCount} รายวิชา
+        </div>
+      `
+      : '';
+
+  listNode.innerHTML =
+    itemHtml + moreHtml;
+}
+
 function renderHomeDashboard(){
   const profile =
     APP_STATE.studentProfile || {};
@@ -7726,8 +8488,9 @@ function renderHomeDashboard(){
   /*
    * วาดกราฟและรายการรายวิชา
    */
-  renderHomeAcademicTrendChart(allRows);
-  renderHomeActionItems(remedialItems);
+renderHomeRiskSummary();
+renderHomeAcademicTrendChart(allRows);
+renderHomeActionItems(remedialItems);
 
   /*
    * ใช้ตรวจสอบจาก Console
@@ -9993,6 +10756,21 @@ function closeGradeSubmenu(){
   setGradeSubmenuVisible(false);
 }
 
+function openStudentRiskPage(){
+  populateStudentRiskFilters();
+  renderStudentRiskPage();
+
+  setActiveMenu('risk');
+  closeStudentSidebar();
+
+  requestAnimationFrame(() => {
+    window.scrollTo({
+      top:0,
+      behavior:'smooth'
+    });
+  });
+}
+
 function initMenuEvents(){
   $('menuHomeBtn')?.addEventListener('click', () => {
   renderHomeDashboard();
@@ -10008,8 +10786,6 @@ $('homeOpenRemedialBtn')?.addEventListener('click', () => {
 });
 
 $('homeOpenOverviewBtn')?.addEventListener('click', () => {
-  $('menuGradeOverviewBtn')?.click();
-});
 
 document
   .querySelectorAll(
@@ -10140,8 +10916,9 @@ $('riskReloadBtn')?.addEventListener(
       APP_STATE.midtermRiskRows =
         await fetchStudentMidtermRiskRows();
 
-      populateStudentRiskFilters();
-      renderStudentRiskPage();
+populateStudentRiskFilters();
+renderStudentRiskPage();
+renderHomeRiskSummary();
 
     }catch(error){
       console.error(
@@ -10232,6 +11009,54 @@ $('menuRemedialStatusBtn')?.addEventListener(
     }
   }
 );
+
+  $('homeOpenRiskBtn')
+  ?.addEventListener(
+    'click',
+    openStudentRiskPage
+  );
+
+$('homeRiskList')
+  ?.addEventListener(
+    'click',
+    event => {
+      const item =
+        event.target.closest(
+          '[data-home-risk-item]'
+        );
+
+      if(!item){
+        return;
+      }
+
+      openStudentRiskPage();
+    }
+  );
+
+$('homeRiskList')
+  ?.addEventListener(
+    'keydown',
+    event => {
+      if(
+        event.key !== 'Enter' &&
+        event.key !== ' '
+      ){
+        return;
+      }
+
+      const item =
+        event.target.closest(
+          '[data-home-risk-item]'
+        );
+
+      if(!item){
+        return;
+      }
+
+      event.preventDefault();
+      openStudentRiskPage();
+    }
+  );
 
   $('btnRequestStatus')?.addEventListener('click', () => {
     setActiveMenu('remedial');
