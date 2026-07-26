@@ -4083,7 +4083,7 @@ body.portal-mode .app{
 .student-risk-kpi-grid{
   display:grid;
   grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+    repeat(5, minmax(0, 1fr));
   gap:12px;
   padding:8px 24px 16px;
 }
@@ -4176,6 +4176,12 @@ body.portal-mode .app{
   color:#b45309;
   border-color:#fed7aa;
   background:#fff8ed;
+}
+
+    .student-risk-kpi.incomplete{
+  color:#475569;
+  border-color:#cbd5e1;
+  background:#f8fafc;
 }
 
 .student-risk-advice{
@@ -4361,12 +4367,21 @@ body.portal-mode .app{
   border:1px solid #fda4af;
 }
 
+@media (max-width:1180px){
+  .student-risk-kpi-grid{
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width:900px){
   .student-risk-kpi-grid{
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   }
 }
+
+
 
 @media (max-width:620px){
   .student-risk-result-summary{
@@ -4421,6 +4436,10 @@ body.portal-mode .app{
     padding-left:18px;
     padding-right:18px;
   }
+
+  .student-risk-kpi.incomplete:last-child{
+  grid-column:1 / -1;
+}
 
   .student-risk-table-wrap{
     width:calc(100% - 36px);
@@ -6075,6 +6094,24 @@ body.portal-mode .app{
     </div>
 
   </button>
+  <button
+  class="student-risk-kpi incomplete"
+  type="button"
+  data-risk-filter="incomplete"
+>
+
+  <div class="student-risk-kpi-label">
+    ข้อมูลไม่ครบ
+  </div>
+
+  <div
+    id="riskIncompleteCount"
+    class="student-risk-kpi-value"
+  >
+    0
+  </div>
+
+</button>
 
 </div>
 
@@ -9571,6 +9608,12 @@ function filterStudentRiskRowsByStatus(rows){
     });
   }
 
+  if(selectedStatus === 'incomplete'){
+  return rows.filter(row => {
+    return row.riskStatus.incomplete;
+  });
+}
+
   return rows;
 }
 
@@ -9684,6 +9727,11 @@ function renderStudentRiskPage(){
       return row.riskStatus.attendanceRisk;
     }).length;
 
+  const incompleteCount =
+  searchedRows.filter(row => {
+    return row.riskStatus.incomplete;
+  }).length;
+
 
   if($('riskAllCount')){
     $('riskAllCount').textContent =
@@ -9705,6 +9753,11 @@ function renderStudentRiskPage(){
       String(attendanceRiskCount);
   }
 
+  if($('riskIncompleteCount')){
+  $('riskIncompleteCount').textContent =
+    String(incompleteCount);
+}
+
 
   updateStudentRiskKpiActive();
 
@@ -9721,12 +9774,13 @@ function renderStudentRiskPage(){
   /*
    * เรียงรายการเสี่ยงมากก่อน
    */
-  const severityOrder = {
-    both:1,
-    score:2,
-    attendance:3,
-    normal:4
-  };
+const severityOrder = {
+  both:1,
+  score:2,
+  attendance:3,
+  incomplete:4,
+  normal:5
+};
 
   visibleRows.sort((a, b) => {
     const severityDiff =
@@ -9758,12 +9812,13 @@ function renderStudentRiskPage(){
    * สรุปจำนวนรายการ
    */
 if($('riskResultSummary')){
-  const statusLabelMap = {
-    all:'ทั้งหมด',
-    normal:'สถานะปกติ',
-    score:'เสี่ยงด้านคะแนน',
-    attendance:'เสี่ยงด้านเวลาเรียน'
-  };
+const statusLabelMap = {
+  all:'ทั้งหมด',
+  normal:'สถานะปกติ',
+  score:'เสี่ยงด้านคะแนน',
+  attendance:'เสี่ยงด้านเวลาเรียน',
+  incomplete:'ข้อมูลไม่ครบ'
+};
 
   const selectedStatus =
     APP_STATE.riskFilters.status || 'all';
@@ -9800,10 +9855,7 @@ const riskCount =
     );
   }).length;
 
-const incompleteCount =
-  searchedRows.filter(row => {
-    return row.riskStatus.incomplete;
-  }).length;
+
 
     if(!searchedRows.length){
       adviceBox.className =
@@ -11914,12 +11966,13 @@ function openStudentRiskPage(options = {}){
   const latestPeriod =
     getLatestStudentRiskPeriod();
 
-  const allowedStatus = new Set([
-    'all',
-    'normal',
-    'score',
-    'attendance'
-  ]);
+const allowedStatus = new Set([
+  'all',
+  'normal',
+  'score',
+  'attendance',
+  'incomplete'
+]);
 
   const requestedStatus =
     allowedStatus.has(options.status)
