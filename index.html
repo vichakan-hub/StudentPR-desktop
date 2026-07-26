@@ -8278,6 +8278,61 @@ function openHomeRemedialFilter(
   });
 }
 
+function getStudentRiskUniqueKey(row){
+  const academicYear =
+    safeText(
+      row?.academic_year,
+      ''
+    );
+
+  const term =
+    safeText(
+      row?.term,
+      ''
+    );
+
+  const subjectOfferingId =
+    safeText(
+      row?.subject_offering_id,
+      ''
+    );
+
+  const subjectCode =
+    safeText(
+      row?.subject_code,
+      ''
+    );
+
+  const teacherCode =
+    safeText(
+      row?.teacher_code,
+      ''
+    );
+
+  /*
+   * subject_offering_id เป็นตัวระบุที่แม่นที่สุด
+   *
+   * หากข้อมูลเก่าไม่มีค่า ให้ใช้
+   * รหัสวิชา + รหัสครู แทน
+   */
+const teacherIdentity =
+  teacherCode ||
+  safeText(
+    row?.teacher_name,
+    ''
+  );
+
+const subjectIdentity =
+  subjectOfferingId ||
+  `${subjectCode}|${teacherIdentity}`;
+
+return [
+  academicYear,
+  term,
+  subjectIdentity
+].join('|');
+}
+
 function getRiskUpdatedTimestamp(row){
   const value = Date.parse(
     row?.updated_at || ''
@@ -8288,11 +8343,49 @@ function getRiskUpdatedTimestamp(row){
     : 0;
 }
 
+function deduplicateStudentRiskRows(rows){
+  const sourceRows =
+    Array.isArray(rows)
+      ? rows
+      : [];
+
+  /*
+   * เรียงแถวที่อัปเดตล่าสุดขึ้นก่อน
+   */
+  const sortedRows =
+    [...sourceRows].sort((a, b) => {
+      return (
+        getRiskUpdatedTimestamp(b) -
+        getRiskUpdatedTimestamp(a)
+      );
+    });
+
+  const uniqueMap =
+    new Map();
+
+  sortedRows.forEach(row => {
+    const key =
+      getStudentRiskUniqueKey(row);
+
+    /*
+     * เพราะเรียงรายการล่าสุดไว้ก่อนแล้ว
+     * จึงเก็บเฉพาะรายการแรกของแต่ละ Key
+     */
+    if(!uniqueMap.has(key)){
+      uniqueMap.set(key, row);
+    }
+  });
+
+  return Array.from(
+    uniqueMap.values()
+  );
+}
+
 function getLatestStudentRiskPeriod(){
   const sourceRows =
-    Array.isArray(APP_STATE.midtermRiskRows)
-      ? APP_STATE.midtermRiskRows
-      : [];
+    deduplicateStudentRiskRows(
+      APP_STATE.midtermRiskRows
+    );
 
   if(!sourceRows.length){
     return {
@@ -8303,21 +8396,33 @@ function getLatestStudentRiskPeriod(){
   }
 
   /*
-   * เรียงรายการใหม่สุดก่อน
+   * เรียงปีและเทอมล่าสุดขึ้นก่อน
    */
   const sortedRows =
     [...sourceRows].sort((a, b) => {
       const yearDiff =
-        safeNumber(b?.academic_year, 0) -
-        safeNumber(a?.academic_year, 0);
+        safeNumber(
+          b?.academic_year,
+          0
+        ) -
+        safeNumber(
+          a?.academic_year,
+          0
+        );
 
       if(yearDiff){
         return yearDiff;
       }
 
       const termDiff =
-        safeNumber(b?.term, 0) -
-        safeNumber(a?.term, 0);
+        safeNumber(
+          b?.term,
+          0
+        ) -
+        safeNumber(
+          a?.term,
+          0
+        );
 
       if(termDiff){
         return termDiff;
@@ -8329,35 +8434,8 @@ function getLatestStudentRiskPeriod(){
       );
     });
 
-  /*
-   * ป้องกันรายวิชาเดียวกันซ้ำหลายครั้ง
-   * โดยใช้ข้อมูลที่อัปเดตล่าสุด
-   */
-  const uniqueMap = new Map();
-
-  sortedRows.forEach(row => {
-    const academicYear =
-      safeNumber(row?.academic_year, 0);
-
-    const term =
-      safeNumber(row?.term, 0);
-
-    const subjectCode =
-      safeText(row?.subject_code, '');
-
-    const key =
-      `${academicYear}|${term}|${subjectCode}`;
-
-    if(!uniqueMap.has(key)){
-      uniqueMap.set(key, row);
-    }
-  });
-
-  const uniqueRows =
-    Array.from(uniqueMap.values());
-
   const latestRow =
-    uniqueRows[0] || null;
+    sortedRows[0] || null;
 
   if(!latestRow){
     return {
@@ -8380,17 +8458,25 @@ function getLatestStudentRiskPeriod(){
     );
 
   return {
-    academicYear:latestAcademicYear,
-    term:latestTerm,
+    academicYear:
+      latestAcademicYear,
 
-    rows:uniqueRows.filter(row => {
-      return (
-        safeNumber(row?.academic_year, 0) ===
-          latestAcademicYear &&
-        safeNumber(row?.term, 0) ===
-          latestTerm
-      );
-    })
+    term:
+      latestTerm,
+
+    rows:
+      sortedRows.filter(row => {
+        return (
+          safeNumber(
+            row?.academic_year,
+            0
+          ) === latestAcademicYear &&
+          safeNumber(
+            row?.term,
+            0
+          ) === latestTerm
+        );
+      })
   };
 }
 
@@ -8398,60 +8484,17 @@ function getLatestStudentRiskCount(){
   const periodData =
     getLatestStudentRiskPeriod();
 
-  const uniqueSubjectMap =
-    new Map();
+  return (
+    periodData.rows || []
+  ).filter(row => {
+    const status =
+      getStudentRiskStatus(row);
 
-  (periodData.rows || []).forEach(row => {
-    const subjectCode =
-      safeText(
-        row?.subject_code,
-        ''
-      );
-
-    const teacherCode =
-      safeText(
-        row?.teacher_code,
-        ''
-      );
-
-    const key = [
-      periodData.academicYear,
-      periodData.term,
-      subjectCode,
-      teacherCode
-    ].join('|');
-
-    /*
-     * ป้องกันข้อมูลวิชาเดียวกันซ้ำ
-     * เลือกแถวที่อัปเดตล่าสุด
-     */
-    const oldRow =
-      uniqueSubjectMap.get(key);
-
-    if(
-      !oldRow ||
-      getRiskUpdatedTimestamp(row) >
-        getRiskUpdatedTimestamp(oldRow)
-    ){
-      uniqueSubjectMap.set(
-        key,
-        row
-      );
-    }
-  });
-
-  return Array
-    .from(uniqueSubjectMap.values())
-    .filter(row => {
-      const status =
-        getStudentRiskStatus(row);
-
-return (
-  status.scoreRisk ||
-  status.attendanceRisk
-);
-    })
-    .length;
+    return (
+      status.scoreRisk ||
+      status.attendanceRisk
+    );
+  }).length;
 }
 
 function renderStudentRiskSidebarBadge(){
@@ -9460,8 +9503,10 @@ function getStudentRiskStatus(row){
 }
 
 function populateStudentRiskFilters(){
-  const rows =
-    APP_STATE.midtermRiskRows || [];
+const rows =
+  deduplicateStudentRiskRows(
+    APP_STATE.midtermRiskRows
+  );
 
   const yearSelect =
     $('riskYearFilter');
@@ -9642,9 +9687,14 @@ function renderStudentRiskPage(){
   /*
    * กรองปีและเทอมก่อน
    */
-  const periodRows =
-    (APP_STATE.midtermRiskRows || [])
-      .filter(row => {
+const uniqueRiskRows =
+  deduplicateStudentRiskRows(
+    APP_STATE.midtermRiskRows
+  );
+
+const periodRows =
+  uniqueRiskRows
+    .filter(row => {
         if(
           year &&
           String(row.academic_year) !==
