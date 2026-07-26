@@ -10863,25 +10863,29 @@ function initMenuEvents(){
       );
 
     });
-  'click',
-  event => {
-    const item =
-      event.target.closest(
-        '[data-home-action-subject]'
+      });
+
+
+  $('homeActionList')?.addEventListener(
+    'click',
+    event => {
+      const item =
+        event.target.closest(
+          '[data-home-action-subject]'
+        );
+
+      if(!item){
+        return;
+      }
+
+      openHomeRemedialFilter(
+        item.dataset.homeActionStatus ||
+          'all',
+        item.dataset.homeActionSubject ||
+          ''
       );
-
-    if(!item){
-      return;
     }
-
-    openHomeRemedialFilter(
-      item.dataset.homeActionStatus ||
-      'all',
-      item.dataset.homeActionSubject ||
-      ''
-    );
-  }
-);
+  );
 
 $('homeActionList')?.addEventListener(
   'keydown',
