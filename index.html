@@ -3935,6 +3935,336 @@ body.portal-mode .app{
   outline-offset:-3px;
 }
 
+    /* =====================================================
+   StudentPR : My Academic Risk
+   ===================================================== */
+
+.student-risk-page{
+  overflow:hidden;
+  background:rgba(244,234,247,.92);
+}
+
+.student-risk-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:22px 24px;
+  border-bottom:1px solid #dce7f2;
+  background:linear-gradient(
+    90deg,
+    #f8eaf9,
+    #edf6fd
+  );
+}
+
+.student-risk-title{
+  margin:0;
+  font-size:24px;
+  font-weight:900;
+  color:#17324a;
+}
+
+.student-risk-subtitle{
+  margin:6px 0 0;
+  font-size:13px;
+  line-height:1.6;
+  color:#718195;
+}
+
+.student-risk-filter{
+  display:grid;
+  grid-template-columns:
+    repeat(2, minmax(180px, 260px));
+  gap:12px;
+  padding:20px 24px 12px;
+}
+
+.student-risk-filter-field{
+  display:grid;
+  gap:6px;
+}
+
+.student-risk-filter-field label{
+  font-size:13px;
+  font-weight:800;
+  color:#39516a;
+}
+
+.student-risk-filter-field select{
+  width:100%;
+  height:44px;
+  padding:0 13px;
+  border:1px solid #cfdceb;
+  border-radius:15px;
+  outline:none;
+  background:#ffffff;
+  color:#17324a;
+  font-family:'Kanit', sans-serif;
+  font-size:14px;
+  font-weight:700;
+}
+
+.student-risk-filter-field select:focus{
+  border-color:#75aef7;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10);
+}
+
+.student-risk-kpi-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap:12px;
+  padding:8px 24px 16px;
+}
+
+.student-risk-kpi{
+  min-height:100px;
+  padding:16px 18px;
+  border:1px solid;
+  border-radius:19px;
+}
+
+.student-risk-kpi-label{
+  font-size:13px;
+  font-weight:800;
+}
+
+.student-risk-kpi-value{
+  margin-top:7px;
+  font-family:'Sarabun', sans-serif;
+  font-size:30px;
+  line-height:1;
+  font-weight:900;
+}
+
+.student-risk-kpi.all{
+  color:#1d4ed8;
+  border-color:#bfdbfe;
+  background:#eff6ff;
+}
+
+.student-risk-kpi.normal{
+  color:#15803d;
+  border-color:#bbf7d0;
+  background:#f0fdf4;
+}
+
+.student-risk-kpi.score{
+  color:#b91c1c;
+  border-color:#fecaca;
+  background:#fff4f4;
+}
+
+.student-risk-kpi.attendance{
+  color:#b45309;
+  border-color:#fed7aa;
+  background:#fff8ed;
+}
+
+.student-risk-advice{
+  margin:0 24px 16px;
+  padding:14px 16px;
+  border:1px solid #dce8f3;
+  border-radius:16px;
+  background:#f8fbff;
+  color:#39516a;
+  font-size:13.5px;
+  line-height:1.65;
+}
+
+.student-risk-advice.success{
+  color:#166534;
+  border-color:#bbf7d0;
+  background:#f0fdf4;
+}
+
+.student-risk-advice.warning{
+  color:#9a5800;
+  border-color:#fed7aa;
+  background:#fff8ed;
+}
+
+.student-risk-table-wrap{
+  width:calc(100% - 48px);
+  margin:0 24px 24px;
+  overflow:auto;
+  border:1px solid #d5e1ed;
+  border-radius:18px;
+  background:#ffffff;
+}
+
+.student-risk-table{
+  width:100%;
+  min-width:920px;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+}
+
+.student-risk-table th{
+  padding:13px 10px;
+  background:#eef5fc;
+  border-right:1px solid #dce7f2;
+  border-bottom:1px solid #d5e1ed;
+  text-align:center;
+  font-size:12.5px;
+  font-weight:900;
+  color:#17324a;
+}
+
+.student-risk-table td{
+  padding:13px 10px;
+  border-right:1px solid #edf2f7;
+  border-bottom:1px solid #e7edf4;
+  font-size:13px;
+  color:#17324a;
+  vertical-align:middle;
+}
+
+.student-risk-table th:nth-child(1),
+.student-risk-table td:nth-child(1){
+  width:11%;
+  text-align:center;
+}
+
+.student-risk-table th:nth-child(2),
+.student-risk-table td:nth-child(2){
+  width:22%;
+}
+
+.student-risk-table th:nth-child(3),
+.student-risk-table td:nth-child(3){
+  width:20%;
+}
+
+.student-risk-table th:nth-child(4),
+.student-risk-table td:nth-child(4){
+  width:12%;
+  text-align:center;
+}
+
+.student-risk-table th:nth-child(5),
+.student-risk-table td:nth-child(5),
+.student-risk-table th:nth-child(6),
+.student-risk-table td:nth-child(6){
+  width:11%;
+  text-align:center;
+}
+
+.student-risk-table th:nth-child(7),
+.student-risk-table td:nth-child(7){
+  width:13%;
+  text-align:center;
+}
+
+.student-risk-percent{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:64px;
+  min-height:34px;
+  padding:5px 10px;
+  border-radius:11px;
+  font-family:'Sarabun', sans-serif;
+  font-size:14px;
+  font-weight:900;
+}
+
+.student-risk-percent.normal{
+  color:#166534;
+  background:#f0fdf4;
+  border:1px solid #bbf7d0;
+}
+
+.student-risk-percent.danger{
+  color:#b91c1c;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+}
+
+.student-risk-percent.warning{
+  color:#b45309;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+}
+
+.student-risk-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:105px;
+  min-height:34px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:11.5px;
+  font-weight:900;
+}
+
+.student-risk-status.normal{
+  color:#15803d;
+  background:#f0fdf4;
+  border:1px solid #bbf7d0;
+}
+
+.student-risk-status.score{
+  color:#b91c1c;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+}
+
+.student-risk-status.attendance{
+  color:#b45309;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+}
+
+.student-risk-status.both{
+  color:#991b1b;
+  background:#fff1f2;
+  border:1px solid #fda4af;
+}
+
+@media (max-width:900px){
+  .student-risk-kpi-grid{
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:620px){
+  .student-risk-head{
+    flex-direction:column;
+    padding:18px;
+  }
+
+  .student-risk-head .btn{
+    width:100%;
+  }
+
+  .student-risk-filter{
+    grid-template-columns:1fr;
+    padding:18px;
+  }
+
+  .student-risk-kpi-grid{
+    grid-template-columns:1fr 1fr;
+    padding-left:18px;
+    padding-right:18px;
+  }
+
+  .student-risk-table-wrap{
+    width:calc(100% - 36px);
+    margin-left:18px;
+    margin-right:18px;
+  }
+
+  .student-risk-advice{
+    margin-left:18px;
+    margin-right:18px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -4055,7 +4385,13 @@ body.portal-mode .app{
     </div>
   </div>
 </div>
-
+    <button
+  class="btn student-side-btn menu-btn"
+  id="menuRiskBtn"
+  type="button"
+>
+  ⚠️ ความเสี่ยงของฉัน
+ </button>
     <button class="btn student-side-btn menu-btn" id="menuRemedialStatusBtn" type="button">
       📝 ติดตามสถานะการสอบแก้ตัว
     </button>
@@ -4786,7 +5122,162 @@ body.portal-mode .app{
 </div>
         </div>
       </section>
+<section id="pageRisk" class="hidden">
 
+  <div class="student-risk-page card">
+
+    <div class="student-risk-head">
+
+      <div>
+        <h2 class="student-risk-title">
+          ความเสี่ยงของฉัน
+        </h2>
+
+        <p class="student-risk-subtitle">
+          วิเคราะห์จากคะแนนกลางภาคและเวลาเรียน
+          ที่ครูผู้สอนรายงาน
+        </p>
+      </div>
+
+      <button
+        id="riskReloadBtn"
+        class="btn btn-outline"
+        type="button"
+      >
+        ↻ โหลดข้อมูลใหม่
+      </button>
+
+    </div>
+
+
+    <div class="student-risk-filter">
+
+      <div class="student-risk-filter-field">
+        <label for="riskYearFilter">
+          ปีการศึกษา
+        </label>
+
+        <select id="riskYearFilter">
+          <option value="">ทั้งหมด</option>
+        </select>
+      </div>
+
+
+      <div class="student-risk-filter-field">
+        <label for="riskTermFilter">
+          ภาคเรียน
+        </label>
+
+        <select id="riskTermFilter">
+          <option value="">ทั้งหมด</option>
+        </select>
+      </div>
+
+    </div>
+
+
+    <div class="student-risk-kpi-grid">
+
+      <div class="student-risk-kpi all">
+        <div class="student-risk-kpi-label">
+          รายวิชาที่รายงาน
+        </div>
+
+        <div
+          id="riskAllCount"
+          class="student-risk-kpi-value"
+        >
+          0
+        </div>
+      </div>
+
+
+      <div class="student-risk-kpi normal">
+        <div class="student-risk-kpi-label">
+          สถานะปกติ
+        </div>
+
+        <div
+          id="riskNormalCount"
+          class="student-risk-kpi-value"
+        >
+          0
+        </div>
+      </div>
+
+
+      <div class="student-risk-kpi score">
+        <div class="student-risk-kpi-label">
+          เสี่ยงด้านคะแนน
+        </div>
+
+        <div
+          id="riskScoreCount"
+          class="student-risk-kpi-value"
+        >
+          0
+        </div>
+      </div>
+
+
+      <div class="student-risk-kpi attendance">
+        <div class="student-risk-kpi-label">
+          เสี่ยงด้านเวลาเรียน
+        </div>
+
+        <div
+          id="riskAttendanceCount"
+          class="student-risk-kpi-value"
+        >
+          0
+        </div>
+      </div>
+
+    </div>
+
+
+    <div
+      id="riskAdviceBox"
+      class="student-risk-advice"
+    >
+      กำลังตรวจสอบข้อมูล
+    </div>
+
+
+    <div class="student-risk-table-wrap">
+
+      <table class="student-risk-table">
+
+        <thead>
+          <tr>
+            <th>รหัสวิชา</th>
+            <th>รายวิชา</th>
+            <th>ครูผู้สอน</th>
+            <th>ปี / เทอม</th>
+            <th>% คะแนน</th>
+            <th>% เวลาเรียน</th>
+            <th>สถานะ</th>
+          </tr>
+        </thead>
+
+        <tbody id="riskTableBody">
+
+          <tr>
+            <td colspan="7" class="empty-state">
+              กำลังโหลดข้อมูล
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+  
 <section id="pageRemedialStatus" class="hidden">
 
   <div class="retest-tracking-card card">
@@ -5082,6 +5573,12 @@ const APP_STATE = {
   latestGradeRows: [],
   remedialRequests: [],
   gpaxPercentile: null,
+  midtermRiskRows: [],
+
+riskFilters: {
+  year:'',
+  term:''
+},
 
   // ตัวกรองรายการสอบแก้ตัว
 remedialStatusFilter: 'all',
@@ -5099,6 +5596,7 @@ const PAGE_IDS = {
   home: 'pageHome',
   gradeOverview: 'pageGradeOverview',
   grades: 'pageGrades',
+  risk: 'pageRisk',
   remedial: 'pageRemedialStatus'
 };
 
@@ -5249,12 +5747,13 @@ function setPortalVisible(visible){
 }
 
 function setActiveMenu(pageKey){
-  const pagePairs = [
-    ['home', 'menuHomeBtn'],
-    ['gradeOverview', 'menuGradesBtn'],
-    ['grades', 'menuGradesTermBtn'],
-    ['remedial', 'menuRemedialStatusBtn']
-  ];
+const pagePairs = [
+  ['home', 'menuHomeBtn'],
+  ['gradeOverview', 'menuGradesBtn'],
+  ['grades', 'menuGradesTermBtn'],
+  ['risk', 'menuRiskBtn'],
+  ['remedial', 'menuRemedialStatusBtn']
+];
 
   Object.entries(PAGE_IDS).forEach(([key, pageId]) => {
     $(pageId)?.classList.toggle('hidden', key !== pageKey);
@@ -5315,6 +5814,7 @@ if(pageKey === 'grades'){
   home: 'ภาพรวมของฉัน',
   gradeOverview: 'ผลการเรียน',
   grades: 'ผลการเรียนรายภาคเรียน',
+  risk: 'ความเสี่ยงของฉัน',
   remedial: 'ติดตามสถานะการสอบแก้ตัว'
 };
 
@@ -5322,6 +5822,7 @@ const subMap = {
   home: 'สรุปผลการเรียนและรายการที่ต้องดำเนินการ',
   gradeOverview: 'ภาพรวมผลการเรียนทั้งหมด',
   grades: 'เลือกดูผลการเรียนย้อนหลังตามชั้น/ภาคเรียน',
+  risk: 'ตรวจสอบคะแนนกลางภาคและเวลาเรียนของตนเอง',
   remedial: 'ติดตามสถานะคำร้องสอบแก้ตัว'
 };
 
@@ -7304,6 +7805,420 @@ function getDashboardAcademicYear(){
     : CURRENT_ACADEMIC_YEAR;
 }
 
+    async function fetchStudentMidtermRiskRows(){
+  const studentCode =
+    getStudentSidForRpc();
+
+  if(!studentCode){
+    return [];
+  }
+
+  const { data, error } =
+    await supabaseClient
+      .from('midterm_reports')
+      .select(`
+        id,
+        academic_year,
+        term,
+        class_level,
+        room,
+
+        subject_code,
+        subject_name,
+
+        teacher_code,
+        teacher_name,
+
+        student_code,
+
+        score_percent,
+        attendance_percent,
+
+        updated_at
+      `)
+      .eq('student_code', studentCode)
+      .order('academic_year', {
+        ascending:false
+      })
+      .order('term', {
+        ascending:false
+      })
+      .order('subject_code', {
+        ascending:true
+      });
+
+  if(error){
+    throw error;
+  }
+
+  return (Array.isArray(data) ? data : [])
+    .filter(row => {
+      const subjectCode =
+        safeText(
+          row?.subject_code,
+          ''
+        );
+
+      /*
+       * ไม่แสดงวิชากิจกรรม
+       */
+      return !subjectCode.startsWith('ก');
+    });
+}
+
+function getStudentRiskStatus(row){
+  const scorePercent =
+    safeNumber(
+      row?.score_percent,
+      0
+    );
+
+  const attendancePercent =
+    safeNumber(
+      row?.attendance_percent,
+      0
+    );
+
+  const scoreRisk =
+    scorePercent < 50;
+
+  const attendanceRisk =
+    attendancePercent < 80;
+
+  if(scoreRisk && attendanceRisk){
+    return {
+      key:'both',
+      text:'เสี่ยงคะแนนและเวลาเรียน',
+      scoreRisk:true,
+      attendanceRisk:true
+    };
+  }
+
+  if(scoreRisk){
+    return {
+      key:'score',
+      text:'เสี่ยงด้านคะแนน',
+      scoreRisk:true,
+      attendanceRisk:false
+    };
+  }
+
+  if(attendanceRisk){
+    return {
+      key:'attendance',
+      text:'เสี่ยงด้านเวลาเรียน',
+      scoreRisk:false,
+      attendanceRisk:true
+    };
+  }
+
+  return {
+    key:'normal',
+    text:'ปกติ',
+    scoreRisk:false,
+    attendanceRisk:false
+  };
+}
+
+function populateStudentRiskFilters(){
+  const rows =
+    APP_STATE.midtermRiskRows || [];
+
+  const yearSelect =
+    $('riskYearFilter');
+
+  const termSelect =
+    $('riskTermFilter');
+
+  if(!yearSelect || !termSelect){
+    return;
+  }
+
+  const years = [
+    ...new Set(
+      rows
+        .map(row =>
+          Number(row.academic_year)
+        )
+        .filter(Boolean)
+    )
+  ].sort((a, b) => b - a);
+
+  const currentYear =
+    APP_STATE.riskFilters.year ||
+    String(years[0] || '');
+
+  APP_STATE.riskFilters.year =
+    currentYear;
+
+  yearSelect.innerHTML = years.length
+    ? years.map(year => `
+        <option
+          value="${year}"
+          ${String(year) === currentYear
+            ? 'selected'
+            : ''}
+        >
+          ${year}
+        </option>
+      `).join('')
+    : `<option value="">ไม่มีข้อมูล</option>`;
+
+  const terms = [
+    ...new Set(
+      rows
+        .filter(row => {
+          return (
+            !currentYear ||
+            String(row.academic_year) ===
+              currentYear
+          );
+        })
+        .map(row =>
+          Number(row.term)
+        )
+        .filter(Boolean)
+    )
+  ].sort((a, b) => b - a);
+
+  const currentTerm =
+    terms.includes(
+      Number(APP_STATE.riskFilters.term)
+    )
+      ? String(APP_STATE.riskFilters.term)
+      : String(terms[0] || '');
+
+  APP_STATE.riskFilters.term =
+    currentTerm;
+
+  termSelect.innerHTML = terms.length
+    ? terms.map(term => `
+        <option
+          value="${term}"
+          ${String(term) === currentTerm
+            ? 'selected'
+            : ''}
+        >
+          ภาคเรียนที่ ${term}
+        </option>
+      `).join('')
+    : `<option value="">ไม่มีข้อมูล</option>`;
+}
+
+function renderStudentRiskPage(){
+  const tbody =
+    $('riskTableBody');
+
+  if(!tbody){
+    return;
+  }
+
+  const year =
+    APP_STATE.riskFilters.year;
+
+  const term =
+    APP_STATE.riskFilters.term;
+
+  const rows =
+    (APP_STATE.midtermRiskRows || [])
+      .filter(row => {
+        if(
+          year &&
+          String(row.academic_year) !==
+            String(year)
+        ){
+          return false;
+        }
+
+        if(
+          term &&
+          String(row.term) !==
+            String(term)
+        ){
+          return false;
+        }
+
+        return true;
+      });
+
+  const calculatedRows =
+    rows.map(row => ({
+      ...row,
+      riskStatus:
+        getStudentRiskStatus(row)
+    }));
+
+  const normalCount =
+    calculatedRows.filter(row =>
+      row.riskStatus.key === 'normal'
+    ).length;
+
+  const scoreRiskCount =
+    calculatedRows.filter(row =>
+      row.riskStatus.scoreRisk
+    ).length;
+
+  const attendanceRiskCount =
+    calculatedRows.filter(row =>
+      row.riskStatus.attendanceRisk
+    ).length;
+
+  if($('riskAllCount')){
+    $('riskAllCount').textContent =
+      String(calculatedRows.length);
+  }
+
+  if($('riskNormalCount')){
+    $('riskNormalCount').textContent =
+      String(normalCount);
+  }
+
+  if($('riskScoreCount')){
+    $('riskScoreCount').textContent =
+      String(scoreRiskCount);
+  }
+
+  if($('riskAttendanceCount')){
+    $('riskAttendanceCount').textContent =
+      String(attendanceRiskCount);
+  }
+
+  const adviceBox =
+    $('riskAdviceBox');
+
+  if(adviceBox){
+    if(
+      scoreRiskCount > 0 ||
+      attendanceRiskCount > 0
+    ){
+      adviceBox.className =
+        'student-risk-advice warning';
+
+      adviceBox.textContent =
+        `พบรายวิชาที่ควรติดตาม ${
+          calculatedRows.filter(row =>
+            row.riskStatus.key !== 'normal'
+          ).length
+        } รายวิชา ควรตรวจสอบรายละเอียดและติดต่อครูผู้สอน`;
+    }else if(calculatedRows.length){
+      adviceBox.className =
+        'student-risk-advice success';
+
+      adviceBox.textContent =
+        'ผลการรายงานล่าสุดยังไม่พบรายวิชาที่มีความเสี่ยง';
+    }else{
+      adviceBox.className =
+        'student-risk-advice';
+
+      adviceBox.textContent =
+        'ยังไม่มีข้อมูลรายงานกลางภาคในปีและภาคเรียนที่เลือก';
+    }
+  }
+
+  if(!calculatedRows.length){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty-state">
+          ยังไม่มีข้อมูลรายงานกลางภาค
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    calculatedRows.map(row => {
+      const status =
+        row.riskStatus;
+
+      const scorePercent =
+        safeNumber(
+          row.score_percent,
+          0
+        );
+
+      const attendancePercent =
+        safeNumber(
+          row.attendance_percent,
+          0
+        );
+
+      return `
+        <tr>
+
+          <td>
+            ${escapeHtml(
+              safeText(
+                row.subject_code,
+                '-'
+              )
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              safeText(
+                row.subject_name,
+                '-'
+              )
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              safeText(
+                row.teacher_name,
+                '-'
+              )
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              `${row.academic_year} / ${row.term}`
+            )}
+          </td>
+
+          <td>
+            <span
+              class="student-risk-percent ${
+                scorePercent < 50
+                  ? 'danger'
+                  : 'normal'
+              }"
+            >
+              ${scorePercent.toFixed(1)}%
+            </span>
+          </td>
+
+          <td>
+            <span
+              class="student-risk-percent ${
+                attendancePercent < 80
+                  ? 'warning'
+                  : 'normal'
+              }"
+            >
+              ${attendancePercent.toFixed(1)}%
+            </span>
+          </td>
+
+          <td>
+            <span
+              class="student-risk-status ${
+                status.key
+              }"
+            >
+              ${escapeHtml(status.text)}
+            </span>
+          </td>
+
+        </tr>
+      `;
+    }).join('');
+}
+
     async function loadPortalData(forceRefresh = false){
       if(!APP_STATE.currentUser?.id){
         throw new Error('ไม่พบข้อมูลผู้ใช้งาน');
@@ -7353,6 +8268,30 @@ try{
   );
 
   APP_STATE.remedialRequests = [];
+}
+
+try{
+  APP_STATE.midtermRiskRows =
+    await fetchStudentMidtermRiskRows();
+
+  APP_STATE.riskFilters = {
+    year:'',
+    term:''
+  };
+
+  populateStudentRiskFilters();
+  renderStudentRiskPage();
+
+}catch(error){
+  console.error(
+    'LOAD STUDENT RISK ERROR =',
+    error
+  );
+
+  APP_STATE.midtermRiskRows = [];
+
+  populateStudentRiskFilters();
+  renderStudentRiskPage();
 }
 
         const options = buildClassTermOptions(APP_STATE.availableTerms);
@@ -8902,6 +9841,12 @@ function renderRemedialStatus(){
         APP_STATE.remedialRequests = [];
         APP_STATE.remedialStatusFilter = 'all';
         APP_STATE.gpaxPercentile = null;
+        APP_STATE.midtermRiskRows = [];
+
+APP_STATE.riskFilters = {
+  year:'',
+  term:''
+};
 
         setPortalVisible(true);
         setActiveMenu('home');
@@ -9151,6 +10096,61 @@ $('homeActionList')?.addEventListener(
       item.dataset.homeActionSubject ||
       ''
     );
+  }
+);
+
+$('menuRiskBtn')?.addEventListener(
+  'click',
+  () => {
+    populateStudentRiskFilters();
+    renderStudentRiskPage();
+    setActiveMenu('risk');
+  }
+);
+
+$('riskYearFilter')?.addEventListener(
+  'change',
+  () => {
+    APP_STATE.riskFilters.year =
+      $('riskYearFilter')?.value || '';
+
+    APP_STATE.riskFilters.term = '';
+
+    populateStudentRiskFilters();
+    renderStudentRiskPage();
+  }
+);
+
+$('riskTermFilter')?.addEventListener(
+  'change',
+  () => {
+    APP_STATE.riskFilters.term =
+      $('riskTermFilter')?.value || '';
+
+    renderStudentRiskPage();
+  }
+);
+
+$('riskReloadBtn')?.addEventListener(
+  'click',
+  async () => {
+    try{
+      showLoading(true);
+
+      APP_STATE.midtermRiskRows =
+        await fetchStudentMidtermRiskRows();
+
+      populateStudentRiskFilters();
+      renderStudentRiskPage();
+
+    }catch(error){
+      console.error(
+        'RELOAD STUDENT RISK ERROR =',
+        error
+      );
+    }finally{
+      showLoading(false);
+    }
   }
 );
 
