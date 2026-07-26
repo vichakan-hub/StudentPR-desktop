@@ -4749,6 +4749,50 @@ body.portal-mode .app{
   }
 }
 
+/* =====================================================
+   StudentPR : Sidebar Risk Badge
+   ===================================================== */
+
+.student-risk-menu-btn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px;
+}
+
+.student-risk-menu-text{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+
+.student-sidebar-count-badge{
+  min-width:27px;
+  height:27px;
+  padding:0 8px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  border-radius:999px;
+  color:#ffffff;
+  background:#dc2626;
+  border:2px solid rgba(255,255,255,.88);
+  font-family:'Sarabun', sans-serif;
+  font-size:12px;
+  line-height:1;
+  font-weight:900;
+  box-shadow:0 6px 13px rgba(220,38,38,.24);
+}
+
+.student-side-btn.active
+.student-sidebar-count-badge{
+  color:#b91c1c;
+  background:#ffffff;
+  border-color:rgba(255,255,255,.45);
+}
+
   </style>
 </head>
 <body>
@@ -4882,13 +4926,24 @@ body.portal-mode .app{
     </div>
   </div>
 </div>
-    <button
-  class="btn student-side-btn menu-btn"
+<button
+  class="btn student-side-btn menu-btn student-risk-menu-btn"
   id="menuRiskBtn"
   type="button"
 >
-  ⚠️ ความเสี่ยงของฉัน
- </button>
+  <span class="student-risk-menu-text">
+    <span>⚠️</span>
+    <span>ความเสี่ยงของฉัน</span>
+  </span>
+
+  <span
+    id="riskSidebarBadge"
+    class="student-sidebar-count-badge hidden"
+    aria-label="จำนวนรายวิชาที่มีความเสี่ยง"
+  >
+    0
+  </span>
+</button>
     <button class="btn student-side-btn menu-btn" id="menuRemedialStatusBtn" type="button">
       📝 ติดตามสถานะการสอบแก้ตัว
     </button>
@@ -8243,7 +8298,104 @@ function getLatestStudentRiskPeriod(){
   };
 }
 
+function getLatestStudentRiskCount(){
+  const periodData =
+    getLatestStudentRiskPeriod();
+
+  const uniqueSubjectMap =
+    new Map();
+
+  (periodData.rows || []).forEach(row => {
+    const subjectCode =
+      safeText(
+        row?.subject_code,
+        ''
+      );
+
+    const teacherCode =
+      safeText(
+        row?.teacher_code,
+        ''
+      );
+
+    const key = [
+      periodData.academicYear,
+      periodData.term,
+      subjectCode,
+      teacherCode
+    ].join('|');
+
+    /*
+     * ป้องกันข้อมูลวิชาเดียวกันซ้ำ
+     * เลือกแถวที่อัปเดตล่าสุด
+     */
+    const oldRow =
+      uniqueSubjectMap.get(key);
+
+    if(
+      !oldRow ||
+      getRiskUpdatedTimestamp(row) >
+        getRiskUpdatedTimestamp(oldRow)
+    ){
+      uniqueSubjectMap.set(
+        key,
+        row
+      );
+    }
+  });
+
+  return Array
+    .from(uniqueSubjectMap.values())
+    .filter(row => {
+      const status =
+        getStudentRiskStatus(row);
+
+      return status.key !== 'normal';
+    })
+    .length;
+}
+
+function renderStudentRiskSidebarBadge(){
+  const badge =
+    $('riskSidebarBadge');
+
+  const menuButton =
+    $('menuRiskBtn');
+
+  if(!badge){
+    return;
+  }
+
+  const riskCount =
+    getLatestStudentRiskCount();
+
+  badge.textContent =
+    riskCount > 99
+      ? '99+'
+      : String(riskCount);
+
+  badge.classList.toggle(
+    'hidden',
+    riskCount <= 0
+  );
+
+  if(menuButton){
+    menuButton.title =
+      riskCount > 0
+        ? `พบรายวิชาที่มีความเสี่ยง ${riskCount} รายวิชา`
+        : 'ไม่พบรายวิชาที่มีความเสี่ยง';
+
+    menuButton.setAttribute(
+      'aria-label',
+      riskCount > 0
+        ? `ความเสี่ยงของฉัน มี ${riskCount} รายวิชา`
+        : 'ความเสี่ยงของฉัน'
+    );
+  }
+}
+
 function renderHomeRiskSummary(){
+  renderStudentRiskSidebarBadge();
   const periodData =
     getLatestStudentRiskPeriod();
 
@@ -9689,6 +9841,7 @@ APP_STATE.riskFilters = {
 
   populateStudentRiskFilters();
   renderStudentRiskPage();
+  renderStudentRiskSidebarBadge();
 
 }catch(error){
   console.error(
@@ -9696,10 +9849,11 @@ APP_STATE.riskFilters = {
     error
   );
 
-  APP_STATE.midtermRiskRows = [];
+APP_STATE.midtermRiskRows = [];
 
-  populateStudentRiskFilters();
-  renderStudentRiskPage();
+populateStudentRiskFilters();
+renderStudentRiskPage();
+renderStudentRiskSidebarBadge();
 }
 
         const options = buildClassTermOptions(APP_STATE.availableTerms);
@@ -11298,6 +11452,20 @@ APP_STATE.latestGradeRows = [];
 };
 
       APP_STATE.midtermRiskRows = [];
+      if($('riskSidebarBadge')){
+  $('riskSidebarBadge').textContent = '0';
+  $('riskSidebarBadge').classList.add('hidden');
+}
+
+if($('menuRiskBtn')){
+  $('menuRiskBtn').title =
+    'ความเสี่ยงของฉัน';
+
+  $('menuRiskBtn').setAttribute(
+    'aria-label',
+    'ความเสี่ยงของฉัน'
+  );
+}
 
 APP_STATE.riskFilters = {
   year:'',
