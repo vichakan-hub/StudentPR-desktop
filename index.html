@@ -3975,7 +3975,9 @@ body.portal-mode .app{
 .student-risk-filter{
   display:grid;
   grid-template-columns:
-    repeat(2, minmax(180px, 260px));
+    minmax(160px, .75fr)
+    minmax(160px, .75fr)
+    minmax(260px, 1.5fr);
   gap:12px;
   padding:20px 24px 12px;
 }
@@ -3991,7 +3993,8 @@ body.portal-mode .app{
   color:#39516a;
 }
 
-.student-risk-filter-field select{
+.student-risk-filter-field select,
+.student-risk-filter-field input{
   width:100%;
   height:44px;
   padding:0 13px;
@@ -4005,7 +4008,8 @@ body.portal-mode .app{
   font-weight:700;
 }
 
-.student-risk-filter-field select:focus{
+.student-risk-filter-field select:focus,
+.student-risk-filter-field input:focus{
   border-color:#75aef7;
   box-shadow:0 0 0 4px rgba(59,130,246,.10);
 }
@@ -4023,6 +4027,52 @@ body.portal-mode .app{
   padding:16px 18px;
   border:1px solid;
   border-radius:19px;
+}
+
+.student-risk-kpi{
+  position:relative;
+  appearance:none;
+  width:100%;
+  font-family:'Kanit', sans-serif;
+  text-align:left;
+  cursor:pointer;
+  transition:
+    transform .16s ease,
+    box-shadow .16s ease,
+    border-color .16s ease;
+}
+
+.student-risk-kpi:hover{
+  transform:translateY(-2px);
+  box-shadow:0 11px 23px rgba(15,23,42,.09);
+}
+
+.student-risk-kpi:focus-visible{
+  outline:3px solid rgba(37,99,235,.20);
+  outline-offset:3px;
+}
+
+.student-risk-kpi.active{
+  border-width:2px;
+  box-shadow:
+    0 12px 26px rgba(15,23,42,.10),
+    inset 0 0 0 2px rgba(255,255,255,.70);
+}
+
+.student-risk-kpi.active::after{
+  content:'✓';
+  position:absolute;
+  top:10px;
+  right:12px;
+  width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  color:currentColor;
+  background:rgba(255,255,255,.82);
+  font-size:13px;
+  font-weight:900;
 }
 
 .student-risk-kpi-label{
@@ -4083,6 +4133,14 @@ body.portal-mode .app{
   color:#9a5800;
   border-color:#fed7aa;
   background:#fff8ed;
+}
+
+.student-risk-result-summary{
+  margin:0 24px 10px;
+  color:#52677d;
+  font-size:12.5px;
+  font-weight:800;
+  text-align:right;
 }
 
 .student-risk-table-wrap{
@@ -4233,6 +4291,12 @@ body.portal-mode .app{
 }
 
 @media (max-width:620px){
+  .student-risk-result-summary{
+  margin-left:18px;
+  margin-right:18px;
+  text-align:left;
+}
+  
   .student-risk-head{
     flex-direction:column;
     padding:18px;
@@ -5538,90 +5602,137 @@ body.portal-mode .app{
     </div>
 
 
-    <div class="student-risk-filter">
+<div class="student-risk-filter">
 
-      <div class="student-risk-filter-field">
-        <label for="riskYearFilter">
-          ปีการศึกษา
-        </label>
+  <div class="student-risk-filter-field">
 
-        <select id="riskYearFilter">
-          <option value="">ทั้งหมด</option>
-        </select>
-      </div>
+    <label for="riskYearFilter">
+      ปีการศึกษา
+    </label>
+
+    <select id="riskYearFilter">
+      <option value="">ทั้งหมด</option>
+    </select>
+
+  </div>
 
 
-      <div class="student-risk-filter-field">
-        <label for="riskTermFilter">
-          ภาคเรียน
-        </label>
+  <div class="student-risk-filter-field">
 
-        <select id="riskTermFilter">
-          <option value="">ทั้งหมด</option>
-        </select>
-      </div>
+    <label for="riskTermFilter">
+      ภาคเรียน
+    </label>
 
+    <select id="riskTermFilter">
+      <option value="">ทั้งหมด</option>
+    </select>
+
+  </div>
+
+
+  <div class="student-risk-filter-field">
+
+    <label for="riskSearchInput">
+      ค้นหารายวิชา
+    </label>
+
+    <input
+      id="riskSearchInput"
+      type="search"
+      placeholder="รหัสวิชา / ชื่อวิชา / ครูผู้สอน"
+      autocomplete="off"
+    >
+
+  </div>
+
+</div>
+
+
+<div
+  class="student-risk-kpi-grid"
+  id="studentRiskKpiGrid"
+>
+
+  <button
+    class="student-risk-kpi all active"
+    type="button"
+    data-risk-filter="all"
+  >
+
+    <div class="student-risk-kpi-label">
+      รายวิชาที่รายงาน
     </div>
 
-
-    <div class="student-risk-kpi-grid">
-
-      <div class="student-risk-kpi all">
-        <div class="student-risk-kpi-label">
-          รายวิชาที่รายงาน
-        </div>
-
-        <div
-          id="riskAllCount"
-          class="student-risk-kpi-value"
-        >
-          0
-        </div>
-      </div>
-
-
-      <div class="student-risk-kpi normal">
-        <div class="student-risk-kpi-label">
-          สถานะปกติ
-        </div>
-
-        <div
-          id="riskNormalCount"
-          class="student-risk-kpi-value"
-        >
-          0
-        </div>
-      </div>
-
-
-      <div class="student-risk-kpi score">
-        <div class="student-risk-kpi-label">
-          เสี่ยงด้านคะแนน
-        </div>
-
-        <div
-          id="riskScoreCount"
-          class="student-risk-kpi-value"
-        >
-          0
-        </div>
-      </div>
-
-
-      <div class="student-risk-kpi attendance">
-        <div class="student-risk-kpi-label">
-          เสี่ยงด้านเวลาเรียน
-        </div>
-
-        <div
-          id="riskAttendanceCount"
-          class="student-risk-kpi-value"
-        >
-          0
-        </div>
-      </div>
-
+    <div
+      id="riskAllCount"
+      class="student-risk-kpi-value"
+    >
+      0
     </div>
+
+  </button>
+
+
+  <button
+    class="student-risk-kpi normal"
+    type="button"
+    data-risk-filter="normal"
+  >
+
+    <div class="student-risk-kpi-label">
+      สถานะปกติ
+    </div>
+
+    <div
+      id="riskNormalCount"
+      class="student-risk-kpi-value"
+    >
+      0
+    </div>
+
+  </button>
+
+
+  <button
+    class="student-risk-kpi score"
+    type="button"
+    data-risk-filter="score"
+  >
+
+    <div class="student-risk-kpi-label">
+      เสี่ยงด้านคะแนน
+    </div>
+
+    <div
+      id="riskScoreCount"
+      class="student-risk-kpi-value"
+    >
+      0
+    </div>
+
+  </button>
+
+
+  <button
+    class="student-risk-kpi attendance"
+    type="button"
+    data-risk-filter="attendance"
+  >
+
+    <div class="student-risk-kpi-label">
+      เสี่ยงด้านเวลาเรียน
+    </div>
+
+    <div
+      id="riskAttendanceCount"
+      class="student-risk-kpi-value"
+    >
+      0
+    </div>
+
+  </button>
+
+</div>
 
 
     <div
@@ -5630,6 +5741,13 @@ body.portal-mode .app{
     >
       กำลังตรวจสอบข้อมูล
     </div>
+
+    <div
+  id="riskResultSummary"
+  class="student-risk-result-summary"
+>
+  แสดง 0 จาก 0 รายวิชา
+</div>
 
 
     <div class="student-risk-table-wrap">
@@ -5965,7 +6083,9 @@ const APP_STATE = {
 
 riskFilters: {
   year:'',
-  term:''
+  term:'',
+  status:'all',
+  keyword:''
 },
 
   // ตัวกรองรายการสอบแก้ตัว
@@ -8781,6 +8901,73 @@ function populateStudentRiskFilters(){
     : `<option value="">ไม่มีข้อมูล</option>`;
 }
 
+function updateStudentRiskKpiActive(){
+  const selectedStatus =
+    APP_STATE.riskFilters.status || 'all';
+
+  document
+    .querySelectorAll(
+      '[data-risk-filter]'
+    )
+    .forEach(button => {
+      const status =
+        button.dataset.riskFilter || 'all';
+
+      button.classList.toggle(
+        'active',
+        status === selectedStatus
+      );
+
+      if(status === selectedStatus){
+        button.setAttribute(
+          'aria-pressed',
+          'true'
+        );
+      }else{
+        button.setAttribute(
+          'aria-pressed',
+          'false'
+        );
+      }
+    });
+}
+
+function filterStudentRiskRowsByStatus(rows){
+  const selectedStatus =
+    APP_STATE.riskFilters.status || 'all';
+
+  if(selectedStatus === 'all'){
+    return rows;
+  }
+
+  if(selectedStatus === 'normal'){
+    return rows.filter(row => {
+      return (
+        row.riskStatus.key ===
+        'normal'
+      );
+    });
+  }
+
+  /*
+   * รายวิชาที่เสี่ยงทั้งสองด้าน
+   * จะอยู่ในตัวกรองคะแนนและเวลาเรียนด้วย
+   */
+  if(selectedStatus === 'score'){
+    return rows.filter(row => {
+      return row.riskStatus.scoreRisk;
+    });
+  }
+
+  if(selectedStatus === 'attendance'){
+    return rows.filter(row => {
+      return row.riskStatus.attendanceRisk;
+    });
+  }
+
+  return rows;
+}
+
 function renderStudentRiskPage(){
   const tbody =
     $('riskTableBody');
@@ -8790,12 +8977,23 @@ function renderStudentRiskPage(){
   }
 
   const year =
-    APP_STATE.riskFilters.year;
+    APP_STATE.riskFilters.year || '';
 
   const term =
-    APP_STATE.riskFilters.term;
+    APP_STATE.riskFilters.term || '';
 
-  const rows =
+  const keyword =
+    String(
+      APP_STATE.riskFilters.keyword || ''
+    )
+      .trim()
+      .toLowerCase();
+
+
+  /*
+   * กรองปีและเทอมก่อน
+   */
+  const periodRows =
     (APP_STATE.midtermRiskRows || [])
       .filter(row => {
         if(
@@ -8817,31 +9015,73 @@ function renderStudentRiskPage(){
         return true;
       });
 
+
+  /*
+   * ประเมินสถานะรายวิชา
+   */
   const calculatedRows =
-    rows.map(row => ({
+    periodRows.map(row => ({
       ...row,
       riskStatus:
         getStudentRiskStatus(row)
     }));
 
+
+  /*
+   * ค้นหารหัสวิชา ชื่อวิชา และครูผู้สอน
+   */
+  const searchedRows =
+    calculatedRows.filter(row => {
+      if(!keyword){
+        return true;
+      }
+
+      const searchableText = [
+        row.subject_code,
+        row.subject_name,
+        row.teacher_code,
+        row.teacher_name,
+        row.academic_year,
+        row.term,
+        row.riskStatus.text
+      ]
+        .map(value =>
+          String(value ?? '')
+            .trim()
+            .toLowerCase()
+        )
+        .join(' ');
+
+      return searchableText.includes(keyword);
+    });
+
+
+  /*
+   * KPI นับหลังกรองปี เทอม และคำค้น
+   * แต่ยังไม่จำกัดด้วย KPI ที่เลือก
+   */
   const normalCount =
-    calculatedRows.filter(row =>
-      row.riskStatus.key === 'normal'
-    ).length;
+    searchedRows.filter(row => {
+      return (
+        row.riskStatus.key ===
+        'normal'
+      );
+    }).length;
 
   const scoreRiskCount =
-    calculatedRows.filter(row =>
-      row.riskStatus.scoreRisk
-    ).length;
+    searchedRows.filter(row => {
+      return row.riskStatus.scoreRisk;
+    }).length;
 
   const attendanceRiskCount =
-    calculatedRows.filter(row =>
-      row.riskStatus.attendanceRisk
-    ).length;
+    searchedRows.filter(row => {
+      return row.riskStatus.attendanceRisk;
+    }).length;
+
 
   if($('riskAllCount')){
     $('riskAllCount').textContent =
-      String(calculatedRows.length);
+      String(searchedRows.length);
   }
 
   if($('riskNormalCount')){
@@ -8859,43 +9099,115 @@ function renderStudentRiskPage(){
       String(attendanceRiskCount);
   }
 
+
+  updateStudentRiskKpiActive();
+
+
+  /*
+   * กรองตาม KPI ที่นักเรียนเลือก
+   */
+  const visibleRows =
+    filterStudentRiskRowsByStatus(
+      searchedRows
+    );
+
+
+  /*
+   * เรียงรายการเสี่ยงมากก่อน
+   */
+  const severityOrder = {
+    both:1,
+    score:2,
+    attendance:3,
+    normal:4
+  };
+
+  visibleRows.sort((a, b) => {
+    const severityDiff =
+      (severityOrder[a.riskStatus.key] || 99) -
+      (severityOrder[b.riskStatus.key] || 99);
+
+    if(severityDiff){
+      return severityDiff;
+    }
+
+    return safeText(
+      a.subject_code,
+      ''
+    ).localeCompare(
+      safeText(
+        b.subject_code,
+        ''
+      ),
+      'th',
+      {
+        numeric:true,
+        sensitivity:'base'
+      }
+    );
+  });
+
+
+  /*
+   * สรุปจำนวนรายการ
+   */
+  if($('riskResultSummary')){
+    $('riskResultSummary').textContent =
+      `แสดง ${visibleRows.length} จาก ` +
+      `${searchedRows.length} รายวิชา`;
+  }
+
+
+  /*
+   * กล่องคำแนะนำ
+   */
   const adviceBox =
     $('riskAdviceBox');
 
   if(adviceBox){
-    if(
-      scoreRiskCount > 0 ||
-      attendanceRiskCount > 0
-    ){
+    const riskCount =
+      searchedRows.filter(row => {
+        return (
+          row.riskStatus.key !==
+          'normal'
+        );
+      }).length;
+
+    if(!searchedRows.length){
+      adviceBox.className =
+        'student-risk-advice';
+
+      adviceBox.textContent =
+        keyword
+          ? 'ไม่พบรายวิชาที่ตรงกับคำค้น'
+          : 'ยังไม่มีข้อมูลรายงานกลางภาคในปีและภาคเรียนที่เลือก';
+
+    }else if(riskCount > 0){
       adviceBox.className =
         'student-risk-advice warning';
 
       adviceBox.textContent =
-        `พบรายวิชาที่ควรติดตาม ${
-          calculatedRows.filter(row =>
-            row.riskStatus.key !== 'normal'
-          ).length
-        } รายวิชา ควรตรวจสอบรายละเอียดและติดต่อครูผู้สอน`;
-    }else if(calculatedRows.length){
+        `พบรายวิชาที่ควรติดตาม ${riskCount} รายวิชา ` +
+        `ควรตรวจสอบรายละเอียดและติดต่อครูผู้สอน`;
+
+    }else{
       adviceBox.className =
         'student-risk-advice success';
 
       adviceBox.textContent =
         'ผลการรายงานล่าสุดยังไม่พบรายวิชาที่มีความเสี่ยง';
-    }else{
-      adviceBox.className =
-        'student-risk-advice';
-
-      adviceBox.textContent =
-        'ยังไม่มีข้อมูลรายงานกลางภาคในปีและภาคเรียนที่เลือก';
     }
   }
 
-  if(!calculatedRows.length){
+
+  if(!visibleRows.length){
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="empty-state">
-          ยังไม่มีข้อมูลรายงานกลางภาค
+        <td
+          colspan="7"
+          class="empty-state"
+        >
+          ไม่พบรายการที่ตรงกับตัวกรอง
         </td>
       </tr>
     `;
@@ -8903,8 +9215,9 @@ function renderStudentRiskPage(){
     return;
   }
 
+
   tbody.innerHTML =
-    calculatedRows.map(row => {
+    visibleRows.map(row => {
       const status =
         row.riskStatus;
 
@@ -8983,7 +9296,7 @@ function renderStudentRiskPage(){
           <td>
             <span
               class="student-risk-status ${
-                status.key
+                escapeHtml(status.key)
               }"
             >
               ${escapeHtml(status.text)}
@@ -9050,10 +9363,12 @@ try{
   APP_STATE.midtermRiskRows =
     await fetchStudentMidtermRiskRows();
 
-  APP_STATE.riskFilters = {
-    year:'',
-    term:''
-  };
+APP_STATE.riskFilters = {
+  year:'',
+  term:'',
+  status:'all',
+  keyword:''
+};
 
   populateStudentRiskFilters();
   renderStudentRiskPage();
@@ -10621,7 +10936,9 @@ function renderRemedialStatus(){
 
 APP_STATE.riskFilters = {
   year:'',
-  term:''
+  term:'',
+  status:'all',
+  keyword:''
 };
 
         setPortalVisible(true);
@@ -10662,6 +10979,22 @@ APP_STATE.latestGradeRows = [];
   teacher: '',
   keyword: ''
 };
+
+      APP_STATE.midtermRiskRows = [];
+
+APP_STATE.riskFilters = {
+  year:'',
+  term:'',
+  status:'all',
+  keyword:''
+};
+
+if($('riskSearchInput')){
+  $('riskSearchInput').value = '';
+}
+
+updateStudentRiskKpiActive();
+renderStudentRiskPage();
 
       clearSession();
       setPortalVisible(false);
@@ -10926,6 +11259,8 @@ $('menuRiskBtn')?.addEventListener(
   }
 );
 
+
+
 $('riskYearFilter')?.addEventListener(
   'change',
   () => {
@@ -10939,11 +11274,43 @@ $('riskYearFilter')?.addEventListener(
   }
 );
 
+
 $('riskTermFilter')?.addEventListener(
   'change',
   () => {
     APP_STATE.riskFilters.term =
       $('riskTermFilter')?.value || '';
+
+    renderStudentRiskPage();
+  }
+);
+
+document
+  .querySelectorAll(
+    '[data-risk-filter]'
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      'click',
+      () => {
+        APP_STATE.riskFilters.status =
+          button.dataset.riskFilter ||
+          'all';
+
+        renderStudentRiskPage();
+      }
+    );
+
+  });
+
+
+$('riskSearchInput')?.addEventListener(
+  'input',
+  () => {
+    APP_STATE.riskFilters.keyword =
+      $('riskSearchInput')?.value
+        .trim() || '';
 
     renderStudentRiskPage();
   }
