@@ -4559,12 +4559,19 @@ body.portal-mode .app{
             </div>
           </div>
 
-          <form id="loginForm" autocomplete="off">
+          <form id="loginForm" autocomplete="on">
             <div class="field">
               <label for="studentCode">เลขประจำตัวนักเรียน</label>
               <div class="input-wrap">
                 <span class="input-icon">👤</span>
-                <input id="studentCode" name="studentCode" type="text" placeholder="เช่น 25129" />
+                <input
+  id="studentCode"
+  name="studentCode"
+  type="text"
+  placeholder="เช่น 25129"
+  autocomplete="username"
+  inputmode="numeric"
+/>
               </div>
             </div>
 
@@ -4572,7 +4579,13 @@ body.portal-mode .app{
               <label for="password">รหัสผ่าน</label>
               <div class="input-wrap">
                 <span class="input-icon">🔐</span>
-                <input id="password" name="password" type="password" placeholder="กรอกรหัสผ่าน" />
+                <input
+  id="password"
+  name="password"
+  type="password"
+  placeholder="กรอกรหัสผ่าน"
+  autocomplete="current-password"
+/>
                 <span class="input-tail">👁️</span>
               </div>
             </div>
@@ -10772,59 +10785,84 @@ function openStudentRiskPage(){
 }
 
 function initMenuEvents(){
-  $('menuHomeBtn')?.addEventListener('click', () => {
-  renderHomeDashboard();
-  setActiveMenu('home');
-});
 
-$('homeOpenGradeBtn')?.addEventListener('click', () => {
-  $('menuGradesBtn')?.click();
-});
+  $('menuHomeBtn')?.addEventListener(
+    'click',
+    () => {
+      renderHomeDashboard();
+      setActiveMenu('home');
+    }
+  );
 
-$('homeOpenRemedialBtn')?.addEventListener('click', () => {
-  openHomeRemedialFilter('all');
-});
 
-$('homeOpenOverviewBtn')?.addEventListener('click', () => {
+  $('homeOpenGradeBtn')?.addEventListener(
+    'click',
+    () => {
+      $('menuGradesBtn')?.click();
+    }
+  );
 
-document
-  .querySelectorAll(
-    '[data-home-remedial-filter]'
-  )
-  .forEach(button => {
 
-    button.addEventListener('click', () => {
-      const countNode =
-        button.querySelector(
-          '.home-status-value'
-        );
+  $('homeOpenRemedialBtn')?.addEventListener(
+    'click',
+    () => {
+      openHomeRemedialFilter('all');
+    }
+  );
 
-      const count =
-        Number(
-          countNode?.textContent || 0
-        );
 
-      /*
-       * อนุญาตให้กดรายการอนุมัติแล้วแม้มี 0
-       * เพราะอาจต้องการเปิดดูหน้าประวัติทั้งหมด
-       */
-      if(
-        count <= 0 &&
-        button.dataset.homeRemedialFilter !==
-          'approved'
-      ){
-        return;
-      }
+  /*
+   * เปิดหน้าภาพรวมผลการเรียน
+   */
+  $('homeOpenOverviewBtn')?.addEventListener(
+    'click',
+    () => {
+      $('menuGradesBtn')?.click();
+    }
+  );
 
-      openHomeRemedialFilter(
-        button.dataset.homeRemedialFilter ||
-        'all'
+
+  /*
+   * การ์ดสถานะสอบแก้ตัวบนหน้า Dashboard
+   */
+  document
+    .querySelectorAll(
+      '[data-home-remedial-filter]'
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        () => {
+          const countNode =
+            button.querySelector(
+              '.home-status-value'
+            );
+
+          const count = Number(
+            countNode?.textContent || 0
+          );
+
+          /*
+           * อนุมัติแล้วสามารถเปิดดูได้
+           * แม้จำนวนปัจจุบันเป็น 0
+           */
+          if(
+            count <= 0 &&
+            button.dataset.homeRemedialFilter !==
+              'approved'
+          ){
+            return;
+          }
+
+          openHomeRemedialFilter(
+            button.dataset.homeRemedialFilter ||
+              'all'
+          );
+        }
       );
+
     });
-
-  });
-
-  $('homeActionList')?.addEventListener(
   'click',
   event => {
     const item =
