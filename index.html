@@ -4313,6 +4313,18 @@ body.portal-mode .app{
   border:1px solid #fed7aa;
 }
 
+.student-risk-percent.missing{
+  color:#64748b;
+  background:#f8fafc;
+  border:1px solid #dbe3ec;
+}
+
+.student-risk-status.incomplete{
+  color:#64748b;
+  background:#f8fafc;
+  border:1px solid #dbe3ec;
+}
+
 .student-risk-status{
   display:inline-flex;
   align-items:center;
@@ -8397,7 +8409,10 @@ function getLatestStudentRiskCount(){
       const status =
         getStudentRiskStatus(row);
 
-      return status.key !== 'normal';
+return (
+  status.scoreRisk ||
+  status.attendanceRisk
+);
     })
     .length;
 }
@@ -8456,13 +8471,18 @@ function renderHomeRiskSummary(){
         getStudentRiskStatus(row)
     }));
 
-  const riskRows =
-    calculatedRows.filter(row => {
-      return (
-        row.riskStatus.key !==
-        'normal'
-      );
-    });
+const riskRows =
+  calculatedRows.filter(row => {
+    return (
+      row.riskStatus.scoreRisk ||
+      row.riskStatus.attendanceRisk
+    );
+  });
+
+const incompleteRows =
+  calculatedRows.filter(row => {
+    return row.riskStatus.incomplete;
+  });
 
   const scoreRiskCount =
     calculatedRows.filter(row => {
@@ -8569,13 +8589,20 @@ homeRiskCards.forEach(item => {
 
       adviceNode.textContent =
         `พบรายวิชาที่ควรติดตาม ${riskRows.length} รายวิชา ควรตรวจสอบคะแนนและเวลาเรียน`;
-    }else{
-      adviceNode.className =
-        'home-risk-advice success';
+}else if(incompleteRows.length){
+  adviceNode.className =
+    'home-risk-advice';
 
-      adviceNode.textContent =
-        'ข้อมูลล่าสุดยังไม่พบรายวิชาที่มีความเสี่ยง';
-    }
+  adviceNode.textContent =
+    `ยังไม่พบความเสี่ยงที่ยืนยันได้ แต่มีข้อมูลไม่ครบ ${incompleteRows.length} รายวิชา`;
+
+}else{
+  adviceNode.className =
+    'home-risk-advice success';
+
+  adviceNode.textContent =
+    'ข้อมูลล่าสุดยังไม่พบรายวิชาที่มีความเสี่ยง';
+}
   }
 
 
@@ -8596,15 +8623,23 @@ homeRiskCards.forEach(item => {
     return;
   }
 
-  if(!riskRows.length){
-    listNode.innerHTML = `
-      <div class="home-risk-empty success">
-        ✅ ขณะนี้ไม่พบรายวิชาที่มีความเสี่ยง
-      </div>
-    `;
+if(!riskRows.length){
+  listNode.innerHTML =
+    incompleteRows.length
+      ? `
+        <div class="home-risk-empty">
+          ℹ️ มี ${incompleteRows.length} รายวิชา
+          ที่ยังรายงานคะแนนหรือเวลาเรียนไม่ครบ
+        </div>
+      `
+      : `
+        <div class="home-risk-empty success">
+          ✅ ขณะนี้ไม่พบรายวิชาที่มีความเสี่ยง
+        </div>
+      `;
 
-    return;
-  }
+  return;
+}
 
 
   const severityOrder = {
@@ -9258,57 +9293,132 @@ function getDashboardAcademicYear(){
     });
 }
 
+function getNullablePercent(value){
+  if(
+    value === null ||
+    value === undefined ||
+    String(value).trim() === ''
+  ){
+    return null;
+  }
+
+  const numberValue =
+    Number(value);
+
+  return Number.isFinite(numberValue)
+    ? numberValue
+    : null;
+}
+
+
 function getStudentRiskStatus(row){
   const scorePercent =
-    safeNumber(
-      row?.score_percent,
-      0
+    getNullablePercent(
+      row?.score_percent
     );
 
   const attendancePercent =
-    safeNumber(
-      row?.attendance_percent,
-      0
+    getNullablePercent(
+      row?.attendance_percent
     );
 
+  const hasScore =
+    scorePercent !== null;
+
+  const hasAttendance =
+    attendancePercent !== null;
+
   const scoreRisk =
+    hasScore &&
     scorePercent < 50;
 
   const attendanceRisk =
+    hasAttendance &&
     attendancePercent < 80;
+
+  const missingLabels = [];
+
+  if(!hasScore){
+    missingLabels.push('คะแนน');
+  }
+
+  if(!hasAttendance){
+    missingLabels.push('เวลาเรียน');
+  }
+
+  const incomplete =
+    missingLabels.length > 0;
+
+  const incompleteText =
+    incomplete
+      ? ` • รอข้อมูล${missingLabels.join('และ')}`
+      : '';
+
 
   if(scoreRisk && attendanceRisk){
     return {
       key:'both',
-      text:'เสี่ยงคะแนนและเวลาเรียน',
+      text:
+        `เสี่ยงคะแนนและเวลาเรียน${incompleteText}`,
       scoreRisk:true,
-      attendanceRisk:true
+      attendanceRisk:true,
+      incomplete,
+      hasScore,
+      hasAttendance
     };
   }
+
 
   if(scoreRisk){
     return {
       key:'score',
-      text:'เสี่ยงด้านคะแนน',
+      text:
+        `เสี่ยงด้านคะแนน${incompleteText}`,
       scoreRisk:true,
-      attendanceRisk:false
+      attendanceRisk:false,
+      incomplete,
+      hasScore,
+      hasAttendance
     };
   }
+
 
   if(attendanceRisk){
     return {
       key:'attendance',
-      text:'เสี่ยงด้านเวลาเรียน',
+      text:
+        `เสี่ยงด้านเวลาเรียน${incompleteText}`,
       scoreRisk:false,
-      attendanceRisk:true
+      attendanceRisk:true,
+      incomplete,
+      hasScore,
+      hasAttendance
     };
   }
+
+
+  if(incomplete){
+    return {
+      key:'incomplete',
+      text:
+        `รอข้อมูล${missingLabels.join('และ')}`,
+      scoreRisk:false,
+      attendanceRisk:false,
+      incomplete:true,
+      hasScore,
+      hasAttendance
+    };
+  }
+
 
   return {
     key:'normal',
     text:'ปกติ',
     scoreRisk:false,
-    attendanceRisk:false
+    attendanceRisk:false,
+    incomplete:false,
+    hasScore:true,
+    hasAttendance:true
   };
 }
 
@@ -9682,13 +9792,18 @@ if($('riskResultSummary')){
     $('riskAdviceBox');
 
   if(adviceBox){
-    const riskCount =
-      searchedRows.filter(row => {
-        return (
-          row.riskStatus.key !==
-          'normal'
-        );
-      }).length;
+const riskCount =
+  searchedRows.filter(row => {
+    return (
+      row.riskStatus.scoreRisk ||
+      row.riskStatus.attendanceRisk
+    );
+  }).length;
+
+const incompleteCount =
+  searchedRows.filter(row => {
+    return row.riskStatus.incomplete;
+  }).length;
 
     if(!searchedRows.length){
       adviceBox.className =
@@ -9699,21 +9814,34 @@ if($('riskResultSummary')){
           ? 'ไม่พบรายวิชาที่ตรงกับคำค้น'
           : 'ยังไม่มีข้อมูลรายงานกลางภาคในปีและภาคเรียนที่เลือก';
 
-    }else if(riskCount > 0){
-      adviceBox.className =
-        'student-risk-advice warning';
+}else if(riskCount > 0){
+  adviceBox.className =
+    'student-risk-advice warning';
 
-      adviceBox.textContent =
-        `พบรายวิชาที่ควรติดตาม ${riskCount} รายวิชา ` +
-        `ควรตรวจสอบรายละเอียดและติดต่อครูผู้สอน`;
+  const incompleteNote =
+    incompleteCount > 0
+      ? ` และมีข้อมูลไม่ครบ ${incompleteCount} รายวิชา`
+      : '';
 
-    }else{
-      adviceBox.className =
-        'student-risk-advice success';
+  adviceBox.textContent =
+    `พบรายวิชาที่ควรติดตาม ${riskCount} รายวิชา` +
+    incompleteNote +
+    ` ควรตรวจสอบรายละเอียดและติดต่อครูผู้สอน`;
 
-      adviceBox.textContent =
-        'ผลการรายงานล่าสุดยังไม่พบรายวิชาที่มีความเสี่ยง';
-    }
+}else if(incompleteCount > 0){
+  adviceBox.className =
+    'student-risk-advice';
+
+  adviceBox.textContent =
+    `ยังไม่มีความเสี่ยงที่ยืนยันได้ แต่มีรายวิชาที่รายงานข้อมูลไม่ครบ ${incompleteCount} รายวิชา`;
+
+}else{
+  adviceBox.className =
+    'student-risk-advice success';
+
+  adviceBox.textContent =
+    'ผลการรายงานล่าสุดยังไม่พบรายวิชาที่มีความเสี่ยง';
+}
   }
 
 
@@ -9738,17 +9866,39 @@ if($('riskResultSummary')){
       const status =
         row.riskStatus;
 
-      const scorePercent =
-        safeNumber(
-          row.score_percent,
-          0
-        );
+const scorePercent =
+  getNullablePercent(
+    row.score_percent
+  );
 
-      const attendancePercent =
-        safeNumber(
-          row.attendance_percent,
-          0
-        );
+const attendancePercent =
+  getNullablePercent(
+    row.attendance_percent
+  );
+
+const scorePercentClass =
+  scorePercent === null
+    ? 'missing'
+    : scorePercent < 50
+      ? 'danger'
+      : 'normal';
+
+const attendancePercentClass =
+  attendancePercent === null
+    ? 'missing'
+    : attendancePercent < 80
+      ? 'warning'
+      : 'normal';
+
+const scorePercentText =
+  scorePercent === null
+    ? '-'
+    : `${scorePercent.toFixed(1)}%`;
+
+const attendancePercentText =
+  attendancePercent === null
+    ? '-'
+    : `${attendancePercent.toFixed(1)}%`;
 
       return `
         <tr>
@@ -9787,27 +9937,19 @@ if($('riskResultSummary')){
           </td>
 
           <td>
-            <span
-              class="student-risk-percent ${
-                scorePercent < 50
-                  ? 'danger'
-                  : 'normal'
-              }"
-            >
-              ${scorePercent.toFixed(1)}%
-            </span>
+<span
+  class="student-risk-percent ${scorePercentClass}"
+>
+  ${scorePercentText}
+</span>
           </td>
 
           <td>
-            <span
-              class="student-risk-percent ${
-                attendancePercent < 80
-                  ? 'warning'
-                  : 'normal'
-              }"
-            >
-              ${attendancePercent.toFixed(1)}%
-            </span>
+<span
+  class="student-risk-percent ${attendancePercentClass}"
+>
+  ${attendancePercentText}
+</span>
           </td>
 
           <td>
