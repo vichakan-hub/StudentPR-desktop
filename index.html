@@ -984,6 +984,7 @@
   .remedial-kpi-grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
+  
 }
 
 @media (max-width:520px){
@@ -4379,6 +4380,29 @@ body.portal-mode .app{
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   }
+.student-topbar-actions{
+  gap:7px;
+}
+
+.student-topbar-actions .user-code-pill{
+  max-width:34vw;
+  padding-left:10px;
+  padding-right:10px;
+}
+
+.student-topbar-logout-btn{
+  width:42px;
+  height:42px;
+  min-height:42px;
+  padding:0;
+  border-radius:14px;
+}
+
+.student-topbar-logout-text{
+  display:none;
+}
+
+  
 }
 
 
@@ -4856,6 +4880,51 @@ body.portal-mode .app{
   background:#ffffff;
 }
 
+/* =====================================================
+   StudentPR : Topbar User + Logout
+   ===================================================== */
+
+.student-topbar-actions{
+  min-width:0;
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex:0 1 auto;
+}
+
+.student-topbar-actions .user-code-pill{
+  min-width:0;
+  max-width:420px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.student-topbar-logout-btn{
+  min-height:42px;
+  padding:0 15px;
+  flex:0 0 auto;
+  color:#b91c1c;
+  background:#fff3f1;
+  border:1px solid #fecaca;
+  border-radius:15px;
+  box-shadow:0 7px 16px rgba(185,28,28,.08);
+}
+
+.student-topbar-logout-btn:hover{
+  color:#991b1b;
+  background:#fee2e2;
+  border-color:#fca5a5;
+  box-shadow:0 9px 20px rgba(185,28,28,.13);
+}
+
+.student-topbar-logout-btn:focus-visible{
+  outline:3px solid rgba(239,68,68,.18);
+  outline-offset:3px;
+}
+
   </style>
 </head>
 <body>
@@ -5049,7 +5118,31 @@ body.portal-mode .app{
       </div>
     </div>
 
-    <div class="user-code-pill" id="topStudentIdentity">รหัสนักเรียน -</div>
+    <div class="student-topbar-actions">
+
+  <div
+    class="user-code-pill"
+    id="topStudentIdentity"
+    title="ข้อมูลนักเรียน"
+  >
+    รหัสนักเรียน -
+  </div>
+
+  <button
+    id="topLogoutBtn"
+    class="btn student-topbar-logout-btn"
+    type="button"
+    title="ออกจากระบบ"
+    aria-label="ออกจากระบบ"
+  >
+    
+
+    <span class="student-topbar-logout-text">
+      ออกจากระบบ
+    </span>
+  </button>
+
+</div>
   </div>
 
 <section id="pageHome">
@@ -12512,6 +12605,11 @@ $('homeRiskList')
 
   $('refreshBtn')?.addEventListener('click', handleRefresh);
   $('logoutBtn')?.addEventListener('click', handleLogout);
+  $('topLogoutBtn')
+  ?.addEventListener(
+    'click',
+    handleLogout
+  );
   $('studentSidebarToggleBtn')?.addEventListener('click', toggleStudentSidebar);
   $('studentSidebarBackdrop')?.addEventListener('click', closeStudentSidebar);
 
