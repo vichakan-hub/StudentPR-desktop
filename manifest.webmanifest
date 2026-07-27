@@ -2,7 +2,7 @@
   "id": "./",
   "name": "StudentPR - ระบบสารสนเทศผลการเรียน",
   "short_name": "StudentPR",
-  "description": "ระบบสำหรับนักเรียนเพื่อตรวจสอบผลการเรียน ความเสี่ยงทางการเรียน และติดตามสถานะการสอบแก้ตัว",
+  "description": "ระบบตรวจสอบผลการเรียน ความเสี่ยงทางการเรียน และติดตามสถานะการสอบแก้ตัวสำหรับนักเรียน",
   "lang": "th",
   "dir": "ltr",
 
@@ -10,11 +10,7 @@
   "scope": "./",
 
   "display": "standalone",
-  "display_override": [
-    "window-controls-overlay",
-    "standalone",
-    "minimal-ui"
-  ],
+  "orientation": "any",
 
   "background_color": "#f3e8f7",
   "theme_color": "#2f6de0",
@@ -26,19 +22,19 @@
 
   "icons": [
     {
-      "src": "./assets/studentpr-icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./assets/studentpr-icon-512.png",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./assets/studentpr-icon-512.png",
+      "src": "./icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
