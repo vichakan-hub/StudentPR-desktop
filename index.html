@@ -9323,19 +9323,16 @@ function getDashboardAcademicYear(){
   const { data, error } =
     await supabaseClient
       .from('midterm_reports')
-      .select(`
-        id,
-        academic_year,
-        term,
-        class_level,
-        room,
+.select(`
+  id,
+  academic_year,
+  term,
+  class_level,
+  room,
 
-        subject_code,
-        subject_name,
-
-        teacher_code,
-        teacher_name,
-
+  subject_offering_id,
+  subject_code,
+  subject_name,
         student_code,
 
         score_percent,
@@ -9347,12 +9344,15 @@ function getDashboardAcademicYear(){
       .order('academic_year', {
         ascending:false
       })
-      .order('term', {
-        ascending:false
-      })
-      .order('subject_code', {
-        ascending:true
-      });
+.order('term', {
+  ascending:false
+})
+.order('updated_at', {
+  ascending:false
+})
+.order('subject_code', {
+  ascending:true
+});
 
   if(error){
     throw error;
