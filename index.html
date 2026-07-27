@@ -4925,6 +4925,49 @@ body.portal-mode .app{
   outline-offset:3px;
 }
 
+/* =====================================================
+   StudentPR : School Logo
+   ===================================================== */
+
+.student-sidebar-logo{
+  width:56px !important;
+  height:56px !important;
+  padding:4px !important;
+  overflow:hidden !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  flex:0 0 56px !important;
+  border-radius:18px !important;
+
+  background:#ffffff !important;
+  border:1px solid rgba(255,255,255,.88) !important;
+
+  box-shadow:
+    0 10px 22px rgba(15,23,42,.10) !important;
+}
+
+.student-sidebar-logo-image{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  border-radius:14px;
+}
+
+.student-sidebar-brand > div:last-child{
+  min-width:0;
+}
+
+.student-sidebar-title,
+.student-sidebar-sub{
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
   </style>
 </head>
 <body>
@@ -5021,7 +5064,13 @@ body.portal-mode .app{
 
 <aside id="studentSidebar" class="student-sidebar">
   <div class="student-sidebar-brand">
-    <div class="student-sidebar-logo">ทม</div>
+    <div class="student-sidebar-logo">
+  <img
+    src="assets/school-logo.png"
+    alt="ตราโรงเรียนท่าใหม่ พูลสวัสดิ์ราษฎร์นุกูล"
+    class="student-sidebar-logo-image"
+  >
+</div>
     <div>
       <div class="student-sidebar-title">StudentPR</div>
       <div class="student-sidebar-sub">ระบบสารสนเทศผลการเรียน</div>
