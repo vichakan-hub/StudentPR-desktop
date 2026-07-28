@@ -1,5 +1,5 @@
 const CACHE_NAME =
-  'studentpr-desktop-v2';
+  'studentpr-desktop-v3';
 
 const APP_SHELL = [
   './',
