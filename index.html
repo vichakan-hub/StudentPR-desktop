@@ -12881,20 +12881,22 @@ $('remedialApplyFilterBtn')
 
     document.addEventListener('DOMContentLoaded', bootstrap);
   </script>
-  <script>
-  if(
-    'serviceWorker' in navigator
-  ){
+<script>
+  if('serviceWorker' in navigator){
+
     window.addEventListener(
       'load',
       async () => {
+
         try{
+
           const registration =
-            await navigator
-              .serviceWorker
-              .register(
-                './service-worker.js'
-              );
+            await navigator.serviceWorker.register(
+              '/StudentPR-desktop/service-worker.js',
+              {
+                scope:'/StudentPR-desktop/'
+              }
+            );
 
           console.log(
             'StudentPR Service Worker registered:',
@@ -12902,13 +12904,17 @@ $('remedialApplyFilterBtn')
           );
 
         }catch(error){
+
           console.error(
             'StudentPR Service Worker registration failed:',
             error
           );
+
         }
+
       }
     );
+
   }
 </script>
 </body>
