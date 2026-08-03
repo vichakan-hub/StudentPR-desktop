@@ -13007,17 +13007,33 @@ APP_STATE.riskFilters = {
         setLoginStatus('', false);
 
         await loadPortalData(false);
-      }catch(error){
-        console.error('LOGIN ERROR RAW =', error);
-        console.error('LOGIN ERROR MESSAGE =', error?.message);
-        console.error('LOGIN ERROR DETAILS =', error?.details);
-        console.error('LOGIN ERROR HINT =', error?.hint);
-        console.error('LOGIN ERROR CODE =', error?.code);
-        console.error('LOGIN ERROR JSON =', JSON.stringify(error, null, 2));
-        setStudentPasswordVisible(
-         false
-        );
-        setLoginStatus(error?.message || 'เข้าสู่ระบบไม่สำเร็จ', true);
+}catch(error){
+  console.error(
+    'LOGIN OR PORTAL LOAD ERROR =',
+    error
+  );
+
+  /*
+   * ป้องกันกรณีเข้าสู่ระบบผ่านแล้ว
+   * แต่โหลดข้อมูลนักเรียนไม่สำเร็จ
+   */
+  clearSession();
+
+  APP_STATE.currentUser = null;
+  APP_STATE.studentProfile = null;
+
+  setPortalVisible(false);
+
+  setStudentPasswordVisible(false);
+
+  setLoginStatus(
+    error?.message ||
+    'ไม่สามารถเข้าสู่ระบบหรือโหลดข้อมูลนักเรียนได้ กรุณาลองใหม่อีกครั้ง',
+    true
+  );
+
+  $('password')?.focus();
+
 }finally{
   setStudentLoginBusy(false);
 }
@@ -14034,11 +14050,11 @@ function initLoginEvents(){
 
           const registration =
             await navigator.serviceWorker.register(
-              '/StudentPR-desktop/service-worker.js',
-              {
-                scope:'/StudentPR-desktop/'
-              }
-            );
+  './service-worker.js',
+  {
+    scope:'./'
+  }
+);
 
           console.log(
             'StudentPR Service Worker registered:',
