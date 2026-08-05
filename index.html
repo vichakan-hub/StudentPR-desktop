@@ -10457,13 +10457,18 @@ function getDashboardAcademicYear(){
   subject_offering_id,
   subject_code,
   subject_name,
-        student_code,
 
-        score_percent,
-        attendance_percent,
+  teacher_id,
+  teacher_code,
+  teacher_name,
 
-        updated_at
-      `)
+  student_code,
+
+  score_percent,
+  attendance_percent,
+
+  updated_at
+`)
       .eq('student_code', studentCode)
       .order('academic_year', {
         ascending:false
