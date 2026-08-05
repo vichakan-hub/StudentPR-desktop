@@ -11154,10 +11154,11 @@ const attendancePercentText =
 
           <td>
             ${escapeHtml(
-              safeText(
-                row.teacher_name,
-                '-'
-              )
+safeText(
+  row.teacher_name ||
+  row.teacher_code,
+  '-'
+)
             )}
           </td>
 
