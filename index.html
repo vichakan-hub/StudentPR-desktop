@@ -10161,15 +10161,15 @@ function renderHomeDashboard(){
       `ห้อง ${room} • เลขที่ ${studentNo}`;
   }
 
-  if($('homeGpaxValue')){
-    $('homeGpaxValue').textContent =
-      dashboardGpax !== null
-        ? formatDashboardDecimal(
-            dashboardGpax,
-            2
-          )
-        : '-';
-  }
+if($('homeGpaxValue')){
+  $('homeGpaxValue').textContent =
+    dashboardGpax !== null
+      ? formatNumberFloor(
+          dashboardGpax,
+          2
+        )
+      : '-';
+}
 
   if($('homePercentileValue')){
     $('homePercentileValue').textContent =
