@@ -10090,14 +10090,10 @@ const dashboardGpax =
     ? cumulativeSummary.gpa
     : cachedGpax;
 
-  const dashboardTotalCredit =
-    cachedTotalCredit !== null
-      ? cachedTotalCredit
-      : (
-          allRows.length
-            ? cumulativeSummary.totalLearned
-            : null
-        );
+const dashboardTotalCredit =
+  allRows.length
+    ? cumulativeSummary.totalLearned
+    : cachedTotalCredit;
 
   const latestGpa =
     latestRows.length
