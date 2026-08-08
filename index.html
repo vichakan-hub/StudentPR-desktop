@@ -8889,19 +8889,19 @@ function updateHomeTrendSummary(trendData){
   const latest = data[data.length - 1] || null;
   const previous = data[data.length - 2] || null;
 
-  if($('homeTrendLatestGpa')){
-    $('homeTrendLatestGpa').textContent =
-      latest
-        ? latest.gpa.toFixed(2)
-        : '-';
-  }
+if($('homeTrendLatestGpa')){
+  $('homeTrendLatestGpa').textContent =
+    latest
+      ? formatNumberFloor(latest.gpa, 2)
+      : '-';
+}
 
-  if($('homeTrendCurrentGpax')){
-    $('homeTrendCurrentGpax').textContent =
-      latest
-        ? latest.gpax.toFixed(2)
-        : '-';
-  }
+if($('homeTrendCurrentGpax')){
+  $('homeTrendCurrentGpax').textContent =
+    latest
+      ? formatNumberFloor(latest.gpax, 2)
+      : '-';
+}
 
   const changeNode = $('homeTrendChange');
   const messageNode = $('homeTrendMessage');
@@ -8930,8 +8930,15 @@ function updateHomeTrendSummary(trendData){
     return;
   }
 
-  const change = Number(
-    (latest.gpa - previous.gpa).toFixed(2)
+const latestGpa =
+  Number(formatNumberFloor(latest.gpa, 2));
+
+const previousGpa =
+  Number(formatNumberFloor(previous.gpa, 2));
+
+const change =
+  Number(
+    (latestGpa - previousGpa).toFixed(2)
   );
 
   if(change > 0){
@@ -8997,11 +9004,11 @@ function renderHomeAcademicTrendChart(rows){
       labels: trendData.map(item => item.label),
 
       datasets: [
-        {
-          label: 'GPA รายภาคเรียน',
-          data: trendData.map(
-            item => Number(item.gpa.toFixed(2))
-          ),
+{
+  label: 'GPA รายภาคเรียน',
+  data: trendData.map(
+    item => Number(formatNumberFloor(item.gpa, 2))
+  ),
           borderColor:'#2563eb',
           backgroundColor:'rgba(37,99,235,.12)',
           pointBackgroundColor:'#2563eb',
@@ -9013,11 +9020,11 @@ function renderHomeAcademicTrendChart(rows){
           tension:.3,
           fill:true
         },
-        {
-          label: 'GPAX สะสม',
-          data: trendData.map(
-            item => Number(item.gpax.toFixed(2))
-          ),
+{
+  label: 'GPAX สะสม',
+  data: trendData.map(
+    item => Number(formatNumberFloor(item.gpax, 2))
+  ),
           borderColor:'#7c3aed',
           backgroundColor:'rgba(124,58,237,.08)',
           pointBackgroundColor:'#7c3aed',
@@ -10078,14 +10085,10 @@ function renderHomeDashboard(){
   /*
    * ถ้าไม่มี Cache ให้คำนวณจากผลการเรียนจริง
    */
-  const dashboardGpax =
-    cachedGpax !== null
-      ? cachedGpax
-      : (
-          allRows.length
-            ? cumulativeSummary.gpa
-            : null
-        );
+const dashboardGpax =
+  allRows.length
+    ? cumulativeSummary.gpa
+    : cachedGpax;
 
   const dashboardTotalCredit =
     cachedTotalCredit !== null
@@ -10204,15 +10207,15 @@ if($('homeGpaxValue')){
         : '-';
   }
 
-  if($('homeLatestGpaValue')){
-    $('homeLatestGpaValue').textContent =
-      latestGpa !== null
-        ? formatDashboardDecimal(
-            latestGpa,
-            2
-          )
-        : '-';
-  }
+if($('homeLatestGpaValue')){
+  $('homeLatestGpaValue').textContent =
+    latestGpa !== null
+      ? formatNumberFloor(
+          latestGpa,
+          2
+        )
+      : '-';
+}
 
   if($('homeLatestTermLabel')){
     $('homeLatestTermLabel').textContent =
@@ -11593,7 +11596,9 @@ function renderTermGpaBarChart(rows){
       labels: data.map(item => item.label),
       datasets: [{
         label: 'GPA',
-        data: data.map(item => Number(item.gpa.toFixed(2))),
+        data: data.map(
+  item => Number(formatNumberFloor(item.gpa, 2))
+),
         backgroundColor: '#60a5fa',
         borderColor: '#2563eb',
         borderWidth: 1,
