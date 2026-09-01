@@ -13606,7 +13606,7 @@ $('menuRemedialStatusBtn')?.addEventListener(
   'click',
   async () => {
     try{
-      await ensureOverviewRows(false);
+      await ensureOverviewRows(true);
 
       APP_STATE.remedialRequests =
         await fetchStudentRemedialRequests();
