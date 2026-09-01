@@ -7568,14 +7568,48 @@ body.portal-mode .app{
     let overviewLearningAreaRadarChart = null;
     let termGpaBarChart = null;
 
-    const CHART_INSTANCES = {};
-    const STUDENT_CACHE_VERSION =
+const CHART_INSTANCES = {};
+
+const STUDENT_CACHE_VERSION =
   'v3_home_dashboard_fix';
-    const CURRENT_ACADEMIC_YEAR = 2569;
+
+const CURRENT_ACADEMIC_YEAR =
+  2569;
+
+
+/*
+ * =====================================================
+ * Student Session
+ *
+ * Browser จะเก็บเฉพาะ opaque token + expires_at
+ * ห้ามใช้ currentUser / studentProfile
+ * ที่เก็บใน Browser เป็นหลักฐานยืนยันตัวตน
+ * =====================================================
+ */
+
+const STUDENT_SESSION_TOKEN_KEY =
+  'studentpr_session_token';
+
+const STUDENT_SESSION_EXPIRES_KEY =
+  'studentpr_session_expires_at';
+
 
 const APP_STATE = {
+
+  /*
+   * ข้อมูลนักเรียนใช้ใน RAM เท่านั้น
+   */
   currentUser: null,
+
   studentProfile: null,
+
+
+  /*
+   * Session ที่ Database ออกให้
+   */
+  studentSessionToken: '',
+
+  studentSessionExpiresAt: null,
   latestYearTerm: null,
   selectedYearTerm: null,
   availableTerms: [],
@@ -8703,17 +8737,139 @@ function buildSummaryFromRows(rows){
   return result;
 }
 
-    function saveSession(){
-      const payload = {
-        currentUser: APP_STATE.currentUser,
-        studentProfile: APP_STATE.studentProfile
-      };
-      sessionStorage.setItem('student_portal_session', JSON.stringify(payload));
+function saveSession(){
+
+  const token =
+    String(
+      APP_STATE.studentSessionToken || ''
+    ).trim();
+
+
+  /*
+   * ไม่มี token = ห้ามสร้าง session
+   */
+  if(!token){
+    return false;
+  }
+
+
+  try{
+
+    /*
+     * เก็บเฉพาะ opaque token
+     */
+    sessionStorage.setItem(
+      STUDENT_SESSION_TOKEN_KEY,
+      token
+    );
+
+
+    /*
+     * เก็บวันหมดอายุ
+     * ใช้เพื่อแสดงสถานะ/ช่วยตรวจสอบ
+     * แต่สิทธิ์จริงยังต้องให้ DB ตรวจ
+     */
+    if(
+      APP_STATE.studentSessionExpiresAt
+    ){
+
+      sessionStorage.setItem(
+        STUDENT_SESSION_EXPIRES_KEY,
+        String(
+          APP_STATE.studentSessionExpiresAt
+        )
+      );
+
+    }else{
+
+      sessionStorage.removeItem(
+        STUDENT_SESSION_EXPIRES_KEY
+      );
+
     }
 
-    function clearSession(){
-      sessionStorage.removeItem('student_portal_session');
-    }
+
+    /*
+     * ลบ Session รูปแบบเก่า
+     * ที่เคยเก็บ currentUser / studentProfile
+     */
+    sessionStorage.removeItem(
+      'student_portal_session'
+    );
+
+
+    /*
+     * เผื่อ Browser เคยใช้ StudentPR รุ่นเก่า
+     */
+    localStorage.removeItem(
+      'student_portal_persistent_session'
+    );
+
+
+    return true;
+
+
+  }catch(error){
+
+    console.warn(
+      'SAVE STUDENT SESSION SKIPPED =',
+      error
+    );
+
+    return false;
+  }
+}
+
+function clearSession(){
+
+  /*
+   * Clear state ใน RAM
+   */
+  APP_STATE.studentSessionToken =
+    '';
+
+  APP_STATE.studentSessionExpiresAt =
+    null;
+
+
+  try{
+
+    /*
+     * Session ใหม่
+     */
+    sessionStorage.removeItem(
+      STUDENT_SESSION_TOKEN_KEY
+    );
+
+    sessionStorage.removeItem(
+      STUDENT_SESSION_EXPIRES_KEY
+    );
+
+
+    /*
+     * Session เก่า
+     */
+    sessionStorage.removeItem(
+      'student_portal_session'
+    );
+
+
+    /*
+     * เก็บกวาดจาก StudentPR รุ่นเก่า
+     */
+    localStorage.removeItem(
+      'student_portal_persistent_session'
+    );
+
+  }catch(error){
+
+    console.warn(
+      'CLEAR STUDENT SESSION SKIPPED =',
+      error
+    );
+
+  }
+}
 
     function restoreSession(){
       const raw = sessionStorage.getItem('student_portal_session');
@@ -12988,9 +13144,48 @@ try{
     false
   );
 
-        const loginResult = await loginStudent(studentCode, password);
-        APP_STATE.currentUser = loginResult.user || null;
-        APP_STATE.studentProfile = null;
+const loginResult =
+  await loginStudent(
+    studentCode,
+    password
+  );
+
+
+APP_STATE.currentUser =
+  loginResult.user || null;
+
+
+/*
+ * =====================================================
+ * Session จาก Database
+ * =====================================================
+ */
+
+APP_STATE.studentSessionToken =
+  String(
+    loginResult.session_token || ''
+  ).trim();
+
+
+APP_STATE.studentSessionExpiresAt =
+  loginResult.expires_at || null;
+
+
+/*
+ * login_student_session()
+ * ต้องคืน opaque token เสมอ
+ */
+if(
+  !APP_STATE.studentSessionToken
+){
+  throw new Error(
+    'ไม่พบ Session Token กรุณาเข้าสู่ระบบใหม่'
+  );
+}
+
+
+APP_STATE.studentProfile =
+  null;
         APP_STATE.availableTerms = [];
         APP_STATE.termRowsCache = {};
         APP_STATE.allGradeRows = [];
@@ -13014,6 +13209,14 @@ APP_STATE.riskFilters = {
         setLoginStatus('', false);
 
         await loadPortalData(false);
+
+/*
+ * บันทึกเฉพาะ opaque token
+ * หลัง Portal โหลดสำเร็จแล้ว
+ */
+saveSession();
+
+        
 }catch(error){
   console.error(
     'LOGIN OR PORTAL LOAD ERROR =',
