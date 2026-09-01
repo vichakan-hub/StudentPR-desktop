@@ -8920,19 +8920,193 @@ function clearSession(){
   }
 }
 
-    function restoreSession(){
-      const raw = sessionStorage.getItem('student_portal_session');
-      if(!raw) return false;
+async function restoreSession(){
 
-      try{
-        const parsed = JSON.parse(raw);
-        APP_STATE.currentUser = parsed.currentUser || null;
-        APP_STATE.studentProfile = parsed.studentProfile || null;
-        return !!(APP_STATE.currentUser && APP_STATE.studentProfile);
-      }catch(error){
-        return false;
+  let token = '';
+
+  try{
+
+    token =
+      String(
+        sessionStorage.getItem(
+          STUDENT_SESSION_TOKEN_KEY
+        ) || ''
+      ).trim();
+
+  }catch(error){
+
+    console.warn(
+      'READ STUDENT SESSION ERROR =',
+      error
+    );
+
+    return false;
+  }
+
+
+  /*
+   * ไม่มี opaque token
+   * = ไม่มี Session ที่กู้คืนได้
+   */
+  if(!token){
+
+    APP_STATE.currentUser =
+      null;
+
+    APP_STATE.studentProfile =
+      null;
+
+    APP_STATE.studentSessionToken =
+      '';
+
+    APP_STATE.studentSessionExpiresAt =
+      null;
+
+    return false;
+  }
+
+
+  /*
+   * =====================================================
+   * ตรวจ token กับ Database
+   * =====================================================
+   */
+
+  const { data, error } =
+    await supabaseClient.rpc(
+      'get_student_session_context',
+      {
+        p_token: token
       }
-    }
+    );
+
+
+  /*
+   * ถ้าเป็นปัญหา network / RPC
+   *
+   * ห้ามเปิด Portal
+   * แต่ยังไม่ต้องทำลาย token
+   * เผื่อ reload แล้วระบบกลับมาใช้งานได้
+   */
+  if(error){
+
+    console.warn(
+      'RESTORE STUDENT SESSION RPC ERROR =',
+      error
+    );
+
+    return false;
+  }
+
+
+  const result =
+    Array.isArray(data)
+      ? data[0]
+      : data;
+
+
+  /*
+   * Token ไม่ถูกต้อง / หมดอายุ / ถูก revoke
+   */
+  if(
+    !result ||
+    result.ok !== true ||
+    !result.user
+  ){
+
+    clearSession();
+
+    APP_STATE.currentUser =
+      null;
+
+    APP_STATE.studentProfile =
+      null;
+
+    return false;
+  }
+
+
+  const user =
+    result.user;
+
+
+  /*
+   * ต้องมีตัวตนนักเรียนที่ DB ยืนยัน
+   */
+  const studentId =
+    String(
+      user.id || ''
+    ).trim();
+
+  const studentCode =
+    String(
+      user.sid ||
+      user.student_code ||
+      ''
+    ).trim();
+
+
+  if(
+    !studentId ||
+    !studentCode
+  ){
+
+    clearSession();
+
+    APP_STATE.currentUser =
+      null;
+
+    APP_STATE.studentProfile =
+      null;
+
+    return false;
+  }
+
+
+  /*
+   * =====================================================
+   * ใช้ข้อมูลที่ Database คืนมาเท่านั้น
+   *
+   * currentUser / studentProfile
+   * อยู่ใน RAM ไม่ได้อ่านจาก Browser Storage
+   * =====================================================
+   */
+
+  APP_STATE.currentUser = {
+    ...user,
+
+    sid:
+      studentCode,
+
+    student_code:
+      studentCode
+  };
+
+
+  APP_STATE.studentProfile = {
+    ...user,
+
+    sid:
+      studentCode
+  };
+
+
+  APP_STATE.studentSessionToken =
+    token;
+
+
+  APP_STATE.studentSessionExpiresAt =
+    result.expires_at || null;
+
+
+  /*
+   * อัปเดต expires_at จากข้อมูลที่ DB ยืนยันล่าสุด
+   */
+  saveSession();
+
+
+  return true;
+}
 
 function applyRemedialEligibility(rows){
   const btn = $('btnRequestRemedial');
@@ -14273,7 +14447,8 @@ function initLoginEvents(){
       renderSummary([]);
       renderRemedialStatus();
 
-      const restored = restoreSession();
+      const restored =
+  await restoreSession();
       if(!restored){
         setPortalVisible(false);
         return;
