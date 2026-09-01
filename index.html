@@ -13471,10 +13471,73 @@ saveSession();
   setStudentLoginBusy(false);
 }
     }
+async function handleLogout(){
 
-    function handleLogout(){
-      APP_STATE.currentUser = null;
-      APP_STATE.studentProfile = null;
+  /*
+   * =====================================================
+   * 1) เก็บ opaque token ไว้ก่อน
+   *
+   * ต้องทำก่อน clearSession()
+   * เพราะ clearSession จะลบ token ออกจาก RAM/Storage
+   * =====================================================
+   */
+
+  const token =
+    String(
+      APP_STATE.studentSessionToken ||
+      sessionStorage.getItem(
+        STUDENT_SESSION_TOKEN_KEY
+      ) ||
+      ''
+    ).trim();
+
+
+  /*
+   * =====================================================
+   * 2) Revoke Session ที่ Database
+   *
+   * ถึง network มีปัญหา
+   * ผู้ใช้ยังต้อง Logout ฝั่ง Browser ต่อได้
+   * =====================================================
+   */
+
+  if(token){
+
+    try{
+
+      const { error } =
+        await supabaseClient.rpc(
+          'logout_student_session',
+          {
+            p_token: token
+          }
+        );
+
+
+      if(error){
+        throw error;
+      }
+
+    }catch(error){
+
+      console.warn(
+        'STUDENT SESSION REVOKE ERROR =',
+        error
+      );
+
+    }
+
+  }
+
+
+  /*
+   * =====================================================
+   * 3) จากตรงนี้ใช้ Logout เดิมต่อ
+   * =====================================================
+   */
+
+  APP_STATE.currentUser = null;
+  APP_STATE.studentProfile = null;
 APP_STATE.latestYearTerm = null;
 APP_STATE.selectedYearTerm = null;
 APP_STATE.availableTerms = [];
