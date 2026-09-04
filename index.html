@@ -8654,11 +8654,33 @@ async function loginStudent(
         }
       }
 
-      const { data, error } = await supabaseClient.rpc('rpc_student_term_report_cache', {
-        p_student_code: studentCode,
-        p_academic_year: termInfo.academicYear,
-        p_term: termInfo.term
-      });
+const token =
+  String(
+    APP_STATE.studentSessionToken || ''
+  ).trim();
+
+
+if(!token){
+  throw new Error(
+    'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่'
+  );
+}
+
+
+const { data, error } =
+  await supabaseClient.rpc(
+    'rpc_student_term_report_cache_session',
+    {
+      p_token:
+        token,
+
+      p_academic_year:
+        termInfo.academicYear,
+
+      p_term:
+        termInfo.term
+    }
+  );
 
       if(error) throw error;
 
