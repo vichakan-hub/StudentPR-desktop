@@ -8501,34 +8501,139 @@ async function loginStudent(
       }
     }
 
-    async function refreshStudentReportCacheIfPossible(){
-      const studentCode = getStudentSidForRpc();
-      if(!studentCode) return false;
+async function refreshStudentReportCacheIfPossible(){
 
-      const { error } = await supabaseClient.rpc('refresh_student_grade_report_cache', {
-        p_student_code: studentCode
-      });
+  /*
+   * studentCode ยังใช้เฉพาะสำหรับ
+   * ล้าง Browser cache ของนักเรียนคนปัจจุบัน
+   *
+   * ไม่ได้ใช้กำหนดสิทธิ์ใน Database
+   */
+  const studentCode =
+    getStudentSidForRpc();
 
-      if(error){
-        console.warn('REFRESH STUDENT CACHE SKIPPED =', error);
-        return false;
+  if(!studentCode){
+    return false;
+  }
+
+
+  /*
+   * =====================================================
+   * ใช้ Student Session Token
+   * =====================================================
+   */
+
+  const token =
+    String(
+      APP_STATE.studentSessionToken || ''
+    ).trim();
+
+
+  if(!token){
+
+    console.warn(
+      'REFRESH STUDENT CACHE SKIPPED: missing student session token'
+    );
+
+    return false;
+  }
+
+
+  /*
+   * =====================================================
+   * Refresh cache ผ่าน Secure Session RPC
+   *
+   * Browser ไม่ส่ง SID เข้า Database อีกแล้ว
+   * =====================================================
+   */
+
+  const { data, error } =
+    await supabaseClient.rpc(
+      'refresh_student_grade_report_cache_session',
+      {
+        p_token: token
+      }
+    );
+
+
+  if(error){
+
+    console.warn(
+      'REFRESH STUDENT CACHE SKIPPED =',
+      error
+    );
+
+    return false;
+  }
+
+
+  /*
+   * data = จำนวน cache rows
+   * ที่ถูกสร้าง/อัปเดต
+   *
+   * ตอนนี้ไม่จำเป็นต้องใช้ค่า
+   */
+  console.debug(
+    'REFRESH STUDENT CACHE RESULT =',
+    data
+  );
+
+
+  /*
+   * =====================================================
+   * ล้าง Browser cache เดิม
+   * =====================================================
+   */
+
+  const prefix =
+    `${STUDENT_CACHE_VERSION}_student_term_report_${studentCode}_`;
+
+
+  try{
+
+    sessionStorage.removeItem(
+      `${STUDENT_CACHE_VERSION}_student_available_terms_${studentCode}`
+    );
+
+
+    Object.keys(
+      sessionStorage
+    ).forEach(key => {
+
+      if(
+        key.startsWith(prefix)
+      ){
+        sessionStorage.removeItem(
+          key
+        );
       }
 
-      const prefix = `${STUDENT_CACHE_VERSION}_student_term_report_${studentCode}_`;
-      try{
-        sessionStorage.removeItem(`${STUDENT_CACHE_VERSION}_student_available_terms_${studentCode}`);
-        Object.keys(sessionStorage).forEach(key => {
-          if(key.startsWith(prefix)) sessionStorage.removeItem(key);
-        });
-      }catch(error){
-        // ข้ามได้ ถ้า browser ไม่อนุญาตให้ลบ cache
-      }
+    });
 
-      APP_STATE.termRowsCache = {};
-      APP_STATE.allGradeRows = [];
-      APP_STATE.latestGradeRows = [];
-      return true;
-    }
+  }catch(error){
+
+    /*
+     * Browser ไม่อนุญาต Storage
+     * ก็ไม่ทำให้ RPC ล้ม
+     */
+  }
+
+
+  /*
+   * =====================================================
+   * ล้าง cache ใน RAM
+   * =====================================================
+   */
+
+  APP_STATE.termRowsCache = {};
+
+  APP_STATE.allGradeRows = [];
+
+  APP_STATE.latestGradeRows = [];
+
+
+  return true;
+}
 
     async function fetchStudentAvailableTerms(forceRefresh = false){
       const studentCode = getStudentSidForRpc();
