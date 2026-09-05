@@ -8501,6 +8501,61 @@ async function loginStudent(
       }
     }
 
+  function clearStudentGradeBrowserCache(
+  studentCode
+){
+
+  const sid =
+    String(
+      studentCode || ''
+    ).trim();
+
+  if(!sid){
+    return;
+  }
+
+  try{
+
+    const availableTermsKey =
+      `${STUDENT_CACHE_VERSION}_student_available_terms_${sid}`;
+
+    const termPrefix =
+      `${STUDENT_CACHE_VERSION}_student_term_report_${sid}_`;
+
+    sessionStorage.removeItem(
+      availableTermsKey
+    );
+
+    Object.keys(
+      sessionStorage
+    ).forEach(key => {
+
+      if(
+        key.startsWith(
+          termPrefix
+        )
+      ){
+        sessionStorage.removeItem(
+          key
+        );
+      }
+
+    });
+
+  }catch(error){
+
+    console.warn(
+      'CLEAR STUDENT GRADE CACHE ERROR =',
+      error
+    );
+
+  }
+
+  APP_STATE.termRowsCache = {};
+  APP_STATE.allGradeRows = [];
+  APP_STATE.latestGradeRows = [];
+}
+
 async function refreshStudentReportCacheIfPossible(){
 
   /*
@@ -9298,6 +9353,11 @@ async function restoreSession(){
 
   APP_STATE.studentSessionToken =
     token;
+
+  clearStudentGradeBrowserCache(
+  APP_STATE.currentUser?.sid ||
+  APP_STATE.currentUser?.student_code
+);
 
 
   APP_STATE.studentSessionExpiresAt =
