@@ -8635,44 +8635,122 @@ async function refreshStudentReportCacheIfPossible(){
   return true;
 }
 
-    async function fetchStudentAvailableTerms(forceRefresh = false){
-      const studentCode = getStudentSidForRpc();
-      if(!studentCode) return [];
+async function fetchStudentAvailableTerms(
+  forceRefresh = false
+){
 
-      const cacheKey = `${STUDENT_CACHE_VERSION}_student_available_terms_${studentCode}`;
-      if(!forceRefresh){
-        const cached = getSessionCache(cacheKey);
-        if(Array.isArray(cached) && cached.length > 0){
-          return cached.map(normalizeAvailableTerm).filter(item => item.key).sort(compareClassTermDesc);
-        }
-      }
+  const studentCode =
+    getStudentSidForRpc();
 
-      const loadTerms = async () => {
-        const { data, error } = await supabaseClient.rpc('rpc_student_available_terms', {
-          p_student_code: studentCode
-        });
+  if(!studentCode){
+    return [];
+  }
 
-        if(error) throw error;
 
-        return (Array.isArray(data) ? data : [])
-          .map(normalizeAvailableTerm)
-          .filter(item => item.key)
-          .sort(compareClassTermDesc);
-      };
+  const cacheKey =
+    `${STUDENT_CACHE_VERSION}_student_available_terms_${studentCode}`;
 
-      let terms = await loadTerms();
 
-      // เคลียร์ฝั่ง Student ให้จบ: ถ้ายังไม่มี cache ให้ StudentPR สั่งสร้าง cache เฉพาะนักเรียนคนนี้ 1 ครั้ง
-      if(!terms.length){
-        const refreshed = await refreshStudentReportCacheIfPossible();
-        if(refreshed){
-          terms = await loadTerms();
-        }
-      }
+  /*
+   * ใช้ Browser cache ก่อน
+   */
+  if(!forceRefresh){
 
-      setSessionCache(cacheKey, terms);
-      return terms;
+    const cached =
+      getSessionCache(cacheKey);
+
+    if(
+      Array.isArray(cached) &&
+      cached.length > 0
+    ){
+      return cached
+        .map(normalizeAvailableTerm)
+        .filter(item => item.key)
+        .sort(compareClassTermDesc);
     }
+
+  }
+
+
+  /*
+   * =====================================================
+   * อ่าน Available Terms ผ่าน Student Session
+   * =====================================================
+   */
+
+  const loadTerms = async () => {
+
+    const token =
+      String(
+        APP_STATE.studentSessionToken || ''
+      ).trim();
+
+
+    if(!token){
+      throw new Error(
+        'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่'
+      );
+    }
+
+
+    const { data, error } =
+      await supabaseClient.rpc(
+        'rpc_student_available_terms_session',
+        {
+          p_token: token
+        }
+      );
+
+
+    if(error){
+      throw error;
+    }
+
+
+    return (
+      Array.isArray(data)
+        ? data
+        : []
+    )
+      .map(normalizeAvailableTerm)
+      .filter(item => item.key)
+      .sort(compareClassTermDesc);
+
+  };
+
+
+  let terms =
+    await loadTerms();
+
+
+  /*
+   * ถ้ายังไม่มี Cache ใน DB
+   * ให้ refresh เฉพาะนักเรียนเจ้าของ Session
+   */
+  if(!terms.length){
+
+    const refreshed =
+      await refreshStudentReportCacheIfPossible();
+
+
+    if(refreshed){
+
+      terms =
+        await loadTerms();
+
+    }
+
+  }
+
+
+  setSessionCache(
+    cacheKey,
+    terms
+  );
+
+
+  return terms;
+}
 
     function normalizeReportJsonItems(reportJson){
       if(Array.isArray(reportJson)) return reportJson;
