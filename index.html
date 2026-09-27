@@ -8412,30 +8412,47 @@ async function loginStudent(
       return safeText(APP_STATE.studentProfile?.[FIELD_MAP.students.sid] || APP_STATE.currentUser?.sid || APP_STATE.currentUser?.student_code, '');
     }
 
-    async function fetchStudentGpaxPercentile(
+async function fetchStudentGpaxPercentile(
   academicYear = CURRENT_ACADEMIC_YEAR
 ){
-  const studentCode = getStudentSidForRpc();
 
-  if(!studentCode){
+  const token =
+    String(
+      APP_STATE.studentSessionToken ||
+      ''
+    ).trim();
+
+
+  if(!token){
     return null;
   }
 
-  const { data, error } = await supabaseClient.rpc(
-    'rpc_student_gpax_percentile',
-    {
-      p_student_code: studentCode,
-      p_academic_year: academicYear
-    }
-  );
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      'rpc_student_gpax_percentile_session',
+      {
+        p_token:
+          token,
+
+        p_academic_year:
+          academicYear
+      }
+    );
+
 
   if(error){
     throw error;
   }
 
+
   if(Array.isArray(data)){
     return data[0] || null;
   }
+
 
   return data || null;
 }
