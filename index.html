@@ -8391,22 +8391,59 @@ async function loginStudent(
   return result;
 }
 
-    async function fetchStudentProfile(studentId){
-      const { data, error } = await supabaseClient
-        .from('students')
-        .select(`
-          id,
-          sid,
-          raw_full_name,
-          current_room,
-          current_no
-        `)
-        .eq('id', studentId)
-        .single();
+async function fetchStudentProfile(){
 
-      if(error) throw error;
-      return data;
-    }
+  const token =
+    String(
+      APP_STATE.studentSessionToken ||
+      ''
+    ).trim();
+
+
+  if(!token){
+
+    throw new Error(
+      'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่'
+    );
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      'rpc_student_profile_session',
+      {
+        p_token:
+          token
+      }
+    );
+
+
+  if(error){
+    throw error;
+  }
+
+
+  const row =
+    Array.isArray(data)
+      ? data[0]
+      : data;
+
+
+  if(!row){
+
+    throw new Error(
+      'ไม่พบข้อมูลนักเรียน'
+    );
+
+  }
+
+
+  return row;
+}
 
     function getStudentSidForRpc(){
       return safeText(APP_STATE.studentProfile?.[FIELD_MAP.students.sid] || APP_STATE.currentUser?.sid || APP_STATE.currentUser?.student_code, '');
@@ -8457,48 +8494,41 @@ async function fetchStudentGpaxPercentile(
   return data || null;
 }
 
-    async function fetchStudentRemedialRequests(){
-  const studentCode = getStudentSidForRpc();
+async function fetchStudentRemedialRequests(){
 
-  if(!studentCode){
+  const token =
+    String(
+      APP_STATE.studentSessionToken ||
+      ''
+    ).trim();
+
+
+  if(!token){
     return [];
   }
 
-  const { data, error } = await supabaseClient
-    .from('grade_retest_requests')
-    .select(`
-      id,
-      grade_result_id,
-      student_code,
-      subject_code,
-      subject_name,
-      teacher_id,
-      teacher_code,
-      academic_year,
-      term,
-      class_level,
-      room,
-      original_grade_code,
-      requested_retest_grade_code,
-      status,
-      submitted_at,
-      updated_at,
-      approved_at,
-      rejected_at,
-      rejected_reason,
-      is_active
-    `)
-    .eq('student_code', studentCode)
-    .eq('is_active', true)
-    .order('academic_year', { ascending:false })
-    .order('term', { ascending:false })
-    .order('updated_at', { ascending:false });
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      'rpc_student_retest_requests_session',
+      {
+        p_token:
+          token
+      }
+    );
+
 
   if(error){
     throw error;
   }
 
-  return Array.isArray(data) ? data : [];
+
+  return Array.isArray(data)
+    ? data
+    : [];
 }
 
     function getSessionCache(key){
@@ -11842,7 +11872,8 @@ safeText(
 
       try{
         if(!APP_STATE.studentProfile){
-          APP_STATE.studentProfile = await fetchStudentProfile(APP_STATE.currentUser.id);
+          APP_STATE.studentProfile =
+  await fetchStudentProfile();
         }
 
         updatePortalIdentity();
