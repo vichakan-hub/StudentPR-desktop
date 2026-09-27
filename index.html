@@ -11079,70 +11079,44 @@ function getDashboardAcademicYear(){
     : CURRENT_ACADEMIC_YEAR;
 }
 
-    async function fetchStudentMidtermRiskRows(){
-  const studentCode =
-    getStudentSidForRpc();
+async function fetchStudentMidtermRiskRows(){
 
-  if(!studentCode){
-    return [];
+  const token =
+    String(
+      APP_STATE.studentSessionToken || ''
+    ).trim();
+
+
+  if(!token){
+
+    throw new Error(
+      'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่'
+    );
+
   }
 
-  const { data, error } =
-    await supabaseClient
-      .from('midterm_reports')
-.select(`
-  id,
-  academic_year,
-  term,
-  class_level,
-  room,
 
-  subject_offering_id,
-  subject_code,
-  subject_name,
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      'rpc_student_midterm_risk_session',
+      {
+        p_token:
+          token
+      }
+    );
 
-  teacher_id,
-  teacher_code,
-  teacher_name,
-
-  student_code,
-
-  score_percent,
-  attendance_percent,
-
-  updated_at
-`)
-      .eq('student_code', studentCode)
-      .order('academic_year', {
-        ascending:false
-      })
-.order('term', {
-  ascending:false
-})
-.order('updated_at', {
-  ascending:false
-})
-.order('subject_code', {
-  ascending:true
-});
 
   if(error){
     throw error;
   }
 
-  return (Array.isArray(data) ? data : [])
-    .filter(row => {
-      const subjectCode =
-        safeText(
-          row?.subject_code,
-          ''
-        );
 
-      /*
-       * ไม่แสดงวิชากิจกรรม
-       */
-      return !subjectCode.startsWith('ก');
-    });
+  return Array.isArray(data)
+    ? data
+    : [];
 }
 
 function getNullablePercent(value){
