@@ -7639,6 +7639,23 @@ remedialFilters: {
 }
 };
 
+/* =====================================================
+ * StudentPR : Zero-Polling Portal Gate
+ * ===================================================== */
+
+let studentPortalGateTimer =
+  null;
+
+let studentPortalGateNextChangeAt =
+  null;
+
+let studentPortalGateChecking =
+  false;
+
+let studentPortalGateVisibilityBound =
+  false;
+
+
 const PAGE_IDS = {
   home: 'pageHome',
   gradeOverview: 'pageGradeOverview',
@@ -7791,6 +7808,674 @@ function setPortalVisible(visible){
   $('loginSection').classList.toggle('hidden', visible);
   $('portalSection').classList.toggle('hidden', !visible);
   document.body.classList.toggle('portal-mode', !!visible);
+}
+
+/* =====================================================
+   StudentPR : Portal Access Gate
+   ===================================================== */
+
+async function checkStudentPortalAccess(){
+
+  const token =
+    String(
+      APP_STATE.studentSessionToken || ''
+    ).trim();
+
+
+  if(!token){
+
+    return {
+      ok:false,
+      allowed:false,
+      reason:'missing_token',
+      message:'ไม่พบ Session กรุณาเข้าสู่ระบบใหม่'
+    };
+
+  }
+
+
+  try{
+
+    const { data, error } =
+      await supabaseClient.rpc(
+        'student_portal_access_gate_session',
+        {
+          p_token: token
+        }
+      );
+
+
+    if(error){
+
+      console.warn(
+        'STUDENT PORTAL GATE RPC ERROR =',
+        error
+      );
+
+      return {
+        ok:false,
+        allowed:false,
+        reason:'gate_rpc_error',
+        message:
+          'ไม่สามารถตรวจสอบสิทธิ์เข้า StudentPR ได้ กรุณาลองใหม่อีกครั้ง'
+      };
+
+    }
+
+
+    const result =
+      Array.isArray(data)
+        ? data[0]
+        : data;
+
+
+    if(!result){
+
+      return {
+        ok:false,
+        allowed:false,
+        reason:'empty_gate_result',
+        message:
+          'ไม่สามารถตรวจสอบสิทธิ์เข้า StudentPR ได้'
+      };
+
+    }
+
+
+    return result;
+
+
+  }catch(error){
+
+    console.warn(
+      'STUDENT PORTAL GATE ERROR =',
+      error
+    );
+
+    return {
+      ok:false,
+      allowed:false,
+      reason:'gate_exception',
+      message:
+        'ไม่สามารถตรวจสอบสิทธิ์เข้า StudentPR ได้ กรุณาลองใหม่อีกครั้ง'
+    };
+
+  }
+
+}
+
+function formatThaiPortalDateTime(
+  value
+){
+
+  if(!value){
+    return '';
+  }
+
+
+  const date =
+    new Date(value);
+
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+    return '';
+  }
+
+
+  const dateText =
+    new Intl.DateTimeFormat(
+      'th-TH-u-ca-buddhist',
+      {
+        timeZone:
+          'Asia/Bangkok',
+
+        day:
+          'numeric',
+
+        month:
+          'short',
+
+        year:
+          'numeric'
+      }
+    ).format(date);
+
+
+  const timeText =
+    new Intl.DateTimeFormat(
+      'th-TH',
+      {
+        timeZone:
+          'Asia/Bangkok',
+
+        hour:
+          '2-digit',
+
+        minute:
+          '2-digit',
+
+        hour12:
+          false
+      }
+    ).format(date);
+
+
+  return (
+    `${dateText} เวลา ${timeText} น.`
+  );
+
+}
+
+
+function buildStudentPortalBlockedMessage(
+  gateResult
+){
+
+  const activeClasses =
+    Array.isArray(
+      gateResult?.active_classes
+    )
+      ? gateResult.active_classes
+      : [];
+
+
+  const classText =
+    activeClasses.length
+      ? activeClasses
+          .map(
+            value =>
+              `ม.${value}`
+          )
+          .join(', ')
+      : 'ระดับชั้นอื่น';
+
+
+  const nextAllowedText =
+    formatThaiPortalDateTime(
+      gateResult?.next_allowed_at
+    );
+
+
+  if(nextAllowedText){
+
+    return (
+      `ขณะนี้ StudentPR อยู่ในช่วงประกาศผลสำหรับ ${classText} ` +
+      `คุณจะสามารถเข้าใช้งานได้อีกครั้งตั้งแต่ ${nextAllowedText}`
+    );
+
+  }
+
+
+  return (
+    gateResult?.message ||
+    'ขณะนี้ยังไม่สามารถเข้าใช้งาน StudentPR ได้'
+  );
+
+}
+
+function clearStudentPortalGateTimer(){
+
+  if(studentPortalGateTimer){
+
+    clearTimeout(
+      studentPortalGateTimer
+    );
+
+    studentPortalGateTimer =
+      null;
+
+  }
+
+}
+
+
+function scheduleStudentPortalGateCheck(
+  gateResult
+){
+
+  clearStudentPortalGateTimer();
+
+
+  studentPortalGateNextChangeAt =
+    gateResult?.next_change_at ||
+    null;
+
+
+  if(
+    !studentPortalGateNextChangeAt
+  ){
+
+    console.log(
+      'PORTAL GATE TIMER = ไม่มี schedule ถัดไป'
+    );
+
+    return;
+
+  }
+
+
+  const targetTime =
+    new Date(
+      studentPortalGateNextChangeAt
+    ).getTime();
+
+
+  if(
+    !Number.isFinite(targetTime)
+  ){
+
+    console.warn(
+      'PORTAL GATE TIMER = next_change_at ไม่ถูกต้อง',
+      studentPortalGateNextChangeAt
+    );
+
+    return;
+
+  }
+
+
+  const now =
+    Date.now();
+
+
+  /*
+   * บวกเผื่อ 1.5 วินาที
+   * เพื่อให้ DB now() ผ่านจุดเปลี่ยนจริงแล้ว
+   */
+  const delay =
+    Math.max(
+      0,
+      targetTime -
+      now +
+      1500
+    );
+
+
+  /*
+   * setTimeout ของ Browser มีข้อจำกัด
+   * ถ้าเหตุการณ์ไกลกว่านั้น
+   * ให้ตั้ง Timer ใหม่ในเครื่อง
+   * โดยยังไม่เรียก Supabase
+   */
+  const MAX_TIMER_DELAY =
+    24 * 60 * 60 * 1000;
+
+
+  const safeDelay =
+    Math.min(
+      delay,
+      MAX_TIMER_DELAY
+    );
+
+
+  console.log(
+    'PORTAL GATE TIMER =',
+    {
+      next_change_at:
+        studentPortalGateNextChangeAt,
+
+      delay_minutes:
+        Math.round(
+          delay / 60000
+        ),
+
+      local_recheck_only:
+        delay > MAX_TIMER_DELAY
+    }
+  );
+
+
+  studentPortalGateTimer =
+    window.setTimeout(
+
+      async () => {
+
+        studentPortalGateTimer =
+          null;
+
+
+        /*
+         * ยังไม่ถึงเวลาจริง
+         * แปลว่า next_change_at ยังไกล
+         *
+         * ตั้ง Timer ต่อในเครื่อง
+         * ไม่เรียก Supabase
+         */
+        if(
+          Date.now() <
+          targetTime
+        ){
+
+          scheduleStudentPortalGateCheck({
+            next_change_at:
+              studentPortalGateNextChangeAt
+          });
+
+          return;
+        }
+
+
+        await runStudentPortalGateCheck(
+          'scheduled_change'
+        );
+
+      },
+
+      safeDelay
+
+    );
+
+}
+
+async function runStudentPortalGateCheck(
+  source = 'manual'
+){
+
+  const token =
+    String(
+      APP_STATE.studentSessionToken ||
+      ''
+    ).trim();
+
+
+  if(!token){
+
+    clearStudentPortalGateTimer();
+
+    return null;
+
+  }
+
+
+  if(studentPortalGateChecking){
+    return null;
+  }
+
+
+  studentPortalGateChecking =
+    true;
+
+
+  try{
+
+    const gateResult =
+      await checkStudentPortalAccess();
+
+
+    console.log(
+      'ZERO POLL ACCESS GATE =',
+      source,
+      gateResult
+    );
+
+
+    /*
+     * Session หมดอายุ
+     */
+    if(
+      gateResult.ok !== true
+      &&
+      (
+        gateResult.reason ===
+          'invalid_session'
+        ||
+        gateResult.reason ===
+          'missing_token'
+      )
+    ){
+
+      clearStudentPortalGateTimer();
+
+
+      await handleLogout();
+
+
+      setLoginStatus(
+        gateResult.message ||
+        'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่',
+        true
+      );
+
+
+      return gateResult;
+    }
+
+
+    /*
+     * Gate ตรวจไม่ได้
+     *
+     * Fail Closed
+     * แต่ยังไม่ลบ Session
+     */
+    if(
+      gateResult.ok !== true
+    ){
+
+      setPortalVisible(
+        false
+      );
+
+
+      setLoginStatus(
+        gateResult.message ||
+        'ไม่สามารถตรวจสอบสิทธิ์เข้า StudentPR ได้',
+        true
+      );
+
+
+      return gateResult;
+    }
+
+
+    /*
+     * ตั้ง Timer ครั้งถัดไป
+     * จากคำตอบของ Database
+     */
+    scheduleStudentPortalGateCheck(
+      gateResult
+    );
+
+
+    /*
+     * ถูก Block
+     */
+    if(
+      gateResult.allowed !== true
+    ){
+
+      saveSession();
+
+
+      setPortalVisible(
+        false
+      );
+
+
+      setLoginStatus(
+        buildStudentPortalBlockedMessage(
+          gateResult
+        ),
+        true
+      );
+
+
+      return gateResult;
+    }
+
+
+    /*
+     * ยังเข้าได้ตามปกติ
+     */
+    const portalHidden =
+      $('portalSection')
+        ?.classList.contains(
+          'hidden'
+        );
+
+
+    const shouldReloadPortalData =
+
+      portalHidden
+
+      ||
+
+      source ===
+        'scheduled_change'
+
+      ||
+
+      source ===
+        'visibility';
+
+
+    if(portalHidden){
+
+      setPortalVisible(
+        true
+      );
+
+
+      setActiveMenu(
+        'home'
+      );
+
+
+      updatePortalIdentity();
+
+    }
+
+
+    /*
+     * ถึงจุดเปลี่ยนเวลาแล้ว
+     *
+     * โหลดข้อมูลสิทธิ์ใหม่
+     */
+    if(shouldReloadPortalData){
+
+      try{
+
+        await loadPortalData(
+          false
+        );
+
+      }catch(error){
+
+        console.warn(
+          'PORTAL REFRESH AFTER GATE =',
+          error
+        );
+
+      }
+
+    }
+
+
+    return gateResult;
+
+
+  }finally{
+
+    studentPortalGateChecking =
+      false;
+
+  }
+
+}
+
+function initStudentPortalGateVisibilityCheck(){
+
+  /*
+   * ป้องกัน bind event ซ้ำ
+   */
+  if(
+    studentPortalGateVisibilityBound
+  ){
+    return;
+  }
+
+
+  studentPortalGateVisibilityBound =
+    true;
+
+
+  document.addEventListener(
+    'visibilitychange',
+    () => {
+
+      /*
+       * สนใจเฉพาะตอนกลับเข้าแอป
+       */
+      if(
+        document.visibilityState !==
+        'visible'
+      ){
+        return;
+      }
+
+
+      const token =
+        String(
+          APP_STATE.studentSessionToken ||
+          ''
+        ).trim();
+
+
+      /*
+       * ยังไม่ได้ Login
+       */
+      if(!token){
+        return;
+      }
+
+
+      /*
+       * ถ้า Database เคยบอกเวลาที่
+       * Traffic จะเปลี่ยนไว้
+       *
+       * และยังไม่ถึงเวลานั้น
+       * ไม่ต้องเรียก Supabase
+       */
+      if(
+        studentPortalGateNextChangeAt
+      ){
+
+        const target =
+          new Date(
+            studentPortalGateNextChangeAt
+          ).getTime();
+
+
+        if(
+          Number.isFinite(target)
+          &&
+          Date.now() <
+            target
+        ){
+
+          return;
+
+        }
+
+      }
+
+
+      /*
+       * ไม่มี next_change_at
+       * หรือเวลานั้นผ่านไปแล้ว
+       *
+       * ค่อยตรวจ Database 1 ครั้ง
+       */
+      runStudentPortalGateCheck(
+        'visibility'
+      );
+
+    }
+  );
+
 }
 
 function setActiveMenu(pageKey){
@@ -8737,6 +9422,167 @@ async function refreshStudentReportCacheIfPossible(){
   return true;
 }
 
+function purgeUnavailableGradeBrowserCache(
+  studentCode,
+  availableTerms
+){
+
+  const terms =
+    Array.isArray(availableTerms)
+      ? availableTerms
+      : [];
+
+
+  const allowedTermKeys =
+    new Set(
+      terms
+        .map(item => item?.key)
+        .filter(Boolean)
+    );
+
+
+  /*
+   * sessionStorage key ใช้รูปแบบ
+   * ..._studentCode_2568_2
+   */
+  const allowedPeriodKeys =
+    new Set(
+      terms.map(item => {
+
+        const year =
+          safeNumber(
+            item?.academicYear,
+            0
+          );
+
+        const term =
+          safeNumber(
+            item?.term,
+            0
+          );
+
+        return `${year}_${term}`;
+
+      })
+    );
+
+
+  const reportPrefix =
+    `${STUDENT_CACHE_VERSION}_student_term_report_${studentCode}_`;
+
+
+  try{
+
+    /*
+     * Available Terms เดิม
+     * ห้ามใช้เป็น authority อีกแล้ว
+     */
+    sessionStorage.removeItem(
+      `${STUDENT_CACHE_VERSION}_student_available_terms_${studentCode}`
+    );
+
+
+    /*
+     * ลบ Term Report ที่ Server
+     * ไม่คืนมาใน availableTerms แล้ว
+     */
+    Object.keys(
+      sessionStorage
+    ).forEach(key => {
+
+      if(
+        !key.startsWith(
+          reportPrefix
+        )
+      ){
+        return;
+      }
+
+
+      const periodKey =
+        key.slice(
+          reportPrefix.length
+        );
+
+
+      if(
+        !allowedPeriodKeys.has(
+          periodKey
+        )
+      ){
+
+        sessionStorage.removeItem(
+          key
+        );
+
+      }
+
+    });
+
+  }catch(error){
+
+    console.warn(
+      'PURGE GRADE BROWSER CACHE ERROR =',
+      error
+    );
+
+  }
+
+
+  /*
+   * ล้าง RAM cache เฉพาะเทอม
+   * ที่ไม่อนุญาตแล้ว
+   */
+  Object.keys(
+    APP_STATE.termRowsCache || {}
+  ).forEach(key => {
+
+    if(
+      !allowedTermKeys.has(
+        key
+      )
+    ){
+
+      delete APP_STATE
+        .termRowsCache[key];
+
+    }
+
+  });
+
+
+  /*
+   * Overview อาจมีข้อมูลของเทอม
+   * ที่เพิ่งถูกปิดอยู่
+   *
+   * ให้สร้างใหม่จาก allowed terms
+   */
+  APP_STATE.allGradeRows = [];
+  APP_STATE.latestGradeRows = [];
+
+
+  /*
+   * ถ้า selected term เดิมถูกปิด
+   * ห้ามค้างอยู่
+   */
+  if(
+    APP_STATE.selectedYearTerm
+    &&
+    !allowedTermKeys.has(
+      APP_STATE.selectedYearTerm
+    )
+  ){
+
+    APP_STATE.selectedYearTerm =
+      null;
+
+    APP_STATE.latestYearTerm =
+      null;
+
+  }
+
+}
+
 async function fetchStudentAvailableTerms(
   forceRefresh = false
 ){
@@ -8744,81 +9590,74 @@ async function fetchStudentAvailableTerms(
   const studentCode =
     getStudentSidForRpc();
 
+
   if(!studentCode){
     return [];
   }
 
 
-  const cacheKey =
-    `${STUDENT_CACHE_VERSION}_student_available_terms_${studentCode}`;
+  const token =
+    String(
+      APP_STATE.studentSessionToken ||
+      ''
+    ).trim();
 
 
-  /*
-   * ใช้ Browser cache ก่อน
-   */
-  if(!forceRefresh){
+  if(!token){
 
-    const cached =
-      getSessionCache(cacheKey);
-
-    if(
-      Array.isArray(cached) &&
-      cached.length > 0
-    ){
-      return cached
-        .map(normalizeAvailableTerm)
-        .filter(item => item.key)
-        .sort(compareClassTermDesc);
-    }
+    throw new Error(
+      'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่'
+    );
 
   }
 
 
   /*
    * =====================================================
-   * อ่าน Available Terms ผ่าน Student Session
+   * สำคัญ:
+   *
+   * Available Terms เป็นข้อมูลสิทธิ์
+   * จึงต้องถาม Secure RPC ทุกครั้ง
+   *
+   * ห้ามใช้ Browser cache
+   * เป็นตัวตัดสินสิทธิ์
    * =====================================================
    */
 
-  const loadTerms = async () => {
+  const loadTerms =
+    async () => {
 
-    const token =
-      String(
-        APP_STATE.studentSessionToken || ''
-      ).trim();
-
-
-    if(!token){
-      throw new Error(
-        'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่'
-      );
-    }
+      const { data, error } =
+        await supabaseClient.rpc(
+          'rpc_student_available_terms_session',
+          {
+            p_token:
+              token
+          }
+        );
 
 
-    const { data, error } =
-      await supabaseClient.rpc(
-        'rpc_student_available_terms_session',
-        {
-          p_token: token
-        }
-      );
+      if(error){
+        throw error;
+      }
 
 
-    if(error){
-      throw error;
-    }
+      return (
+        Array.isArray(data)
+          ? data
+          : []
+      )
+        .map(
+          normalizeAvailableTerm
+        )
+        .filter(
+          item => item.key
+        )
+        .sort(
+          compareClassTermDesc
+        );
 
-
-    return (
-      Array.isArray(data)
-        ? data
-        : []
-    )
-      .map(normalizeAvailableTerm)
-      .filter(item => item.key)
-      .sort(compareClassTermDesc);
-
-  };
+    };
 
 
   let terms =
@@ -8826,10 +9665,19 @@ async function fetchStudentAvailableTerms(
 
 
   /*
-   * ถ้ายังไม่มี Cache ใน DB
-   * ให้ refresh เฉพาะนักเรียนเจ้าของ Session
+   * ถ้าผู้ใช้กด Refresh เอง
+   * และ DB grade cache ยังไม่มีจริง
+   * จึงค่อยลองสร้าง cache
+   *
+   * ไม่ทำอัตโนมัติทุก Login
+   * เพราะ terms=[] อาจหมายถึง
+   * ผลทั้งหมดกำลังถูกปิดอยู่
    */
-  if(!terms.length){
+  if(
+    forceRefresh === true
+    &&
+    !terms.length
+  ){
 
     const refreshed =
       await refreshStudentReportCacheIfPossible();
@@ -8845,13 +9693,18 @@ async function fetchStudentAvailableTerms(
   }
 
 
-  setSessionCache(
-    cacheKey,
+  /*
+   * Server เป็น authority แล้ว
+   * ใช้รายการนี้กำจัด cache เก่า
+   */
+  purgeUnavailableGradeBrowserCache(
+    studentCode,
     terms
   );
 
 
   return terms;
+
 }
 
     function normalizeReportJsonItems(reportJson){
@@ -8921,23 +9774,145 @@ async function fetchStudentAvailableTerms(
       };
     }
 
-    async function fetchStudentTermRows(termInfo, forceRefresh = false){
-      if(!termInfo?.key) return [];
+async function fetchStudentTermRows(
+  termInfo,
+  forceRefresh = false
+){
 
-      if(!forceRefresh && Array.isArray(APP_STATE.termRowsCache[termInfo.key])){
-        return APP_STATE.termRowsCache[termInfo.key];
-      }
+  if(!termInfo?.key){
+    return [];
+  }
 
-      const studentCode = getStudentSidForRpc();
-      const cacheKey = `${STUDENT_CACHE_VERSION}_student_term_report_${studentCode}_${termInfo.academicYear}_${termInfo.term}`;
 
-      if(!forceRefresh){
-        const cached = getSessionCache(cacheKey);
-        if(Array.isArray(cached)){
-          APP_STATE.termRowsCache[termInfo.key] = cached;
-          return cached;
-        }
-      }
+  const studentCode =
+    getStudentSidForRpc();
+
+
+  if(!studentCode){
+    return [];
+  }
+
+
+  const cacheKey =
+    `${STUDENT_CACHE_VERSION}_student_term_report_${studentCode}_${termInfo.academicYear}_${termInfo.term}`;
+
+
+  /*
+   * =====================================================
+   * ก่อนอ่าน RAM / Browser cache
+   *
+   * term นี้ต้องอยู่ใน availableTerms
+   * ที่เพิ่งได้รับจาก Secure RPC ก่อน
+   * =====================================================
+   */
+
+  const termIsAllowed =
+    Array.isArray(
+      APP_STATE.availableTerms
+    )
+    &&
+    APP_STATE.availableTerms.some(
+      item =>
+        item?.key ===
+        termInfo.key
+    );
+
+
+  if(!termIsAllowed){
+
+    /*
+     * ลบ RAM cache
+     */
+    delete APP_STATE
+      .termRowsCache[
+        termInfo.key
+      ];
+
+
+    /*
+     * ลบ Browser cache
+     */
+    try{
+
+      sessionStorage.removeItem(
+        cacheKey
+      );
+
+    }catch(error){
+
+      console.warn(
+        'REMOVE BLOCKED TERM CACHE ERROR =',
+        error
+      );
+
+    }
+
+
+    console.warn(
+      'BLOCKED TERM CACHE SKIPPED =',
+      termInfo.key
+    );
+
+
+    return [];
+
+  }
+
+
+  /*
+   * หลังผ่าน allow-list แล้ว
+   * จึงใช้ RAM cache ได้
+   */
+  if(
+    !forceRefresh
+    &&
+    Array.isArray(
+      APP_STATE
+        .termRowsCache[
+          termInfo.key
+        ]
+    )
+  ){
+
+    return APP_STATE
+      .termRowsCache[
+        termInfo.key
+      ];
+
+  }
+
+
+  /*
+   * หลังผ่าน allow-list แล้ว
+   * จึงใช้ sessionStorage ได้
+   */
+  if(!forceRefresh){
+
+    const cached =
+      getSessionCache(
+        cacheKey
+      );
+
+
+    if(
+      Array.isArray(
+        cached
+      )
+    ){
+
+      APP_STATE
+        .termRowsCache[
+          termInfo.key
+        ] =
+          cached;
+
+
+      return cached;
+
+    }
+
+  }
+
 
 const token =
   String(
@@ -11943,9 +12918,31 @@ renderStudentRiskPage();
 renderStudentRiskSidebarBadge();
 }
 
-        const options = buildClassTermOptions(APP_STATE.availableTerms);
-        APP_STATE.selectedYearTerm = APP_STATE.selectedYearTerm || options[0]?.key || null;
-        APP_STATE.latestYearTerm = APP_STATE.selectedYearTerm;
+const options =
+  buildClassTermOptions(
+    APP_STATE.availableTerms
+  );
+
+
+const selectedStillAllowed =
+  options.some(
+    item =>
+      item.key ===
+      APP_STATE.selectedYearTerm
+  );
+
+
+APP_STATE.selectedYearTerm =
+  selectedStillAllowed
+    ? APP_STATE.selectedYearTerm
+    : (
+        options[0]?.key ||
+        null
+      );
+
+
+APP_STATE.latestYearTerm =
+  APP_STATE.selectedYearTerm;
 
         renderTermSelector(APP_STATE.availableTerms);
         renderSidebarTermButtons(APP_STATE.availableTerms);
@@ -13714,11 +14711,145 @@ APP_STATE.riskFilters = {
   keyword:''
 };
 
-        setPortalVisible(true);
-        setActiveMenu('home');
-        setLoginStatus('', false);
 
-        await loadPortalData(false);
+/*
+ * =====================================================
+ * ตรวจ Portal Gate ก่อนเปิดหน้า StudentPR
+ * =====================================================
+ */
+
+setLoginStatus(
+  'กำลังตรวจสอบสิทธิ์เข้า StudentPR...',
+  false
+);
+
+
+const gateResult =
+  await checkStudentPortalAccess();
+
+
+console.log(
+  'LOGIN ACCESS GATE =',
+  gateResult
+);
+
+
+/*
+ * Session ไม่ valid
+ */
+if(
+  gateResult.ok !== true
+  &&
+  (
+    gateResult.reason ===
+      'invalid_session'
+    ||
+    gateResult.reason ===
+      'missing_token'
+  )
+){
+
+  clearSession();
+
+  APP_STATE.currentUser =
+    null;
+
+  APP_STATE.studentProfile =
+    null;
+
+  throw new Error(
+    gateResult.message ||
+    'Session หมดอายุหรือไม่ถูกต้อง'
+  );
+
+}
+
+
+/*
+ * Gate ตรวจไม่ได้
+ *
+ * ปิดแบบ Fail Closed
+ * แต่ยังไม่ลบ Session ที่ valid
+ */
+if(
+  gateResult.ok !== true
+){
+
+  setPortalVisible(
+    false
+  );
+
+  setLoginStatus(
+    gateResult.message ||
+    'ไม่สามารถตรวจสอบสิทธิ์เข้า StudentPR ได้',
+    true
+  );
+
+  return;
+
+}
+
+
+/*
+ * ตั้ง Timer ตาม next_change_at
+ */
+scheduleStudentPortalGateCheck(
+  gateResult
+);
+
+
+/*
+ * อยู่ในช่วงประกาศผลของระดับชั้นอื่น
+ */
+if(
+  gateResult.allowed !== true
+){
+
+  /*
+   * Session ยัง valid
+   * จึงเก็บ opaque token ไว้
+   */
+  saveSession();
+
+
+  setPortalVisible(
+    false
+  );
+
+
+  setLoginStatus(
+    buildStudentPortalBlockedMessage(
+      gateResult
+    ),
+    true
+  );
+
+
+  return;
+
+}
+
+
+/*
+ * ผ่าน Portal Gate
+ */
+setPortalVisible(
+  true
+);
+
+setActiveMenu(
+  'home'
+);
+
+setLoginStatus(
+  '',
+  false
+);
+
+
+await loadPortalData(
+  false
+);
 
 /*
  * บันทึกเฉพาะ opaque token
@@ -13759,6 +14890,15 @@ saveSession();
 }
     }
 async function handleLogout(){
+
+  /*
+   * หยุด Portal Gate Timer
+   * ป้องกัน Timer เก่าทำงานหลัง Logout
+   */
+  clearStudentPortalGateTimer();
+
+  studentPortalGateNextChangeAt =
+    null;
 
   /*
    * =====================================================
@@ -14789,11 +15929,22 @@ function initLoginEvents(){
   setStudentLoginBusy(false);
 }
 
-    async function bootstrap(){
-      initLoginEvents();
-      initMenuEvents();
+async function bootstrap(){
 
-      renderGradeTable([]);
+  initLoginEvents();
+  initMenuEvents();
+
+  /*
+   * ต้อง bind ก่อน restoreSession()
+   *
+   * เพื่อให้กรณีไม่มี Session ตอนเปิดหน้า
+   * แล้วค่อย Login ภายหลัง
+   * visibilitychange ก็ยังทำงาน
+   */
+  initStudentPortalGateVisibilityCheck();
+
+
+  renderGradeTable([]);
       renderSummary([]);
       renderRemedialStatus();
 
@@ -14804,12 +15955,151 @@ function initLoginEvents(){
         return;
       }
 
-      try{
-        setPortalVisible(true);
-        setActiveMenu('home');
-        updatePortalIdentity();
-        await loadPortalData();
-      }catch(error){
+try{
+
+  /*
+   * =====================================================
+   * ตรวจ Gate ก่อน Restore Portal
+   * =====================================================
+   */
+
+  const gateResult =
+    await checkStudentPortalAccess();
+
+
+  console.log(
+    'RESTORE ACCESS GATE =',
+    gateResult
+  );
+
+
+  /*
+   * Session หมดอายุ / ไม่ถูกต้อง
+   */
+  if(
+    gateResult.ok !== true
+    &&
+    (
+      gateResult.reason ===
+        'invalid_session'
+      ||
+      gateResult.reason ===
+        'missing_token'
+    )
+  ){
+
+    clearSession();
+
+    APP_STATE.currentUser =
+      null;
+
+    APP_STATE.studentProfile =
+      null;
+
+
+    setPortalVisible(
+      false
+    );
+
+
+    setLoginStatus(
+      gateResult.message ||
+      'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่',
+      true
+    );
+
+
+    return;
+
+  }
+
+
+  /*
+   * Gate ตรวจไม่ได้
+   *
+   * Fail Closed
+   * แต่ไม่ทำลาย Session ที่ยัง valid
+   */
+  if(
+    gateResult.ok !== true
+  ){
+
+    setPortalVisible(
+      false
+    );
+
+
+    setLoginStatus(
+      gateResult.message ||
+      'ไม่สามารถตรวจสอบสิทธิ์เข้า StudentPR ได้',
+      true
+    );
+
+
+    return;
+
+  }
+
+
+  /*
+   * สำคัญสำหรับ Zero Polling
+   *
+   * ต้องตั้ง Timer ก่อนตรวจ allowed
+   * เพราะแม้นักเรียนถูก Block
+   * ก็ต้องรู้ว่าเมื่อไรจะตรวจใหม่
+   */
+  scheduleStudentPortalGateCheck(
+    gateResult
+  );
+
+
+  /*
+   * ขณะนี้เป็นช่วงประกาศผล
+   * ของระดับชั้นอื่น
+   */
+  if(
+    gateResult.allowed !== true
+  ){
+
+    setPortalVisible(
+      false
+    );
+
+
+    setLoginStatus(
+      buildStudentPortalBlockedMessage(
+        gateResult
+      ),
+      true
+    );
+
+
+    return;
+
+  }
+
+
+  /*
+   * ผ่าน Gate
+   */
+  setPortalVisible(
+    true
+  );
+
+
+  setActiveMenu(
+    'home'
+  );
+
+
+  updatePortalIdentity();
+
+
+  await loadPortalData(
+    false
+  );
+
+}catch(error){
         console.error('BOOTSTRAP ERROR RAW =', error);
         console.error('BOOTSTRAP ERROR MESSAGE =', error?.message);
         console.error('BOOTSTRAP ERROR DETAILS =', error?.details);
