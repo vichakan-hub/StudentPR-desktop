@@ -3303,6 +3303,39 @@ body.portal-mode .app{
   box-shadow:0 10px 22px rgba(15,23,42,.12);
 }
 
+/* StudentPR Desktop : Registration Button */
+
+.home-welcome-actions{
+  display:flex;
+  flex-direction:column;
+  flex:0 0 auto;
+  gap:10px;
+  min-width:200px;
+}
+
+.home-welcome-actions .btn{
+  width:100%;
+  min-height:46px;
+  text-align:center;
+}
+
+.home-welcome-actions .home-register-btn{
+  color:#ffffff;
+  background:#16a34a;
+  box-shadow:0 10px 22px rgba(22,163,74,.20);
+}
+
+.home-welcome-actions .home-register-btn:hover{
+  background:#15803d;
+}
+
+@media (max-width:720px){
+  .home-welcome-actions{
+    width:100%;
+    min-width:0;
+  }
+}
+
 .home-kpi-grid{
   display:grid;
   grid-template-columns:repeat(4, minmax(0, 1fr));
@@ -6205,13 +6238,26 @@ body.portal-mode .app{
 
       </div>
 
-      <button
-        id="homeOpenGradeBtn"
-        class="btn home-primary-btn"
-        type="button"
-      >
-        📘 ดูผลการเรียน
-      </button>
+<div class="home-welcome-actions">
+
+  <button
+    id="homeOpenGradeBtn"
+    class="btn home-primary-btn"
+    type="button"
+  >
+    📘 ดูผลการเรียน
+  </button>
+
+  <a
+    class="btn home-register-btn"
+    href="https://script.google.com/macros/s/AKfycbwJ57ezCWnE8hs0o3JkTB8Jb7l7NpZ9nn-zTRTAtcVHb8y49-vN_2Zse9TH7HyJVXF8Cg/exec"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    📝 ลงทะเบียนรายวิชา
+  </a>
+
+</div>
 
     </div>
 
